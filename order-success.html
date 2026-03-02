@@ -338,6 +338,50 @@
                 </p>
             </div>
 
+            <!-- Live Order Progress -->
+            <div style="margin-bottom: 2rem; background: var(--card-bg); border-radius: 1rem; padding: 2rem; border: 1px solid var(--border-color); box-shadow: 0 4px 20px rgba(0,0,0,0.08);">
+                <h3 style="text-align: center; margin-bottom: 1.5rem; color: var(--text-primary); font-size: 1.2rem;">
+                    <i class="fas fa-route" style="color: var(--primary); margin-right: 0.5rem;"></i> Order Progress
+                </h3>
+                <div style="display: flex; justify-content: space-between; position: relative; padding: 0 1rem;" id="orderProgressTimeline">
+                    <!-- Progress Line Background -->
+                    <div style="position: absolute; top: 25px; left: 15%; right: 15%; height: 4px; background: var(--border-color); border-radius: 2px; z-index: 0;">
+                        <div id="progressFill" style="width: 33%; height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 2px; transition: width 1.5s ease-in-out;"></div>
+                    </div>
+                    <!-- Step 1: Confirmed -->
+                    <div style="text-align: center; z-index: 1; flex: 1;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #22c55e, #16a34a); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; color: white; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(34,197,94,0.4); animation: scaleIn 0.5s ease 0.3s both;">
+                            <i class="fas fa-check"></i>
+                        </div>
+                        <span style="font-weight: 600; font-size: 0.85rem; color: #22c55e;">Confirmed</span>
+                    </div>
+                    <!-- Step 2: Preparing -->
+                    <div style="text-align: center; z-index: 1; flex: 1;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; color: white; font-size: 1.2rem; box-shadow: 0 4px 15px rgba(245,158,11,0.4); animation: scaleIn 0.5s ease 0.6s both;">
+                            <i class="fas fa-fire-burner"></i>
+                        </div>
+                        <span style="font-weight: 600; font-size: 0.85rem; color: #f59e0b;">Preparing</span>
+                    </div>
+                    <!-- Step 3: On the Way -->
+                    <div style="text-align: center; z-index: 1; flex: 1;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; color: var(--text-secondary); font-size: 1.2rem; border: 2px dashed var(--border-color); animation: scaleIn 0.5s ease 0.9s both;">
+                            <i class="fas fa-motorcycle"></i>
+                        </div>
+                        <span style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary);">On the Way</span>
+                    </div>
+                    <!-- Step 4: Delivered -->
+                    <div style="text-align: center; z-index: 1; flex: 1;">
+                        <div style="width: 50px; height: 50px; border-radius: 50%; background: var(--bg-secondary); display: flex; align-items: center; justify-content: center; margin: 0 auto 0.75rem; color: var(--text-secondary); font-size: 1.2rem; border: 2px dashed var(--border-color); animation: scaleIn 0.5s ease 1.2s both;">
+                            <i class="fas fa-house-user"></i>
+                        </div>
+                        <span style="font-weight: 600; font-size: 0.85rem; color: var(--text-secondary);">Delivered</span>
+                    </div>
+                </div>
+                <p style="text-align: center; margin-top: 1.25rem; font-size: 0.9rem; color: var(--text-secondary);">
+                    <i class="fas fa-clock" style="margin-right: 0.25rem;"></i> Estimated: <strong id="etaTime">30-45 mins</strong>
+                </p>
+            </div>
+
             <div class="success-container">
                 <!-- Success Header -->
                 <div class="success-header">

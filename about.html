@@ -207,11 +207,11 @@
     <section class="section">
         <div class="container">
             <div class="about-story">
-                <div class="about-story-image">
-                    <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=400&fit=crop" alt="SWIFT CHOW Kitchen">
+                <div class="about-story-image img-zoom reveal-left">
+                    <img src="https://images.unsplash.com/photo-1555939594-58d7cb561ad1?w=600&h=400&fit=crop" alt="SWIFT CHOW Kitchen" loading="lazy">
                 </div>
-                <div class="about-story-content">
-                    <h2>Our Story</h2>
+                <div class="about-story-content reveal-right">
+                    <h2 class="gradient-text">Our Story</h2>
                     <p>SWIFT CHOW was born in 2020 in the heart of Accra, Ghana, from a simple dream: to bring world-class fast food to Ghanaians at affordable prices, without compromising on quality or taste.</p>
                     <p>What started as a small kitchen in Osu has grown into a beloved brand serving thousands of customers across Ghana. Our founder, inspired by both international flavors and local Ghanaian tastes, created a menu that speaks to everyone.</p>
                     <p>Today, SWIFT CHOW continues to grow, but our commitment remains the same: fresh ingredients, fast service, and food that brings people together.</p>
@@ -300,6 +300,87 @@
         </div>
     </section>
     
+    <!-- Our Journey Timeline -->
+    <section class="section" style="background: var(--bg-secondary);">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 class="section-title">Our Journey</h2>
+                <p class="section-subtitle">Key milestones in our story</p>
+            </div>
+            <div style="max-width:700px;margin:0 auto;position:relative;padding-left:40px;">
+                <div style="position:absolute;left:18px;top:0;bottom:0;width:3px;background:linear-gradient(180deg,var(--primary),#F97316,#FBBF24);border-radius:2px;"></div>
+                <div class="reveal" style="position:relative;margin-bottom:2.5rem;">
+                    <div style="position:absolute;left:-31px;top:4px;width:24px;height:24px;background:var(--primary);border-radius:50%;border:4px solid var(--bg-secondary);z-index:1;"></div>
+                    <div class="glass-card" style="padding:1.5rem;border-radius:var(--radius-xl);">
+                        <span class="tag" style="margin-bottom:0.5rem;">2020</span>
+                        <h4 style="margin:0.5rem 0 0.25rem;color:var(--text-primary);font-weight:700;">The Beginning</h4>
+                        <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.7;">SWIFT CHOW opens its first kitchen in Osu, Accra, serving just 5 menu items with a dream to feed Ghana.</p>
+                    </div>
+                </div>
+                <div class="reveal reveal-delay-1" style="position:relative;margin-bottom:2.5rem;">
+                    <div style="position:absolute;left:-31px;top:4px;width:24px;height:24px;background:#F97316;border-radius:50%;border:4px solid var(--bg-secondary);z-index:1;"></div>
+                    <div class="glass-card" style="padding:1.5rem;border-radius:var(--radius-xl);">
+                        <span class="tag tag-warning" style="margin-bottom:0.5rem;">2022</span>
+                        <h4 style="margin:0.5rem 0 0.25rem;color:var(--text-primary);font-weight:700;">10,000 Orders</h4>
+                        <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.7;">We hit our first major milestone — 10,000 orders delivered. Our menu expanded to 20+ items.</p>
+                    </div>
+                </div>
+                <div class="reveal reveal-delay-2" style="position:relative;margin-bottom:2.5rem;">
+                    <div style="position:absolute;left:-31px;top:4px;width:24px;height:24px;background:#FBBF24;border-radius:50%;border:4px solid var(--bg-secondary);z-index:1;"></div>
+                    <div class="glass-card" style="padding:1.5rem;border-radius:var(--radius-xl);">
+                        <span class="tag tag-success" style="margin-bottom:0.5rem;">2024</span>
+                        <h4 style="margin:0.5rem 0 0.25rem;color:var(--text-primary);font-weight:700;">Going Digital</h4>
+                        <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.7;">Launch of online ordering, mobile app, and delivery tracking. Expanded to 5 cities across Ghana.</p>
+                    </div>
+                </div>
+                <div class="reveal reveal-delay-3" style="position:relative;">
+                    <div style="position:absolute;left:-31px;top:4px;width:24px;height:24px;background:var(--success);border-radius:50%;border:4px solid var(--bg-secondary);z-index:1;"></div>
+                    <div class="glass-card" style="padding:1.5rem;border-radius:var(--radius-xl);">
+                        <span class="tag tag-success" style="margin-bottom:0.5rem;">2026</span>
+                        <h4 style="margin:0.5rem 0 0.25rem;color:var(--text-primary);font-weight:700;">50,000+ Customers</h4>
+                        <p style="color:var(--text-secondary);font-size:0.95rem;line-height:1.7;">Now serving 10 cities, 44+ menu items, and loved by over 50,000 happy customers across Ghana.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Meet the Team -->
+    <section class="section">
+        <div class="container">
+            <div class="section-header reveal">
+                <h2 class="section-title">Meet Our Team</h2>
+                <p class="section-subtitle">The passionate people behind your favorite food</p>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:2rem;" class="stagger-grid">
+                <div class="glass-card card-3d" style="padding:2rem;text-align:center;border-radius:var(--radius-xl);">
+                    <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,var(--primary),#F97316);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;font-weight:800;">EA</div>
+                    <h4 style="font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">Edwin Ayensu</h4>
+                    <p style="color:var(--primary);font-size:0.85rem;font-weight:600;margin-bottom:0.75rem;">Founder & CEO</p>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Visionary leader with a passion for bringing world-class food to Ghana.</p>
+                </div>
+                <div class="glass-card card-3d" style="padding:2rem;text-align:center;border-radius:var(--radius-xl);">
+                    <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#F97316,#FBBF24);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;font-weight:800;">AK</div>
+                    <h4 style="font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">Abena Kyei</h4>
+                    <p style="color:var(--primary);font-size:0.85rem;font-weight:600;margin-bottom:0.75rem;">Head Chef</p>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Award-winning chef crafting innovative recipes that blend global and local flavors.</p>
+                </div>
+                <div class="glass-card card-3d" style="padding:2rem;text-align:center;border-radius:var(--radius-xl);">
+                    <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#10B981,#059669);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;font-weight:800;">KO</div>
+                    <h4 style="font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">Kwame Ofori</h4>
+                    <p style="color:var(--primary);font-size:0.85rem;font-weight:600;margin-bottom:0.75rem;">Operations Manager</p>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Ensures every order is perfect and delivered lightning-fast to your door.</p>
+                </div>
+                <div class="glass-card card-3d" style="padding:2rem;text-align:center;border-radius:var(--radius-xl);">
+                    <div style="width:90px;height:90px;border-radius:50%;background:linear-gradient(135deg,#3B82F6,#8B5CF6);margin:0 auto 1rem;display:flex;align-items:center;justify-content:center;font-size:2rem;color:white;font-weight:800;">EN</div>
+                    <h4 style="font-weight:700;color:var(--text-primary);margin-bottom:0.25rem;">Efua Nana</h4>
+                    <p style="color:var(--primary);font-size:0.85rem;font-weight:600;margin-bottom:0.75rem;">Customer Experience</p>
+                    <p style="color:var(--text-secondary);font-size:0.9rem;line-height:1.6;">Dedicated to making every customer interaction a delightful experience.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
     <!-- CTA Section -->
     <section class="newsletter">
         <div class="container">
