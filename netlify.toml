@@ -4,10 +4,18 @@
 publish = "."
 command = "echo 'No build required for static site'"
 
+# Pretty URLs - redirect .html to clean URLs
+[[redirects]]
+from = "/:splat.html"
+to = "/:splat"
+status = 301
+force = false
+
+# 404 fallback
 [[redirects]]
 from = "/*"
 to = "/index.html"
-status = 200
+status = 404
 
 [dev]
 command = "python -m http.server 8000"

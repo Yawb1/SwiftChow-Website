@@ -68,7 +68,7 @@ async function login(email, password, remember = false) {
       // Save user and token
       currentUser = response.user;
       localStorage.setItem('currentUser', JSON.stringify(response.user));
-      localStorage.setItem('fafoUser', JSON.stringify(response.user));
+      localStorage.setItem('swiftChowUser', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
       
       // Update UI after short delay
@@ -126,7 +126,7 @@ async function register(fullName = '', email = '', phone = '', password = '', co
       // Save user and token
       currentUser = response.user;
       localStorage.setItem('currentUser', JSON.stringify(response.user));
-      localStorage.setItem('fafoUser', JSON.stringify(response.user));
+      localStorage.setItem('swiftChowUser', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
       
       // Send signup confirmation email
@@ -190,7 +190,7 @@ async function logout() {
   
   // Clear all auth data from localStorage
   localStorage.removeItem('authToken');
-  localStorage.removeItem('fafoUser');
+  localStorage.removeItem('swiftChowUser');
   localStorage.removeItem('currentUser');
   
   // Clear local auth state
@@ -273,13 +273,13 @@ async function signup(userData) {
 
 // Check if user is logged in (call this on every page load)
 function checkAuthState() {
-  const storedUser = localStorage.getItem('fafoUser');
+  const storedUser = localStorage.getItem('swiftChowUser');
   if (storedUser) {
     try {
       currentUser = JSON.parse(storedUser);
       return true;
     } catch (e) {
-      localStorage.removeItem('fafoUser');
+      localStorage.removeItem('swiftChowUser');
       currentUser = null;
       return false;
     }
@@ -309,7 +309,7 @@ function requestPasswordReset(email) {
   }
   
   // Check if user exists
-  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
+  const users = JSON.parse(localStorage.getItem('swiftChowUsers')) || [];
   const user = users.find(u => u.email === email);
   
   if (!user) {
@@ -341,14 +341,14 @@ function updateProfile(updates) {
   currentUser = { ...currentUser, ...updates };
   
   // Update in storage
-  localStorage.setItem('fafoUser', JSON.stringify(currentUser));
+  localStorage.setItem('swiftChowUser', JSON.stringify(currentUser));
   
   // Update in "database"
-  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
+  const users = JSON.parse(localStorage.getItem('swiftChowUsers')) || [];
   const userIndex = users.findIndex(u => u.id === currentUser.id);
   if (userIndex > -1) {
     users[userIndex] = { ...users[userIndex], ...updates };
-    localStorage.setItem('fafoUsers', JSON.stringify(users));
+    localStorage.setItem('swiftChowUsers', JSON.stringify(users));
   }
   
   return { success: true, message: 'Profile updated successfully!' };
@@ -369,13 +369,13 @@ function changePassword(currentPassword, newPassword, confirmPassword) {
   }
   
   // Update in "database"
-  const users = JSON.parse(localStorage.getItem('fafoUsers')) || [];
+  const users = JSON.parse(localStorage.getItem('swiftChowUsers')) || [];
   const userIndex = users.findIndex(u => u.id === currentUser.id);
   
   if (userIndex > -1) {
     // In real app, verify current password
     users[userIndex].password = newPassword;
-    localStorage.setItem('fafoUsers', JSON.stringify(users));
+    localStorage.setItem('swiftChowUsers', JSON.stringify(users));
   }
   
   return { success: true, message: 'Password changed successfully!' };
@@ -387,7 +387,7 @@ function changePassword(currentPassword, newPassword, confirmPassword) {
 
 function getSavedAddresses() {
   if (!currentUser) return [];
-  const addresses = JSON.parse(localStorage.getItem(`fafoAddresses_${currentUser.id}`)) || [];
+  const addresses = JSON.parse(localStorage.getItem(`swiftChowAddresses_${currentUser.id}`)) || [];
   return addresses;
 }
 
@@ -404,7 +404,7 @@ function saveAddress(address) {
   };
   
   addresses.push(newAddress);
-  localStorage.setItem(`fafoAddresses_${currentUser.id}`, JSON.stringify(addresses));
+  localStorage.setItem(`swiftChowAddresses_${currentUser.id}`, JSON.stringify(addresses));
   
   return { success: true, message: 'Address saved!', address: newAddress };
 }
@@ -414,7 +414,7 @@ function deleteAddress(addressId) {
   
   let addresses = getSavedAddresses();
   addresses = addresses.filter(a => a.id !== addressId);
-  localStorage.setItem(`fafoAddresses_${currentUser.id}`, JSON.stringify(addresses));
+  localStorage.setItem(`swiftChowAddresses_${currentUser.id}`, JSON.stringify(addresses));
   
   return { success: true, message: 'Address deleted' };
 }
@@ -427,7 +427,7 @@ function setDefaultAddress(addressId) {
     ...a,
     isDefault: a.id === addressId
   }));
-  localStorage.setItem(`fafoAddresses_${currentUser.id}`, JSON.stringify(addresses));
+  localStorage.setItem(`swiftChowAddresses_${currentUser.id}`, JSON.stringify(addresses));
   
   return { success: true, message: 'Default address updated' };
 }
@@ -438,7 +438,7 @@ function setDefaultAddress(addressId) {
 
 function getSavedPaymentMethods() {
   if (!currentUser) return [];
-  const methods = JSON.parse(localStorage.getItem(`fafoPaymentMethods_${currentUser.id}`)) || [];
+  const methods = JSON.parse(localStorage.getItem(`swiftChowPaymentMethods_${currentUser.id}`)) || [];
   return methods;
 }
 
@@ -456,7 +456,7 @@ function savePaymentMethod(paymentDetails) {
   };
   
   methods.push(newMethod);
-  localStorage.setItem(`fafoPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
+  localStorage.setItem(`swiftChowPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
   
   return { success: true, message: 'Payment method saved!', method: newMethod };
 }
@@ -466,7 +466,7 @@ function deletePaymentMethod(methodId) {
   
   let methods = getSavedPaymentMethods();
   methods = methods.filter(m => m.id !== methodId);
-  localStorage.setItem(`fafoPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
+  localStorage.setItem(`swiftChowPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
   
   return { success: true, message: 'Payment method deleted' };
 }
@@ -479,7 +479,7 @@ function setDefaultPaymentMethod(methodId) {
     ...m,
     isDefault: m.id === methodId
   }));
-  localStorage.setItem(`fafoPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
+  localStorage.setItem(`swiftChowPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
   
   return { success: true, message: 'Default payment method updated' };
 }
@@ -491,13 +491,13 @@ function setDefaultPaymentMethod(methodId) {
 function getOrderHistory() {
   if (!currentUser) return [];
   
-  const orders = JSON.parse(localStorage.getItem('fafoOrders')) || [];
+  const orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
   return orders.filter(o => o.customer.email === currentUser.email)
     .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
 }
 
 function getOrderDetails(orderId) {
-  const orders = JSON.parse(localStorage.getItem('fafoOrders')) || [];
+  const orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
   return orders.find(o => o.id === orderId);
 }
 
@@ -708,7 +708,7 @@ function initAuth() {
         try {
           const userData = JSON.parse(decodeURIComponent(userFromUrl));
           currentUser = userData;
-          localStorage.setItem('fafoUser', JSON.stringify(userData));
+          localStorage.setItem('swiftChowUser', JSON.stringify(userData));
         } catch (parseError) {
           console.error('Auth: Error parsing user data from URL:', parseError);
         }
@@ -732,7 +732,7 @@ function initAuth() {
   }
   
   // CRITICAL: Load user from localStorage on every page
-  const savedUser = localStorage.getItem('currentUser') || localStorage.getItem('fafoUser');
+  const savedUser = localStorage.getItem('currentUser') || localStorage.getItem('swiftChowUser');
   const savedToken = localStorage.getItem('authToken');
   
   if (savedUser) {
@@ -741,7 +741,7 @@ function initAuth() {
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
     } catch (e) {
       console.error('Auth: Error parsing user data:', e);
-      localStorage.removeItem('fafoUser');
+      localStorage.removeItem('swiftChowUser');
       localStorage.removeItem('currentUser');
       currentUser = null;
     }

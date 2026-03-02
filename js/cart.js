@@ -591,9 +591,9 @@ async function processOrder(orderData) {
         orderTime: new Date().toISOString()
       };
       
-      const orders = JSON.parse(localStorage.getItem('fafoOrders')) || [];
+      const orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
       orders.push(localOrder);
-      localStorage.setItem('fafoOrders', JSON.stringify(orders));
+      localStorage.setItem('swiftChowOrders', JSON.stringify(orders));
       localStorage.setItem('lastOrder', JSON.stringify(localOrder));
       sessionStorage.setItem('lastOrder', JSON.stringify(localOrder));
       
@@ -639,7 +639,7 @@ function calculateEstimatedDelivery(city) {
 
 // Get order by ID
 function getOrderById(orderId) {
-  const orders = JSON.parse(localStorage.getItem('fafoOrders')) || [];
+  const orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
   return orders.find(order => order.id === orderId);
 }
 
@@ -675,7 +675,7 @@ function applyPromoCode(code) {
     };
   }
   
-  localStorage.setItem('fafoPromoCode', code.toUpperCase());
+  localStorage.setItem('swiftChowPromoCode', code.toUpperCase());
   
   return { 
     success: true, 
@@ -698,12 +698,12 @@ function getPromoDescription(promo) {
 }
 
 function getAppliedPromo() {
-  const code = localStorage.getItem('fafoPromoCode');
+  const code = localStorage.getItem('swiftChowPromoCode');
   return code ? promoCodes[code] : null;
 }
 
 function removePromoCode() {
-  localStorage.removeItem('fafoPromoCode');
+  localStorage.removeItem('swiftChowPromoCode');
 }
 
 // ============================================

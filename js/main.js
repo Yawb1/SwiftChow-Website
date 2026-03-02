@@ -4,11 +4,43 @@
    ============================================ */
 
 // ============================================
+// CLEAN .html FROM URLs (Pretty URLs)
+// ============================================
+(function() {
+  const path = window.location.pathname;
+  if (path.endsWith('.html') && path !== '/index.html') {
+    const cleanPath = path.replace(/\.html$/, '');
+    window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
+  } else if (path === '/index.html') {
+    window.history.replaceState(null, '', '/' + window.location.search + window.location.hash);
+  }
+})();
+
+// ============================================
+// CLEAR CART ON ORDER SUCCESS PAGE
+// ============================================
+(function() {
+  if (document.body && document.body.getAttribute('data-page') === 'order-success') {
+    // Wait for cart.js to load then clear
+    document.addEventListener('DOMContentLoaded', function() {
+      setTimeout(function() {
+        if (typeof cart !== 'undefined') {
+          cart = [];
+          if (typeof saveCart === 'function') saveCart();
+          if (typeof updateCartCount === 'function') updateCartCount();
+          if (typeof updateFloatingCart === 'function') updateFloatingCart();
+        }
+      }, 500);
+    });
+  }
+})();
+
+// ============================================
 // DARK MODE
 // ============================================
 
 function initDarkMode() {
-  const savedTheme = localStorage.getItem('fafoTheme') || 'light';
+  const savedTheme = localStorage.getItem('swiftChowTheme') || 'light';
   document.documentElement.setAttribute('data-theme', savedTheme);
   updateDarkModeIcon(savedTheme);
 }
@@ -18,7 +50,7 @@ function toggleDarkMode() {
   const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
   
   document.documentElement.setAttribute('data-theme', newTheme);
-  localStorage.setItem('fafoTheme', newTheme);
+  localStorage.setItem('swiftChowTheme', newTheme);
   updateDarkModeIcon(newTheme);
   
   // Add transition class
@@ -618,8 +650,8 @@ function renderBlogPostPage() {
     contentDiv.innerHTML = '<p>' + post.excerpt + '</p>' + fullContent;
   }
   
-  // Update related posts
-  const relatedContainer = container.querySelector('.blog-grid');
+  // Update related posts - search from the page container, not article
+  const relatedContainer = document.querySelector('.related-posts .blog-grid');
   if (relatedContainer && typeof getRelatedBlogPosts === 'function') {
     const relatedPosts = getRelatedBlogPosts(postId, 2);
     relatedContainer.innerHTML = relatedPosts.map(relatedPost => {
@@ -961,15 +993,15 @@ function initNewsletterForm() {
       }
       
       // Save to localStorage
-      const subscribers = JSON.parse(localStorage.getItem('fafoNewsletter')) || [];
+      const subscribers = JSON.parse(localStorage.getItem('swiftChowNewsletter')) || [];
       if (!subscribers.includes(email)) {
         subscribers.push(email);
-        localStorage.setItem('fafoNewsletter', JSON.stringify(subscribers));
+        localStorage.setItem('swiftChowNewsletter', JSON.stringify(subscribers));
       }
       
       // Send confirmation email
       try {
-        const user = JSON.parse(localStorage.getItem('fafoUser') || 'null');
+        const user = JSON.parse(localStorage.getItem('swiftChowUser') || 'null');
         const response = await fetch('/api/emails/newsletter-confirmation', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -1014,13 +1046,13 @@ function initContactForm() {
     const data = Object.fromEntries(formData);
     
     // Save to localStorage (simulated)
-    const messages = JSON.parse(localStorage.getItem('fafoMessages')) || [];
+    const messages = JSON.parse(localStorage.getItem('swiftChowMessages')) || [];
     messages.push({
       ...data,
       id: Date.now(),
       createdAt: new Date().toISOString()
     });
-    localStorage.setItem('fafoMessages', JSON.stringify(messages));
+    localStorage.setItem('swiftChowMessages', JSON.stringify(messages));
     
     // Send confirmation email
     try {
@@ -1097,7 +1129,7 @@ function initScrollEffects() {
 // ============================================
 
 function toggleWishlist(productId) {
-  let wishlist = JSON.parse(localStorage.getItem('fafoWishlist')) || [];
+  let wishlist = JSON.parse(localStorage.getItem('swiftChowWishlist')) || [];
   
   if (wishlist.includes(productId)) {
     wishlist = wishlist.filter(id => id !== productId);
@@ -1107,12 +1139,12 @@ function toggleWishlist(productId) {
     showToast('Added to wishlist', 'success');
   }
   
-  localStorage.setItem('fafoWishlist', JSON.stringify(wishlist));
+  localStorage.setItem('swiftChowWishlist', JSON.stringify(wishlist));
   updateWishlistUI();
 }
 
 function updateWishlistUI() {
-  const wishlist = JSON.parse(localStorage.getItem('fafoWishlist')) || [];
+  const wishlist = JSON.parse(localStorage.getItem('swiftChowWishlist')) || [];
   
   document.querySelectorAll('.food-card-wishlist').forEach(btn => {
     const card = btn.closest('.food-card');
@@ -1871,7 +1903,7 @@ function initOrderSuccess() {
 function updateNavAuthUI() {
   // Always read directly from localStorage for most up-to-date state
   let currentUser = null;
-  const storedUser = localStorage.getItem('fafoUser');
+  const storedUser = localStorage.getItem('swiftChowUser');
   
   if (storedUser) {
     try {
@@ -2178,7 +2210,7 @@ function initAccountNavigation() {
 
 function updateAccountUserDisplay() {
   // Get user data from localStorage or auth
-  const user = JSON.parse(localStorage.getItem('fafoUser') || 'null');
+  const user = JSON.parse(localStorage.getItem('swiftChowUser') || 'null');
   
   // Update user name
   const userNameEl = document.getElementById('userDisplayName');
@@ -2205,7 +2237,7 @@ function updateAccountUserDisplay() {
 }
 
 function loadProfileForm() {
-  const user = JSON.parse(localStorage.getItem('fafoUser') || 'null');
+  const user = JSON.parse(localStorage.getItem('swiftChowUser') || 'null');
   if (!user) return;
   
   const profileForm = document.querySelector('.profile-form');
@@ -2228,7 +2260,7 @@ function loadProfileForm() {
 }
 
 function saveProfileChanges(formData) {
-  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
   
   // Update user data
   if (formData.firstName) user.firstName = formData.firstName;
@@ -2240,12 +2272,12 @@ function saveProfileChanges(formData) {
   // Update full name
   user.fullName = (formData.firstName || user.firstName || '') + ' ' + (formData.lastName || user.lastName || '');
   
-  localStorage.setItem('fafoUser', JSON.stringify(user));
+  localStorage.setItem('swiftChowUser', JSON.stringify(user));
   return user;
 }
 
 function loadAddresses() {
-  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
   const addressesContainer = document.getElementById('addressesContainer');
   
   if (!addressesContainer) return;
@@ -2278,17 +2310,17 @@ function loadAddresses() {
 }
 
 function deleteAddress(index) {
-  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
   if (user.addresses) {
     user.addresses.splice(index, 1);
-    localStorage.setItem('fafoUser', JSON.stringify(user));
+    localStorage.setItem('swiftChowUser', JSON.stringify(user));
     loadAddresses();
     showAdvancedToast('Address deleted successfully!', 'success');
   }
 }
 
 function loadPayments() {
-  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
   const paymentsContainer = document.getElementById('paymentsContainer');
   
   if (!paymentsContainer) return;
@@ -2317,10 +2349,10 @@ function loadPayments() {
 }
 
 function deletePayment(index) {
-  const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+  const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
   if (user.paymentMethods) {
     user.paymentMethods.splice(index, 1);
-    localStorage.setItem('fafoUser', JSON.stringify(user));
+    localStorage.setItem('swiftChowUser', JSON.stringify(user));
     loadPayments();
     showAdvancedToast('Payment method deleted successfully!', 'success');
   }
@@ -2338,54 +2370,122 @@ async function loadOrders() {
   const ordersContainer = document.getElementById('ordersContainer');
   if (!ordersContainer) return;
   
-  try {
-    // Check if user is authenticated
-    if (!isAuthenticated()) {
-      ordersContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);">Please log in to view your orders.</p>';
-      return;
-    }
-    
-    // Try to load orders from API
-    if (typeof apiGetOrders === 'function') {
+  let orders = [];
+  
+  // Try API first if authenticated
+  if (isAuthenticated() && typeof apiGetOrders === 'function') {
+    try {
       const response = await apiGetOrders();
-      
       if (response && response.success && response.orders && response.orders.length > 0) {
-        ordersContainer.innerHTML = response.orders.map(order => `
-          <div class="order-card">
-            <div class="order-card-header">
-              <div>
-                <h4>Order #${order.orderId || order.id}</h4>
-                <p class="order-date">${new Date(order.createdAt).toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}</p>
-              </div>
-              <span class="order-status ${(order.status || 'pending').toLowerCase()}">
-                ${order.status || 'Pending'}
-              </span>
-            </div>
-            <div class="order-card-body">
-              <p><strong>Items:</strong> ${order.items && order.items.length > 0 ? order.items.map(i => i.name).join(', ') : 'N/A'}</p>
-              <p><strong>Total:</strong> GHS ${(order.total || 0).toFixed(2)}</p>
-            </div>
-            <div class="order-card-actions">
-              <a href="tracking.html?order=${order.orderId || order.id}" class="btn btn-sm btn-outline">
-                <i class="fas fa-map-marker-alt"></i> Track
-              </a>
-              <button class="btn btn-sm btn-outline">
-                <i class="fas fa-redo"></i> Reorder
-              </button>
-            </div>
-          </div>
-        `).join('');
-      } else {
-        ordersContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No orders yet. Start placing orders to see them here!</p>';
+        orders = response.orders;
       }
-    } else {
-      ordersContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No orders yet. Start placing orders to see them here!</p>';
+    } catch (e) {
+      console.log('API orders fetch failed, falling back to localStorage');
     }
-  } catch (error) {
-    console.error('Error loading orders:', error);
-    ordersContainer.innerHTML = '<p style="text-align: center; padding: 2rem; color: var(--text-secondary);"><i class="fas fa-inbox" style="font-size: 2rem; margin-bottom: 1rem; display: block; opacity: 0.5;"></i>No orders yet. Start placing orders to see them here!</p>';
+  }
+  
+  // Fall back to localStorage
+  if (orders.length === 0) {
+    orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
+  }
+  
+  if (orders.length === 0) {
+    ordersContainer.innerHTML = `
+      <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+        <i class="fas fa-receipt" style="font-size: 3.5rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
+        <p style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem; color: var(--text-primary);">No orders yet</p>
+        <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Your order history will appear here</p>
+        <a href="menu.html" class="btn btn-primary btn-sm" style="border-radius: 2rem; padding: 0.6rem 1.5rem;">
+          <i class="fas fa-utensils"></i> Browse Menu
+        </a>
+      </div>
+    `;
+    return;
+  }
+  
+  // Sort orders newest first
+  orders.sort((a, b) => new Date(b.createdAt || b.timestamp || b.date) - new Date(a.createdAt || a.timestamp || a.date));
+  
+  ordersContainer.innerHTML = orders.map((order, index) => {
+    const orderId = order.orderId || order.id || `ORD-${index + 1}`;
+    const date = new Date(order.createdAt || order.timestamp || order.date);
+    const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+    const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    const status = (order.status || 'confirmed').toLowerCase();
+    const statusLabels = { confirmed: 'Confirmed', preparing: 'Preparing', 'on-the-way': 'On the Way', delivered: 'Delivered', cancelled: 'Cancelled' };
+    const statusLabel = statusLabels[status] || status.charAt(0).toUpperCase() + status.slice(1);
+    const statusColors = { confirmed: '#3b82f6', preparing: '#f59e0b', 'on-the-way': '#8b5cf6', delivered: '#10b981', cancelled: '#ef4444' };
+    const statusColor = statusColors[status] || 'var(--primary)';
+    const statusIcons = { confirmed: 'check-circle', preparing: 'fire', 'on-the-way': 'motorcycle', delivered: 'check-double', cancelled: 'times-circle' };
+    const statusIcon = statusIcons[status] || 'circle';
+    const items = order.items || [];
+    const total = order.total || 0;
+    const itemNames = items.slice(0, 3).map(i => i.name).join(', ');
+    const moreItems = items.length > 3 ? ` +${items.length - 3} more` : '';
+    
+    return `
+      <div class="order-card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
+        <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
+          <div>
+            <h4 style="font-size: 1rem; font-weight: 700; margin: 0 0 0.25rem 0; color: var(--text-primary);">${orderId}</h4>
+            <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;"><i class="fas fa-calendar-alt" style="margin-right: 0.25rem;"></i>${dateStr} at ${timeStr}</p>
+          </div>
+          <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.75rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 600; background: ${statusColor}15; color: ${statusColor}; border: 1px solid ${statusColor}30;">
+            <i class="fas fa-${statusIcon}"></i> ${statusLabel}
+          </span>
+        </div>
+        <div style="padding: 0.5rem 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); margin-bottom: 0.75rem;">
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.25rem 0;"><i class="fas fa-shopping-bag" style="color: var(--primary); margin-right: 0.35rem; width: 14px;"></i>${itemNames}${moreItems}</p>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.25rem 0;"><i class="fas fa-box" style="color: var(--primary); margin-right: 0.35rem; width: 14px;"></i>${items.length} item${items.length !== 1 ? 's' : ''}</p>
+        </div>
+        <div style="display: flex; justify-content: space-between; align-items: center;">
+          <span style="font-weight: 700; font-size: 1.1rem; color: var(--primary);">GHS ${parseFloat(total).toFixed(2)}</span>
+          <div style="display: flex; gap: 0.5rem;">
+            <a href="tracking.html?order=${orderId}" class="btn btn-sm btn-outline" style="border-radius: 2rem; padding: 0.35rem 0.75rem; font-size: 0.8rem;">
+              <i class="fas fa-map-marker-alt"></i> Track
+            </a>
+            <button class="btn btn-sm btn-primary" style="border-radius: 2rem; padding: 0.35rem 0.75rem; font-size: 0.8rem;" onclick="reorderItems('${orderId}')">
+              <i class="fas fa-redo"></i> Reorder
+            </button>
+          </div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+// Reorder: add all items from a past order back to cart
+function reorderItems(orderId) {
+  const orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
+  const order = orders.find(o => (o.orderId || o.id) === orderId);
+  
+  if (!order || !order.items || order.items.length === 0) {
+    if (typeof showToast === 'function') showToast('Could not find order items', 'error');
+    return;
+  }
+  
+  let addedCount = 0;
+  order.items.forEach(item => {
+    if (item && item.id && item.name && item.price) {
+      // Use addToCart if available, otherwise manually push
+      if (typeof addToCart === 'function') {
+        addToCart(item);
+        addedCount++;
+      }
+    }
+  });
+  
+  if (addedCount > 0) {
+    if (typeof showToast === 'function') showToast(`${addedCount} item${addedCount > 1 ? 's' : ''} added to cart!`, 'success');
+    if (typeof updateCartDisplay === 'function') updateCartDisplay();
+    if (typeof updateCartCount === 'function') updateCartCount();
+    if (typeof updateCartModal === 'function') updateCartModal();
+  } else {
+    if (typeof showToast === 'function') showToast('Could not add items to cart', 'error');
   }
 }
+
+window.reorderItems = reorderItems;
 
 // ============================================
 // ACCOUNT PAGE FORM HANDLERS
@@ -2447,12 +2547,12 @@ function initAccountFormHandlers() {
       
       try {
         // Validate current password
-        const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+        const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
         // In a real app, you would validate against hashed password from API
         // For now, we'll just update it
         
         user.password = newPassword; // In production, hash this!
-        localStorage.setItem('fafoUser', JSON.stringify(user));
+        localStorage.setItem('swiftChowUser', JSON.stringify(user));
         
         changePasswordForm.reset();
         showAdvancedToast('Password changed successfully!', 'success');
@@ -2489,10 +2589,10 @@ function initAccountFormHandlers() {
 // Delete user account
 async function deleteUserAccount() {
   try {
-    const user = JSON.parse(localStorage.getItem('fafoUser') || '{}');
+    const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
     
     // Clear all user data
-    localStorage.removeItem('fafoUser');
+    localStorage.removeItem('swiftChowUser');
     localStorage.removeItem('authToken');
     localStorage.removeItem('swiftChowCart');
     
@@ -3168,46 +3268,42 @@ function updateCartModal() {
   const cartModal = document.getElementById('cartModal');
   if (!cartModal) return;
   
-  // Use the global cart variable from cart.js, explicitly from window object
   const cartItems = (window.cart && Array.isArray(window.cart)) ? window.cart : [];
-  console.log('updateCartModal: cartItems =', cartItems.length, 'items');
   const cartList = cartModal.querySelector('.cart-items-modal-list');
   
   if (cartItems.length === 0) {
     cartList.innerHTML = `
-      <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-        <i class="fas fa-shopping-cart" style="font-size: 3rem; opacity: 0.5; margin-bottom: 1rem;"></i>
-        <p>Your cart is empty</p>
-        <a href="menu.html" class="btn btn-primary btn-sm" style="margin-top: 1rem;">Browse Menu</a>
+      <div style="text-align: center; padding: 3rem 1rem; color: var(--text-secondary);">
+        <i class="fas fa-shopping-bag" style="font-size: 3.5rem; opacity: 0.15; margin-bottom: 1rem; display: block;"></i>
+        <p style="font-weight: 600; font-size: 1.05rem; margin-bottom: 0.5rem; color: var(--text-primary);">Your cart is empty</p>
+        <p style="font-size: 0.9rem; margin-bottom: 1.5rem;">Add some delicious items to get started</p>
+        <a href="menu.html" class="btn btn-primary btn-sm" style="border-radius: 2rem; padding: 0.6rem 1.5rem;"><i class="fas fa-utensils"></i> Browse Menu</a>
       </div>
     `;
   } else {
-    let html = '<div style="padding: 0;">';
-    let subtotal = 0;
+    let html = '';
     
     cartItems.forEach((item) => {
       const itemTotal = item.price * item.quantity;
-      subtotal += itemTotal;
       
       html += `
-        <div style="display: flex; gap: 1rem; padding: 1rem; margin: 0.75rem 0.75rem; border-radius: 1rem; background: rgba(255, 255, 255, 0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.2); align-items: center;">
-          <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" style="width: 70px; height: 70px; object-fit: cover; border-radius: 0.5rem;" loading="lazy" decoding="async" sizes="70px">
-          <div style="flex: 1;">
-            <h4 style="margin: 0 0 0.25rem 0; font-size: 0.95rem;">${item.name}</h4>
-            <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);">GHS ${item.price.toFixed(2)}</p>
-            <div style="display: flex; align-items: center; gap: 0.5rem; margin-top: 0.5rem;">
-              <button class="btn btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="decrementQuantity(${item.id})">−</button>
-              <span style="width: 30px; text-align: center;">${item.quantity}</span>
-              <button class="btn btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem;" onclick="incrementQuantity(${item.id})">+</button>
-              <button class="btn btn-sm" style="padding: 0.25rem 0.5rem; font-size: 0.8rem; margin-left: auto; color: #dc2626;" onclick="removeFromCart(${item.id})"><i class="fas fa-trash"></i></button>
+        <div style="display: flex; gap: 0.75rem; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); align-items: center; transition: all 0.2s;">
+          <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 0.5rem; flex-shrink: 0;" loading="lazy" decoding="async">
+          <div style="flex: 1; min-width: 0;">
+            <h4 style="margin: 0 0 0.15rem 0; font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h4>
+            <p style="margin: 0 0 0.4rem 0; font-size: 0.8rem; color: var(--text-secondary);">GHS ${item.price.toFixed(2)} each</p>
+            <div style="display: flex; align-items: center; gap: 0.35rem;">
+              <button class="btn btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.8rem; border-radius: 0.35rem; line-height: 1;" onclick="decrementQuantity(${item.id})">−</button>
+              <span style="width: 24px; text-align: center; font-weight: 600; font-size: 0.85rem;">${item.quantity}</span>
+              <button class="btn btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.8rem; border-radius: 0.35rem; line-height: 1;" onclick="incrementQuantity(${item.id})">+</button>
+              <button class="btn btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.8rem; margin-left: auto; color: #dc2626; border-radius: 0.35rem;" onclick="removeFromCart(${item.id})" title="Remove"><i class="fas fa-trash-alt"></i></button>
             </div>
           </div>
-          <div style="text-align: right; font-weight: 600;">GHS ${itemTotal.toFixed(2)}</div>
+          <div style="text-align: right; font-weight: 700; font-size: 0.9rem; color: var(--primary); white-space: nowrap; flex-shrink: 0;">GHS ${itemTotal.toFixed(2)}</div>
         </div>
       `;
     });
     
-    html += '</div>';
     cartList.innerHTML = html;
   }
   
@@ -3221,7 +3317,7 @@ function updateCartModal() {
   const totalEl = cartModal.querySelector('.cart-total');
   
   if (subtotalEl) subtotalEl.textContent = `GHS ${subtotal.toFixed(2)}`;
-  if (deliveryEl) deliveryEl.textContent = `GHS ${delivery.toFixed(2)}`;
+  if (deliveryEl) deliveryEl.textContent = delivery === 0 ? 'FREE' : `GHS ${delivery.toFixed(2)}`;
   if (totalEl) totalEl.textContent = `GHS ${total.toFixed(2)}`;
 }
 
@@ -3476,7 +3572,7 @@ function toggleUserMenu() {
 function initCartAutoUpdate() {
   // Update cart modal when localStorage changes
   window.addEventListener('storage', (e) => {
-    if (e.key === 'fafoCart') {
+    if (e.key === 'swiftChowCart') {
       updateCartModal();
     }
   });
@@ -3485,7 +3581,7 @@ function initCartAutoUpdate() {
   const originalSetItem = Storage.prototype.setItem;
   Storage.prototype.setItem = function(key, value) {
     originalSetItem.call(this, key, value);
-    if (key === 'fafoCart') {
+    if (key === 'swiftChowCart') {
       updateCartModal();
     }
   };
@@ -3562,34 +3658,15 @@ function createFloatingCart() {
   }
 
   const floatingCartHTML = `
-    <button class="floating-cart-btn" title="Open Cart" id="floatingCartBtn">
+    <button class="floating-cart-btn" title="Open Cart" id="floatingCartBtn" aria-label="Open shopping cart">
       <i class="fas fa-shopping-bag"></i>
-      <span class="floating-cart-count" style="display: none; position: absolute; top: -5px; right: -5px; background: var(--primary); color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 0.75rem; font-weight: bold;">0</span>
+      <span class="floating-cart-count" style="display: none;">0</span>
     </button>
-    <div class="floating-cart-tooltip" style="display: none; position: fixed; bottom: 80px; right: 20px; background: white; border-radius: 8px; box-shadow: 0 8px 24px rgba(0,0,0,0.15); z-index: 9998; width: 350px; max-height: calc(100vh - 100px); overflow: hidden; display: flex; flex-direction: column;">
-      <div style="padding: 12px; border-bottom: 1px solid var(--border-color); flex-shrink: 0; background: white; border-radius: 8px 8px 0 0;">
-        <h4 style="margin: 0; font-size: 0.9rem; font-weight: 600;">Cart Preview</h4>
-      </div>
-      <div class="floating-cart-items" style="flex: 1; overflow-y: auto; padding: 8px 0; min-height: 0;">
-        <!-- Items will be rendered here -->
-      </div>
-      <div style="padding: 12px; border-top: 1px solid var(--border-color); background: var(--bg-secondary); flex-shrink: 0; border-radius: 0 0 8px 8px;">
-        <div style="display: flex; justify-content: space-between; margin-bottom: 8px; font-weight: 500; font-size: 0.9rem;">
-          <span>Total:</span>
-          <span class="floating-cart-total" style="color: var(--primary); font-weight: 700;">GHS 0.00</span>
-        </div>
-        <button class="btn btn-primary btn-sm" style="width: 100%; font-size: 0.85rem;" onclick="
-          const cartModal = document.getElementById('cartModal');
-          if (cartModal) openModal(cartModal);
-          document.querySelector('.floating-cart-tooltip').style.display = 'none';
-        ">View Full Cart</button>
-      </div>
-    </div>
   `;
   
   document.body.insertAdjacentHTML('beforeend', floatingCartHTML);
   
-  // Add click handler to open cart modal
+  // Click opens the full cart modal
   const btn = document.getElementById('floatingCartBtn');
   if (btn) {
     btn.addEventListener('click', (e) => {
@@ -3597,18 +3674,7 @@ function createFloatingCart() {
       const cartModal = document.getElementById('cartModal');
       if (cartModal) {
         openModal(cartModal);
-        document.querySelector('.floating-cart-tooltip').style.display = 'none';
       }
-    });
-    
-    // Show tooltip on hover
-    btn.addEventListener('mouseenter', () => {
-      if (cart && cart.length > 0) {
-        document.querySelector('.floating-cart-tooltip').style.display = 'block';
-      }
-    });
-    btn.addEventListener('mouseleave', () => {
-      document.querySelector('.floating-cart-tooltip').style.display = 'none';
     });
   }
   
@@ -3617,7 +3683,6 @@ function createFloatingCart() {
 
 // Update Floating Cart with items and total
 function updateFloatingCart() {
-  // Update count - use window.cart explicitly
   const currentCart = window.cart || [];
   const totalItems = currentCart.reduce((sum, item) => sum + item.quantity, 0);
   const floatingCount = document.querySelector('.floating-cart-count');
@@ -3625,26 +3690,6 @@ function updateFloatingCart() {
   if (floatingCount) {
     floatingCount.textContent = totalItems;
     floatingCount.style.display = totalItems > 0 ? 'flex' : 'none';
-  }
-  
-  // Update items preview
-  const itemsContainer = document.querySelector('.floating-cart-items');
-  if (itemsContainer && currentCart && currentCart.length > 0) {
-    itemsContainer.innerHTML = currentCart.map(item => {
-      return '<div style="padding: 8px 12px; border-bottom: 1px solid #eee; display: flex; gap: 8px; align-items: center;"><img src="' + item.image + '" alt="' + item.name + '" style="width: 40px; height: 40px; border-radius: 4px; object-fit: cover;" loading="lazy" decoding="async" sizes="40px"><div style="flex: 1; font-size: 0.85rem;"><div style="font-weight: 500;">' + item.name + '</div><div style="color: var(--text-secondary);">x' + item.quantity + '</div></div><div style="font-weight: 600; white-space: nowrap; display: flex; align-items: center; gap: 6px;"><span>GHS ' + (item.price * item.quantity).toFixed(2) + '</span><button class="btn btn-sm" style="padding: 4px 6px; font-size: 0.75rem; color: #dc2626; background: none; border: none; cursor: pointer; margin: 0;" onclick="removeFromCart(' + item.id + ')"><i class="fas fa-trash"></i></button></div></div>';
-    }).join('');
-  } else if (itemsContainer) {
-    itemsContainer.innerHTML = '<div style="padding: 24px; text-align: center; color: var(--text-secondary); font-size: 0.9rem;">Cart is empty</div>';
-  }
-  
-  // Update total
-  const subtotal = getCartSubtotal ? getCartSubtotal() : currentCart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
-  const delivery = subtotal > 100 ? 0 : 15;
-  const total = subtotal + delivery;
-  
-  const totalEl = document.querySelector('.floating-cart-total');
-  if (totalEl) {
-    totalEl.textContent = 'GHS ' + total.toFixed(2);
   }
 }
 
@@ -3668,8 +3713,8 @@ function initMotorcycleAnimation() {
 // ============================================
 // Listen for storage changes from other tabs/windows to sync auth state
 window.addEventListener('storage', (e) => {
-  // If fafoUser changes (login/logout), update auth UI on all open pages
-  if (e.key === 'fafoUser') {
+  // If swiftChowUser changes (login/logout), update auth UI on all open pages
+  if (e.key === 'swiftChowUser') {
     // Update auth UI after a brief delay to ensure all data is updated
     setTimeout(() => {
       updateAuthUI();
@@ -3678,7 +3723,7 @@ window.addEventListener('storage', (e) => {
     }, 100);
   }
   // If cart changes, update cart display
-  if (e.key === 'fafoCart') {
+  if (e.key === 'swiftChowCart') {
     setTimeout(() => {
       updateCartCount();
       updateFloatingCartCount();
@@ -3976,8 +4021,8 @@ function initPageTransitions() {
 // ============================================
 // Listen for storage changes from other tabs/windows to sync auth state
 window.addEventListener('storage', (e) => {
-  // If fafoUser changes (login/logout), update auth UI on all open pages
-  if (e.key === 'fafoUser') {
+  // If swiftChowUser changes (login/logout), update auth UI on all open pages
+  if (e.key === 'swiftChowUser') {
     // Update auth UI after a brief delay to ensure all data is updated
     setTimeout(() => {
       updateAuthUI();
@@ -3986,7 +4031,7 @@ window.addEventListener('storage', (e) => {
     }, 100);
   }
   // If cart changes, update cart display
-  if (e.key === 'fafoCart') {
+  if (e.key === 'swiftChowCart') {
     setTimeout(() => {
       updateCartCount();
       updateFloatingCartCount();
