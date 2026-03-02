@@ -612,29 +612,36 @@ function renderBlogPreview() {
 }
 
 function renderBlogPostPage() {
-  const params = new URLSearchParams(window.location.search);
-  const postId = parseInt(params.get('id')) || 1;
+  var params = new URLSearchParams(window.location.search);
+  var rawId = params.get('id');
+  var rawSlug = params.get('slug');
+  
+  // If no id AND no slug, leave the static HTML as-is (e.g. the Jollof article)
+  if (!rawId && !rawSlug) return;
   
   if (typeof blogPosts === 'undefined') {
     console.error('Blog posts data not loaded');
     return;
   }
   
-  const post = blogPosts.find(p => p.id === postId);
+  var post = null;
+  if (rawSlug) {
+    post = blogPosts.find(function(p) { return p.slug === rawSlug; });
+  }
+  if (!post && rawId) {
+    post = blogPosts.find(function(p) { return p.id === parseInt(rawId); });
+  }
   if (!post) {
-    console.error('Blog post not found:', postId);
-    const container = document.querySelector('.blog-post-container');
-    if (container) {
-      container.innerHTML = '<p style="text-align: center; padding: 2rem;">Blog post not found.</p>';
-    }
+    // No matching post found — leave static HTML intact
     return;
   }
   
-  const container = document.querySelector('.blog-post-container article');
+  var postId = post.id;
+  var container = document.querySelector('.blog-post-container article');
   if (!container) return;
   
   // Build full blog content using plain text
-  let fullContent = '';
+  var fullContent = '';
   
   // Simple content for each post
   if (postId === 1) {
@@ -5236,47 +5243,49 @@ if ('deviceMemory' in navigator) {
     }
   }
 
-})();/* ============================================
-   MINDBLOWING ENHANCEMENTS & ANIMATIONS 
+})();
+
+/* ============================================
+   MINDBLOWING ENHANCEMENTS & ANIMATIONS
    (Injected Globally)
    ============================================ */
-document.addEventListener('DOMContentLoaded', () => {
+document.addEventListener('DOMContentLoaded', function() {
     // 1. Toast Notification Setup
-    let toastContainer = document.querySelector('.toast-container');
+    var toastContainer = document.querySelector('.toast-container');
     if (!toastContainer) {
         toastContainer = document.createElement('div');
         toastContainer.className = 'toast-container';
         document.body.appendChild(toastContainer);
     }
 
-    window.showToast = function(message, type = 'success') {
-        const toast = document.createElement('div');
-        toast.className = \	oast toast-\\;
-        
-        let icon = 'fa-check-circle';
+    window.showToast = function(message, type) {
+        type = type || 'success';
+        var toast = document.createElement('div');
+        toast.className = 'toast toast-' + type;
+
+        var icon = 'fa-check-circle';
         if (type === 'error') icon = 'fa-exclamation-circle';
         if (type === 'info') icon = 'fa-info-circle';
-        
-        toast.innerHTML = \<i class="fas \"></i><span>\</span>\;
+
+        toast.innerHTML = '<i class="fas ' + icon + '"></i><span>' + message + '</span>';
         toastContainer.appendChild(toast);
-        
-        setTimeout(() => toast.remove(), 3500);
+
+        setTimeout(function() { toast.remove(); }, 3500);
     };
 
     // Replace native alerts with toasts globally
-    const originalAlert = window.alert;
     window.alert = function(msg) {
         window.showToast(msg, 'info');
     };
 
     // 2. Back to Top Button
-    const backToTopBtn = document.createElement('button');
+    var backToTopBtn = document.createElement('button');
     backToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
     backToTopBtn.className = 'back-to-top';
     backToTopBtn.setAttribute('aria-label', 'Back to top');
     document.body.appendChild(backToTopBtn);
 
-    window.addEventListener('scroll', () => {
+    window.addEventListener('scroll', function() {
         if (window.scrollY > 500) {
             backToTopBtn.classList.add('show');
         } else {
@@ -5284,219 +5293,132 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     });
 
-    backToTopBtn.addEventListener('click', () => {
+    backToTopBtn.addEventListener('click', function() {
         window.scrollTo({ top: 0, behavior: 'smooth' });
     });
 
     // 3. Scroll Reveal Animations (Intersection Observer)
-    const observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
-    const observer = new IntersectionObserver((entries) => {
-        entries.forEach(entry => {
+    var observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
+    var observer = new IntersectionObserver(function(entries) {
+        entries.forEach(function(entry) {
             if (entry.isIntersecting) {
                 entry.target.classList.add('active');
-                // Optional: Stop observing once revealed
-                // observer.unobserve(entry.target); 
             }
         });
     }, observerOptions);
 
-    // Auto-add reveal classes to common sections if they don't have them
-    document.querySelectorAll('.section-title, .about-content, .contact-content, .blog-card, .menu-item, .category-btn').forEach((el, index) => {
+    document.querySelectorAll('.section-title, .about-content, .contact-content, .blog-card, .menu-item, .category-btn').forEach(function(el, index) {
         if (!el.classList.contains('reveal') && !el.classList.contains('reveal-left') && !el.classList.contains('reveal-right') && !el.classList.contains('reveal-scale')) {
             el.classList.add('reveal');
-            el.style.transitionDelay = \\s\;
+            el.style.transitionDelay = ((index % 5) * 0.1) + 's';
         }
         observer.observe(el);
     });
-});
-document.addEventListener('DOMContentLoaded', () => {
+
     // 4. Hero Enhancements (Particles & Typing)
-    const heroSection = document.querySelector('.hero-premium');
+    var heroSection = document.querySelector('.hero-premium');
     if (heroSection) {
-        // Typing Effect
-        const desc = document.querySelector('.hero-description');
+        var desc = document.querySelector('.hero-description');
         if (desc) {
             desc.classList.add('typing-effect');
         }
 
-        // Flying Food Particles
-        const emojis = ['??', '??', '??', '??', '??', '??', '??'];
-        for (let i = 0; i < 15; i++) {
-            const particle = document.createElement('div');
+        var emojis = ['\u{1F354}', '\u{1F355}', '\u{1F366}', '\u{1F35F}', '\u{1F964}', '\u{1F369}', '\u{1F357}'];
+        for (var i = 0; i < 15; i++) {
+            var particle = document.createElement('div');
             particle.className = 'food-particle';
             particle.innerText = emojis[Math.floor(Math.random() * emojis.length)];
-            particle.style.left = \\vw\;
-            particle.style.animationDuration = \\s\;
-            particle.style.animationDelay = \\s\;
-            particle.style.fontSize = \\rem\;
+            particle.style.left = (Math.random() * 100) + 'vw';
+            particle.style.animationDuration = (Math.random() * 10 + 10) + 's';
+            particle.style.animationDelay = (Math.random() * 5) + 's';
+            particle.style.fontSize = (Math.random() * 2 + 1.5) + 'rem';
             heroSection.appendChild(particle);
         }
 
-        // Hero Parallax
-        window.addEventListener('scroll', () => {
-            const scroll = window.scrollY;
-            const heroImage = document.querySelector('.hero-main-image img');
+        window.addEventListener('scroll', function() {
+            var scroll = window.scrollY;
+            var heroImage = document.querySelector('.hero-main-image img');
             if (heroImage && scroll < 800) {
-                heroImage.style.transform = \	ranslateY(\px) scale(1.05)\;
+                heroImage.style.transform = 'translateY(' + (scroll * 0.15) + 'px) scale(1.05)';
                 heroImage.style.transition = 'transform 0.1s ease-out';
             }
         });
     }
-});
-// 5. Fly to Cart Animation & 3D Tilt Hook
-document.addEventListener('click', function(e) {
-    // Fly to cart
-    const addToCartBtn = e.target.closest('.add-to-cart-btn, .add-btn-overlay, .add-btn-mobile, .deal-order-btn');
-    if (addToCartBtn) {
-        let card = addToCartBtn.closest('.food-card, .food-card-premium, .deal-card');
-        if (!card) return;
-        
-        let img = card.querySelector('img');
-        let cartIcon = document.querySelector('.floating-cart-btn, .cart-icon, .nav-icon .fa-shopping-cart');
-        
-        if (img && cartIcon) {
-            let imgRect = img.getBoundingClientRect();
-            let cartRect = cartIcon.getBoundingClientRect();
-            
-            let flyingImg = img.cloneNode(true);
-            flyingImg.className = 'fly-to-cart-element';
-            flyingImg.style.left = \\px\;
-            flyingImg.style.top = \\px\;
-            
-            document.body.appendChild(flyingImg);
-            
-            // Trigger reflow
-            void flyingImg.offsetWidth;
-            
-            // Fly to cart
-            flyingImg.style.left = \\px\;
-            flyingImg.style.top = \\px\;
-            flyingImg.style.transform = 'scale(0.1)';
-            flyingImg.style.opacity = '0.5';
-            
-            setTimeout(() => {
-                flyingImg.remove();
-                // Bump cart
-                cartIcon.classList.add('bump');
-                setTimeout(() => cartIcon.classList.remove('bump'), 300);
-            }, 800);
-        }
-    }
-});
 
-// Category Filter smooth transition
-document.querySelectorAll('.category-btn').forEach(btn => {
-    btn.addEventListener('click', function() {
-        const grid = document.getElementById('productsGrid');
-        if (grid) {
-            grid.style.opacity = 0;
-            grid.style.transform = 'translateY(20px)';
-            grid.style.transition = 'all 0.3s ease-out';
-            
-            setTimeout(() => {
-                grid.style.opacity = 1;
-                grid.style.transform = 'translateY(0)';
-            }, 300);
+    // 5. Hide Track Order footer link when not signed in (GLOBAL)
+    var isSignedIn = localStorage.getItem('authToken') || localStorage.getItem('swiftChowUser');
+    document.querySelectorAll('a[href="tracking.html"]').forEach(function(link) {
+        var li = link.closest('li');
+        if (li && !isSignedIn) {
+            li.style.display = 'none';
         }
     });
-});
-// 6. Free Delivery Progress & Confetti
-document.addEventListener('DOMContentLoaded', () => {
-    // Confetti for order success
-    if (window.location.pathname.includes('order-success')) {
-        const colors = ['#DC2626', '#10B981', '#F59E0B', '#3B82F6', '#8B5CF6'];
-        for (let i = 0; i < 100; i++) {
-            const confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.left = \\vw\;
-            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            confetti.style.animationDuration = \\s\;
-            confetti.style.animationDelay = \\s\;
-            if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
-            document.body.appendChild(confetti);
-        }
-    }
 
-    // Free delivery progress injection
-    setInterval(() => {
-        if (typeof window.getCartSubtotal === 'function') {
-            const subtotal = window.getCartSubtotal();
-            const threshold = 100;
-            const percentage = Math.min((subtotal / threshold) * 100, 100);
-            
-            // Look for summary blocks to inject
-            document.querySelectorAll('.cart-summary, .checkout-summary, .mini-cart-footer').forEach(container => {
-                let pBar = container.querySelector('.free-delivery-progress-container');
-                let pText = container.querySelector('.free-delivery-text');
-                
-                if (!pBar && subtotal > 0) {
-                    pBar = document.createElement('div');
-                    pBar.className = 'free-delivery-progress-container';
-                    pBar.innerHTML = '<div class="free-delivery-progress-bar"></div>';
-                    
-                    pText = document.createElement('div');
-                    pText.className = 'free-delivery-text';
-                    
-                    // Insert before the total section
-                    let totalDiv = container.querySelector('.summary-total, .checkout-total, .mini-cart-total');
-                    if (totalDiv && totalDiv.parentElement) {
-                        totalDiv.parentElement.insertBefore(pText, totalDiv);
-                        totalDiv.parentElement.insertBefore(pBar, pText);
-                    } else {
-                        container.prepend(pText);
-                        container.prepend(pBar);
-                    }
+    // 6. Auto-inject password eye toggle on ALL password inputs
+    document.querySelectorAll('input[type="password"]').forEach(function(input) {
+        // Skip if a toggle button already exists next to this input
+        var parent = input.parentElement;
+        if (parent.querySelector('.password-toggle-btn, .btn-icon[onclick*="togglePassword"]')) return;
+
+        // Make sure parent is position:relative
+        parent.style.position = 'relative';
+
+        var toggleBtn = document.createElement('button');
+        toggleBtn.type = 'button';
+        toggleBtn.className = 'password-toggle-btn';
+        toggleBtn.title = 'Show password';
+        toggleBtn.style.cssText = 'position:absolute;right:12px;top:50%;transform:translateY(-50%);background:none;border:none;cursor:pointer;color:var(--text-secondary);font-size:1.1rem;z-index:2;';
+        toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
+
+        var inputId = input.id;
+        toggleBtn.addEventListener('click', function(e) {
+            if (inputId && typeof window.togglePasswordVisibility === 'function') {
+                window.togglePasswordVisibility(inputId, e);
+            } else {
+                // Fallback inline toggle
+                var isPassword = input.type === 'password';
+                input.type = isPassword ? 'text' : 'password';
+                var icon = toggleBtn.querySelector('i');
+                if (icon) {
+                    icon.className = isPassword ? 'fas fa-eye-slash' : 'fas fa-eye';
                 }
-                
-                if (pBar && pText) {
-                    pBar.querySelector('.free-delivery-progress-bar').style.width = \\%\;
-                    if (percentage >= 100) {
-                        pText.innerHTML = '<i class="fas fa-check-circle" style="color: var(--success)"></i> You unlocked <strong>Free Delivery</strong>!';
-                        pBar.querySelector('.free-delivery-progress-bar').style.background = 'var(--success)';
-                    } else {
-                        const remaining = (threshold - subtotal).toFixed(2);
-                        pText.innerHTML = \Add <strong>GHS \</strong> more for free delivery!\;
-                        pBar.querySelector('.free-delivery-progress-bar').style.background = 'linear-gradient(90deg, var(--warning), var(--success))';
-                    }
-                    
-                    if (subtotal === 0) {
-                        pBar.remove();
-                        pText.remove();
-                    }
-                }
-            });
-        }
-    }, 1000);
-});
-// 7. Auth UI Magic (Password Strength)
-document.addEventListener('DOMContentLoaded', () => {
-    const passwordInputs = document.querySelectorAll('input[type="password"]');
-    
-    passwordInputs.forEach(input => {
-        // Create meter element
-        const meterContainer = document.createElement('div');
+            }
+        });
+
+        // Insert after the input
+        input.insertAdjacentElement('afterend', toggleBtn);
+    });
+
+    // 7. Password Strength Meter
+    document.querySelectorAll('input[type="password"]').forEach(function(input) {
+        var meterContainer = document.createElement('div');
         meterContainer.className = 'password-strength-meter';
-        const meterFill = document.createElement('div');
+        var meterFill = document.createElement('div');
         meterFill.className = 'password-strength-fill';
         meterContainer.appendChild(meterFill);
-        
-        input.parentNode.insertBefore(meterContainer, input.nextSibling);
-        
-        input.addEventListener('input', (e) => {
-            const val = e.target.value;
+
+        var formGroup = input.closest('.form-group');
+        if (formGroup) {
+            formGroup.appendChild(meterContainer);
+        } else {
+            input.parentNode.appendChild(meterContainer);
+        }
+
+        input.addEventListener('input', function() {
+            var val = input.value;
             if (val.length === 0) {
                 meterContainer.classList.remove('show');
                 return;
             }
             meterContainer.classList.add('show');
-            
-            let strength = 0;
+
+            var strength = 0;
             if (val.length >= 6) strength += 25;
             if (val.length >= 10) strength += 25;
             if (/[A-Z]/.test(val)) strength += 25;
             if (/[0-9!@#%&]/.test(val)) strength += 25;
-            
-            meterFill.style.width = \\%\;
+
+            meterFill.style.width = strength + '%';
             if (strength <= 25) {
                 meterFill.style.backgroundColor = 'var(--error)';
             } else if (strength <= 50) {
@@ -5508,40 +5430,161 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
     });
-});
-// 8. Reading Progress Bar
-document.addEventListener('DOMContentLoaded', () => {
-    const progressBar = document.createElement('div');
+
+    // 8. Reading Progress Bar
+    var progressBar = document.createElement('div');
     progressBar.id = 'reading-progress-bar';
     document.body.appendChild(progressBar);
 
-    window.addEventListener('scroll', () => {
-        const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        const scrolled = (winScroll / height) * 100;
+    window.addEventListener('scroll', function() {
+        var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+        var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+        var scrolled = height > 0 ? (winScroll / height) * 100 : 0;
         progressBar.style.width = scrolled + '%';
     });
+
+    // 9. Confetti for order success
+    if (window.location.pathname.indexOf('order-success') !== -1) {
+        var colors = ['#DC2626', '#10B981', '#F59E0B', '#3B82F6', '#8B5CF6'];
+        for (var c = 0; c < 100; c++) {
+            var confetti = document.createElement('div');
+            confetti.className = 'confetti';
+            confetti.style.left = (Math.random() * 100) + 'vw';
+            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
+            confetti.style.animationDelay = (Math.random() * 2) + 's';
+            if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
+            document.body.appendChild(confetti);
+        }
+    }
+
+    // 10. Free delivery progress injection
+    setInterval(function() {
+        if (typeof window.getCartSubtotal === 'function') {
+            var subtotal = window.getCartSubtotal();
+            var threshold = 100;
+            var percentage = Math.min((subtotal / threshold) * 100, 100);
+
+            document.querySelectorAll('.cart-summary, .checkout-summary, .mini-cart-footer').forEach(function(container) {
+                var pBar = container.querySelector('.free-delivery-progress-container');
+                var pText = container.querySelector('.free-delivery-text');
+
+                if (!pBar && subtotal > 0) {
+                    pBar = document.createElement('div');
+                    pBar.className = 'free-delivery-progress-container';
+                    pBar.innerHTML = '<div class="free-delivery-progress-bar"></div>';
+
+                    pText = document.createElement('div');
+                    pText.className = 'free-delivery-text';
+
+                    var totalDiv = container.querySelector('.summary-total, .checkout-total, .mini-cart-total');
+                    if (totalDiv && totalDiv.parentElement) {
+                        totalDiv.parentElement.insertBefore(pText, totalDiv);
+                        totalDiv.parentElement.insertBefore(pBar, pText);
+                    } else {
+                        container.prepend(pText);
+                        container.prepend(pBar);
+                    }
+                }
+
+                if (pBar && pText) {
+                    var barEl = pBar.querySelector('.free-delivery-progress-bar');
+                    if (barEl) barEl.style.width = percentage + '%';
+                    if (percentage >= 100) {
+                        pText.innerHTML = '<i class="fas fa-check-circle" style="color: var(--success)"></i> You unlocked <strong>Free Delivery</strong>!';
+                        if (barEl) barEl.style.background = 'var(--success)';
+                    } else {
+                        var remaining = (threshold - subtotal).toFixed(2);
+                        pText.innerHTML = 'Add <strong>GHS ' + remaining + '</strong> more for free delivery!';
+                        if (barEl) barEl.style.background = 'linear-gradient(90deg, var(--warning), var(--success))';
+                    }
+
+                    if (subtotal === 0) {
+                        pBar.remove();
+                        pText.remove();
+                    }
+                }
+            });
+        }
+    }, 1000);
 });
-// 9. Page Fade-in Transition
+
+// 11. Fly to Cart Animation
+document.addEventListener('click', function(e) {
+    var addToCartBtn = e.target.closest('.add-to-cart-btn, .add-btn-overlay, .add-btn-mobile');
+    if (addToCartBtn) {
+        var card = addToCartBtn.closest('.food-card, .food-card-premium, .deal-card');
+        if (!card) return;
+
+        var img = card.querySelector('img');
+        var cartIcon = document.querySelector('.floating-cart-btn') || document.querySelector('.fa-shopping-cart');
+
+        if (img && cartIcon) {
+            var imgRect = img.getBoundingClientRect();
+            var cartRect = cartIcon.getBoundingClientRect();
+
+            var flyingImg = img.cloneNode(true);
+            flyingImg.className = 'fly-to-cart-element';
+            flyingImg.style.left = imgRect.left + 'px';
+            flyingImg.style.top = imgRect.top + 'px';
+
+            document.body.appendChild(flyingImg);
+            void flyingImg.offsetWidth;
+
+            flyingImg.style.left = (cartRect.left + cartRect.width / 2 - 30) + 'px';
+            flyingImg.style.top = (cartRect.top + cartRect.height / 2 - 30) + 'px';
+            flyingImg.style.transform = 'scale(0.1)';
+            flyingImg.style.opacity = '0.5';
+
+            setTimeout(function() {
+                flyingImg.remove();
+                cartIcon.classList.add('bump');
+                setTimeout(function() { cartIcon.classList.remove('bump'); }, 300);
+            }, 800);
+        }
+    }
+});
+
+// 12. Category Filter smooth transition
+document.querySelectorAll('.category-btn').forEach(function(btn) {
+    btn.addEventListener('click', function() {
+        var grid = document.getElementById('productsGrid');
+        if (grid) {
+            grid.style.opacity = 0;
+            grid.style.transform = 'translateY(20px)';
+            grid.style.transition = 'all 0.3s ease-out';
+
+            setTimeout(function() {
+                grid.style.opacity = 1;
+                grid.style.transform = 'translateY(0)';
+            }, 300);
+        }
+    });
+});
+
+// 13. Page Fade-in Transition
 document.body.style.opacity = '0';
 document.body.style.transition = 'opacity 0.6s ease-in-out';
 
-window.addEventListener('load', () => {
+window.addEventListener('load', function() {
     document.body.style.opacity = '1';
 });
-// 10. Magic Cursor
-if (window.matchMedia("(pointer: fine)").matches) {
-    const cursor = document.createElement('div');
-    cursor.className = 'magic-cursor';
-    document.body.appendChild(cursor);
 
-    document.addEventListener('mousemove', (e) => {
-        cursor.style.left = e.clientX + 'px';
-        cursor.style.top = e.clientY + 'px';
-    });
+// 14. Magic Cursor (desktop only)
+if (window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
+    document.addEventListener('DOMContentLoaded', function() {
+        var cursor = document.createElement('div');
+        cursor.className = 'magic-cursor';
+        document.body.appendChild(cursor);
 
-    document.querySelectorAll('a, button, input, .food-card, .btn').forEach(el => {
-        el.addEventListener('mouseenter', () => cursor.classList.add('hovering'));
-        el.addEventListener('mouseleave', () => cursor.classList.remove('hovering'));
+        document.addEventListener('mousemove', function(e) {
+            cursor.style.left = e.clientX + 'px';
+            cursor.style.top = e.clientY + 'px';
+        });
+
+        document.querySelectorAll('a, button, input, .food-card, .btn').forEach(function(el) {
+            el.addEventListener('mouseenter', function() { cursor.classList.add('hovering'); });
+            el.addEventListener('mouseleave', function() { cursor.classList.remove('hovering'); });
+        });
     });
 }
