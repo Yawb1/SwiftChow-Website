@@ -5346,13 +5346,22 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // 5. Hide Track Order footer link when not signed in (GLOBAL)
-    var isSignedIn = localStorage.getItem('authToken') || localStorage.getItem('swiftChowUser');
-    document.querySelectorAll('a[href="tracking.html"]').forEach(function(link) {
-        var li = link.closest('li');
-        if (li && !isSignedIn) {
-            li.style.display = 'none';
+    function hideTrackOrderIfNotSignedIn() {
+        var isSignedIn = localStorage.getItem('authToken') || localStorage.getItem('swiftChowUser');
+        if (!isSignedIn) {
+            document.querySelectorAll('a').forEach(function(link) {
+                var href = link.getAttribute('href') || '';
+                if (href.indexOf('tracking') !== -1) {
+                    var li = link.closest('li');
+                    if (li) li.style.display = 'none';
+                }
+            });
         }
-    });
+    }
+    hideTrackOrderIfNotSignedIn();
+    // Re-run after a short delay in case footer loads late
+    setTimeout(hideTrackOrderIfNotSignedIn, 500);
+    setTimeout(hideTrackOrderIfNotSignedIn, 1500);
 
     // 6. Auto-inject password eye toggle on ALL password inputs
     document.querySelectorAll('input[type="password"]').forEach(function(input) {

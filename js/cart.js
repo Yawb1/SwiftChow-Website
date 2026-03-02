@@ -216,11 +216,34 @@ async function addToCart(productId, quantity = 1) {
         });
         return true;
       } catch (error) {
-        console.error('Error adding to cart via API:', error);
-        if (typeof showToast === 'function') {
-          showToast('Error adding to cart', 'error');
+        console.error('API cart error, falling back to localStorage:', error);
+        // Fallback: save to localStorage just like the non-authenticated path
+        var existingItem = cart.find(function(item) { return item.id === productId; });
+        if (existingItem) {
+          existingItem.quantity += quantity;
+        } else {
+          cart.push({
+            id: product.id,
+            name: product.name,
+            price: product.price,
+            image: product.image,
+            category: product.category,
+            quantity: quantity
+          });
         }
-        return false;
+        window.cart = cart;
+        saveCart();
+        if (typeof showToast === 'function') {
+          showToast(product.name + ' added to cart!', 'success');
+        }
+        updateCartCount();
+        try { if (typeof updateFloatingCart === 'function') updateFloatingCart(); } catch(e) {}
+        document.querySelectorAll('.cart-count').forEach(function(el) {
+          el.classList.remove('bump');
+          void el.offsetWidth;
+          el.classList.add('bump');
+        });
+        return true;
       }
     } else {
       console.log('Adding to cart via localStorage...');
