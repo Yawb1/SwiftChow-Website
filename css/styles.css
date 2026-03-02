@@ -11476,4 +11476,334 @@ body {
     .reveal > div[style*="grid-template-columns: 1fr 1fr"] {
         grid-template-columns: 1fr !important;
     }
+}/* ============================================
+   MINDBLOWING ENHANCEMENTS & ANIMATIONS
+   ============================================ */
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+}
+::-webkit-scrollbar-track {
+    background: var(--bg-primary);
+}
+::-webkit-scrollbar-thumb {
+    background: var(--primary);
+    border-radius: var(--radius-full);
+    border: 3px solid var(--bg-primary);
+}
+::-webkit-scrollbar-thumb:hover {
+    background: var(--primary-dark);
+}
+
+/* Toast Notification System */
+.toast-container {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    pointer-events: none;
+}
+.toast {
+    background: var(--card-bg);
+    color: var(--text-primary);
+    padding: 16px 24px;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-xl);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    pointer-events: all;
+    border-left: 4px solid var(--primary);
+    animation: slideInLeft 0.3s ease forwards, fadeOutToast 0.3s ease 3s forwards;
+    max-width: 350px;
+}
+.toast-success { border-color: var(--success); }
+.toast-success i { color: var(--success); }
+.toast-error { border-color: var(--error); }
+.toast-error i { color: var(--error); }
+.toast-info { border-color: var(--info); }
+.toast-info i { color: var(--info); }
+
+@keyframes slideInLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+@keyframes fadeOutToast {
+    from { transform: translateX(0); opacity: 1; }
+    to { transform: translateX(-100%); opacity: 0; }
+}
+
+/* Back to Top Button */
+.back-to-top {
+    position: fixed;
+    bottom: 30px;
+    right: 30px;
+    width: 50px;
+    height: 50px;
+    background: var(--primary);
+    color: var(--white);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.2rem;
+    box-shadow: var(--shadow-red);
+    cursor: pointer;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px);
+    transition: all var(--transition-normal);
+}
+.back-to-top.show {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+.back-to-top:hover {
+    background: var(--primary-dark);
+    transform: translateY(-5px);
+}
+
+/* Scroll Reveal Animations */
+.reveal {
+    opacity: 0;
+    transform: translateY(30px);
+    transition: all 0.8s ease-out;
+}
+.reveal.active {
+    opacity: 1;
+    transform: translateY(0);
+}
+.reveal-left {
+    opacity: 0;
+    transform: translateX(-50px);
+    transition: all 0.8s ease-out;
+}
+.reveal-left.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+.reveal-right {
+    opacity: 0;
+    transform: translateX(50px);
+    transition: all 0.8s ease-out;
+}
+.reveal-right.active {
+    opacity: 1;
+    transform: translateX(0);
+}
+.reveal-scale {
+    opacity: 0;
+    transform: scale(0.9);
+    transition: all 0.8s ease-out;
+}
+.reveal-scale.active {
+    opacity: 1;
+    transform: scale(1);
+}
+/* ============================================
+   HERO TYPING & PARTICLES
+   ============================================ */
+.typing-effect {
+    overflow: hidden;
+    white-space: wrap;
+    border-right: 2px solid var(--primary);
+    animation: typing 3s steps(40, end), blink-caret .75s step-end infinite;
+    display: inline-block;
+}
+
+@keyframes typing {
+    from { max-width: 0 }
+    to { max-width: 100% }
+}
+
+@keyframes blink-caret {
+    from, to { border-color: transparent }
+    50% { border-color: var(--primary); }
+}
+
+.food-particle {
+    position: absolute;
+    font-size: 2rem;
+    pointer-events: none;
+    z-index: 0;
+    opacity: 0.6;
+    animation: floatParticle 10s linear infinite;
+}
+
+@keyframes floatParticle {
+    0% { transform: translateY(100vh) rotate(0deg) scale(0.8); opacity: 0; }
+    20% { opacity: 0.6; }
+    80% { opacity: 0.6; }
+    100% { transform: translateY(-10vh) rotate(360deg) scale(1.2); opacity: 0; }
+}
+/* ============================================
+   FLY TO CART ANIMATION & 3D TILT
+   ============================================ */
+.fly-to-cart-element {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    transition: all 0.8s cubic-bezier(0.2, 1, 0.3, 1);
+    border-radius: 50%;
+    box-shadow: var(--shadow-xl);
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    transform: scale(1);
+    opacity: 1;
+}
+
+.food-card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    transform-style: preserve-3d;
+}
+
+.food-card:hover {
+    transform: translateY(-10px) rotateX(2deg) rotateY(2deg);
+    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+}
+/* ============================================
+   FREE DELIVERY PROGRESS BAR & CONFETTI
+   ============================================ */
+.free-delivery-progress-container {
+    background: var(--bg-tertiary);
+    border-radius: var(--radius-full);
+    height: 8px;
+    width: 100%;
+    margin-top: 10px;
+    margin-bottom: 5px;
+    overflow: hidden;
+    position: relative;
+}
+.free-delivery-progress-bar {
+    background: linear-gradient(90deg, var(--warning), var(--success));
+    height: 100%;
+    width: 0%;
+    transition: width 0.5s ease-out;
+    border-radius: var(--radius-full);
+}
+.free-delivery-text {
+    font-size: 0.85rem;
+    font-weight: 500;
+    color: var(--text-secondary);
+    margin-top: 5px;
+    text-align: center;
+}
+
+@keyframes confettiFall {
+    0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+}
+.confetti {
+    position: fixed;
+    width: 10px;
+    height: 10px;
+    background-color: var(--primary);
+    top: -10vh;
+    z-index: 9999;
+    animation: confettiFall 3s linear forwards;
+    pointer-events: none;
+}
+/* ============================================
+   PASSWORD STRENGTH METER & AUTH FLOATING
+   ============================================ */
+.password-strength-meter {
+    height: 4px;
+    background-color: var(--gray-200);
+    border-radius: 2px;
+    margin-top: 5px;
+    overflow: hidden;
+    display: none;
+    transition: all 0.3s ease;
+}
+.password-strength-meter.show {
+    display: block;
+}
+.password-strength-fill {
+    height: 100%;
+    width: 0%;
+    transition: width 0.3s ease, background-color 0.3s ease;
+}
+
+/* Auth Cards Hover Effect */
+.auth-container, .auth-card {
+    transition: transform 0.4s ease, box-shadow 0.4s ease;
+}
+.auth-container:hover, .auth-card:hover {
+    transform: translateY(-5px);
+    box-shadow: var(--shadow-2xl);
+}
+/* ============================================
+   READING PROGRESS BAR
+   ============================================ */
+#reading-progress-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--primary), var(--warning));
+    width: 0%;
+    z-index: 99999;
+    transition: width 0.1s ease;
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.4);
+}
+/* ============================================
+   GLOBAL PAGE LOADER
+   ============================================ */
+#global-loader {
+    position: fixed;
+    top: 0; left: 0; width: 100vw; height: 100vh;
+    background: var(--bg-primary);
+    z-index: 999999;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    transition: opacity 0.5s ease, visibility 0.5s ease;
+}
+.loader-spinner {
+    width: 50px;
+    height: 50px;
+    border: 5px solid var(--primary-light);
+    border-top-color: var(--primary);
+    border-radius: 50%;
+    animation: spinLoader 1s linear infinite;
+}
+@keyframes spinLoader {
+    to { transform: rotate(360deg); }
+}
+body.loaded #global-loader {
+    opacity: 0;
+    visibility: hidden;
+}
+/* ============================================
+   MAGIC CURSOR (DESKTOP ONLY)
+   ============================================ */
+@media (pointer: fine) {
+    body {
+        /* Optional: cursor: none; */
+    }
+    .magic-cursor {
+        position: fixed;
+        top: 0; left: 0;
+        width: 20px; height: 20px;
+        border: 2px solid var(--primary);
+        border-radius: 50%;
+        pointer-events: none;
+        z-index: 999999;
+        transform: translate(-50%, -50%);
+        transition: width 0.2s, height 0.2s, background-color 0.2s;
+        mix-blend-mode: difference;
+    }
+    .magic-cursor.hovering {
+        width: 50px;
+        height: 50px;
+        background-color: var(--primary-glow);
+        border-color: transparent;
+    }
 }
