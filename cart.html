@@ -69,7 +69,7 @@
             <li><a href="blog.html"><i class="fas fa-blog"></i> Blog</a></li>
             <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
             <li><a href="cart.html" class="active"><i class="fas fa-shopping-cart"></i> Cart</a></li>
-            <li><a href="#" id="mobileLoginBtn" onclick="document.getElementById('loginModal').classList.add('active'); document.body.style.overflow = 'hidden';"><i class="fas fa-sign-in-alt"></i> Login</a></li>
+            <li><a href="#" id="mobileLoginBtn" onclick="const m=document.getElementById('loginModal'); if(m){m.classList.add('active'); document.body.style.overflow='hidden';} else {window.location.href='login.html';}"><i class="fas fa-sign-in-alt"></i> Login</a></li>
         </ul>
     </nav>
     
@@ -95,10 +95,26 @@
                     <i class="fas fa-shopping-bag"></i>
                 </div>
                 <h3>Your Cart is Empty</h3>
-                <p>Looks like you haven't added any items to your cart yet.</p>
-                <a href="menu.html" class="btn btn-primary btn-lg" style="border-radius: 2rem; padding: 0.8rem 2rem;">
-                    <i class="fas fa-utensils"></i> Browse Menu
-                </a>
+                <p>Looks like you haven't added any delicious items yet.</p>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 0.75rem; margin: 1.5rem 0 2rem; width: 100%; max-width: 620px;">
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 0.85rem; text-align: left;">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);"><i class="fas fa-bolt" style="color: var(--primary);"></i> Fast dispatch</p>
+                    </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 0.85rem; text-align: left;">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);"><i class="fas fa-leaf" style="color: var(--success);"></i> Fresh ingredients</p>
+                    </div>
+                    <div style="background: var(--bg-secondary); border: 1px solid var(--border-color); border-radius: 0.75rem; padding: 0.85rem; text-align: left;">
+                        <p style="margin: 0; font-size: 0.85rem; color: var(--text-secondary);"><i class="fas fa-gift" style="color: #f59e0b;"></i> Deals available</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 0.75rem; flex-wrap: wrap; justify-content: center;">
+                    <a href="menu.html" class="btn btn-primary btn-lg" style="border-radius: 2rem; padding: 0.8rem 2rem;">
+                        <i class="fas fa-utensils"></i> Browse Menu
+                    </a>
+                    <a href="index.html#deals" class="btn btn-outline btn-lg" style="border-radius: 2rem; padding: 0.8rem 2rem;">
+                        <i class="fas fa-tag"></i> View Deals
+                    </a>
+                </div>
             </div>
             
             <!-- Cart Content -->

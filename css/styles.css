@@ -2879,6 +2879,18 @@ body[data-page="checkout"] .order-summary {
     border: 2px dashed var(--border-color);
 }
 
+body[data-page="cart"] .empty-cart {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 420px;
+        background:
+            radial-gradient(circle at top right, rgba(220, 38, 38, 0.08), transparent 42%),
+            var(--card-bg);
+        box-shadow: 0 14px 34px rgba(0, 0, 0, 0.08);
+}
+
 .empty-cart-icon {
     font-size: 4.5rem;
     color: var(--text-muted);
@@ -6562,7 +6574,10 @@ input:focus, textarea:focus, select:focus {
 .premium-tracking-section {
     min-height: calc(100vh - 80px);
     padding: 2rem 0;
-    background: var(--bg-secondary);
+    background:
+        radial-gradient(circle at 20% 20%, rgba(220, 38, 38, 0.08), transparent 45%),
+        radial-gradient(circle at 80% 0%, rgba(16, 185, 129, 0.06), transparent 40%),
+        var(--bg-secondary);
 }
 
 .premium-tracking-container {
@@ -6595,11 +6610,20 @@ input:focus, textarea:focus, select:focus {
 .tracking-search-card,
 .tracking-info-card,
 .tracking-contact-card {
-    background: var(--bg-primary);
+    background: color-mix(in srgb, var(--bg-primary) 88%, transparent);
     padding: 1.5rem;
     border-radius: 1rem;
-    box-shadow: var(--shadow-md);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
     border: 1px solid var(--border-color);
+    backdrop-filter: blur(10px);
+}
+
+.tracking-search-card:hover,
+.tracking-info-card:hover,
+.tracking-contact-card:hover {
+    border-color: rgba(220, 38, 38, 0.35);
+    box-shadow: 0 14px 34px rgba(220, 38, 38, 0.12);
+    transition: all 0.25s ease;
 }
 
 .tracking-search-card h3,
@@ -6688,6 +6712,11 @@ input:focus, textarea:focus, select:focus {
     justify-content: space-between;
     align-items: flex-start;
     margin-bottom: 1rem;
+    background: color-mix(in srgb, var(--bg-primary) 90%, transparent);
+    border: 1px solid var(--border-color);
+    border-radius: 1rem;
+    padding: 1rem 1.25rem;
+    backdrop-filter: blur(8px);
 }
 
 .tracking-status-header h2 {

@@ -1978,7 +1978,8 @@ function updateNavAuthUI() {
             console.log('  - Opening login modal via openModal');
             openModal(loginModal);
           } else {
-            console.error('  - Login modal not found!');
+            console.warn('  - Login modal not found, redirecting to login page');
+            window.location.href = 'login.html';
           }
         };
         
@@ -1998,7 +1999,8 @@ function updateNavAuthUI() {
             console.log('  - Opening login modal from NEW button');
             openModal(loginModal);
           } else {
-            console.error('  - Login modal not found from NEW button!');
+            console.warn('  - Login modal not found from NEW button, redirecting to login page');
+            window.location.href = 'login.html';
           }
         };
         
@@ -2378,6 +2380,7 @@ async function loadOrders() {
       const response = await apiGetOrders();
       if (response && response.success && response.orders && response.orders.length > 0) {
         orders = response.orders;
+        localStorage.setItem('swiftChowOrders', JSON.stringify(response.orders));
       }
     } catch (e) {
       console.log('API orders fetch failed, falling back to localStorage');
@@ -2387,6 +2390,18 @@ async function loadOrders() {
   // Fall back to localStorage
   if (orders.length === 0) {
     orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
+  }
+
+  // Cleanup pending test orders from account history
+  const cleanedOrders = orders.filter((order) => {
+    const status = (order.status || '').toLowerCase();
+    const isPending = status === 'pending';
+    return !isPending;
+  });
+
+  if (cleanedOrders.length !== orders.length) {
+    orders = cleanedOrders;
+    localStorage.setItem('swiftChowOrders', JSON.stringify(orders));
   }
   
   if (orders.length === 0) {
@@ -2455,7 +2470,7 @@ async function loadOrders() {
 }
 
 // Reorder: add all items from a past order back to cart
-function reorderItems(orderId) {
+async function reorderItems(orderId) {
   const orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
   const order = orders.find(o => (o.orderId || o.id) === orderId);
   
@@ -2465,15 +2480,23 @@ function reorderItems(orderId) {
   }
   
   let addedCount = 0;
-  order.items.forEach(item => {
-    if (item && item.id && item.name && item.price) {
-      // Use addToCart if available, otherwise manually push
-      if (typeof addToCart === 'function') {
-        addToCart(item);
-        addedCount++;
-      }
+  for (const item of order.items) {
+    if (!item || typeof addToCart !== 'function') continue;
+
+    let productId = item.id;
+    if (!productId && item.name && Array.isArray(window.foodItems)) {
+      const match = window.foodItems.find((f) => f.name === item.name);
+      productId = match ? match.id : null;
     }
-  });
+
+    if (!productId) continue;
+
+    const quantity = Number(item.quantity) > 0 ? Number(item.quantity) : 1;
+    const ok = await addToCart(productId, quantity);
+    if (ok) {
+      addedCount += quantity;
+    }
+  }
   
   if (addedCount > 0) {
     if (typeof showToast === 'function') showToast(`${addedCount} item${addedCount > 1 ? 's' : ''} added to cart!`, 'success');
@@ -2486,6 +2509,16 @@ function reorderItems(orderId) {
 }
 
 window.reorderItems = reorderItems;
+
+function clearAllMyOrders() {
+  localStorage.removeItem('swiftChowOrders');
+  if (typeof showToast === 'function') {
+    showToast('Order history cleared', 'info');
+  }
+  loadOrders();
+}
+
+window.clearAllMyOrders = clearAllMyOrders;
 
 // ============================================
 // ACCOUNT PAGE FORM HANDLERS
@@ -3437,7 +3470,7 @@ function updateAuthUI() {
             <i class="fas fa-user-circle"></i> My Account
           </a>
           <a href="tracking.html" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--border-color); transition: all 0.2s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
-            <i class="fas fa-box"></i> My Orders
+            <i class="fas fa-truck-fast"></i> Track Your Order
           </a>
           <button onclick="logout()" style="display: block; width: 100%; text-align: left; padding: 0.75rem 1rem; background: none; border: none; color: #dc2626; cursor: pointer; font-size: 0.95rem; transition: all 0.2s; font-weight: 600;" onmouseover="this.style.background='rgba(220, 38, 38, 0.05)'" onmouseout="this.style.background='transparent'">
             <i class="fas fa-sign-out-alt"></i> Logout

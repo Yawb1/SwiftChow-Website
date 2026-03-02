@@ -9,6 +9,17 @@
 let cart = [];
 let cartLoaded = false;
 
+function normalizeCartState(sourceCart = cart) {
+  if (!Array.isArray(sourceCart)) return [];
+  return sourceCart
+    .filter(item => item && item.id != null)
+    .map(item => ({
+      ...item,
+      quantity: Math.max(1, parseInt(item.quantity, 10) || 1),
+      price: Number(item.price) || 0,
+    }));
+}
+
 // Load cart from API on page load
 async function loadCart() {
   if (!isAuthenticated()) {
@@ -90,7 +101,9 @@ async function loadCart() {
 
 // Save cart (to localStorage if not logged in)
 async function saveCart() {
+  cart = normalizeCartState(cart);
   window.cart = cart; // Always keep window.cart in sync FIRST
+  localStorage.setItem('swiftChowCart', JSON.stringify(cart));
   
   if (isAuthenticated()) {
     try {
@@ -124,7 +137,21 @@ function getCart() {
 // Update cart count in header
 function updateCartCount() {
   const cartCountElements = document.querySelectorAll('.cart-count');
-  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+
+  // Prefer in-memory cart, fallback to window.cart/localStorage if needed
+  let sourceCart = Array.isArray(cart) ? cart : [];
+  if (!sourceCart.length && Array.isArray(window.cart) && window.cart.length) {
+    sourceCart = window.cart;
+  }
+  if (!sourceCart.length) {
+    sourceCart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
+  }
+
+  sourceCart = normalizeCartState(sourceCart);
+  cart = sourceCart;
+  window.cart = sourceCart;
+
+  const totalItems = sourceCart.reduce((sum, item) => sum + (item.quantity || 0), 0);
   
   cartCountElements.forEach(el => {
     el.textContent = totalItems;
@@ -306,9 +333,22 @@ function getCartItemCount() {
 }
 
 // Clear entire cart
-function clearCart() {
+async function clearCart() {
+  try {
+    if (isAuthenticated() && typeof apiClearCart === 'function') {
+      await apiClearCart();
+    }
+  } catch (error) {
+    console.warn('Could not clear server cart, clearing local cart anyway:', error);
+  }
+
   cart = [];
-  saveCart();
+  window.cart = [];
+  localStorage.setItem('swiftChowCart', JSON.stringify([]));
+  updateCartCount();
+  updateCartDisplay();
+  if (typeof updateCartModal === 'function') updateCartModal();
+  if (typeof updateFloatingCart === 'function') updateFloatingCart();
   showToast('Cart cleared', 'info');
 }
 
@@ -334,6 +374,9 @@ function animateCartIcon() {
 
 // Update cart display on cart page
 function updateCartDisplay() {
+  cart = normalizeCartState(cart);
+  window.cart = cart;
+
   const cartItemsContainer = document.querySelector('.cart-items-list');
   const emptyCartMessage = document.querySelector('.empty-cart');
   const cartContent = document.querySelector('.cart-content');

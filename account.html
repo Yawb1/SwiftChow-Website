@@ -219,8 +219,15 @@
                 <!-- Orders Section -->
                 <div class="content-section" id="orders">
                     <div class="section-header">
-                        <h2>My Orders</h2>
-                        <p>View and manage your order history</p>
+                        <div style="display: flex; align-items: center; justify-content: space-between; gap: 1rem; flex-wrap: wrap;">
+                            <div>
+                                <h2>My Orders</h2>
+                                <p>View and manage your order history</p>
+                            </div>
+                            <button class="btn btn-outline btn-sm" onclick="clearAllMyOrders()" style="border-radius: 2rem;">
+                                <i class="fas fa-trash-alt"></i> Clear Orders
+                            </button>
+                        </div>
                     </div>
                     
                     <div class="orders-list" id="ordersContainer">
