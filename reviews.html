@@ -71,7 +71,7 @@
         }
         .reviews-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+            grid-template-columns: repeat(auto-fill, minmax(min(350px, 100%), 1fr));
             gap: 2rem;
             margin-bottom: 4rem;
         }
@@ -209,7 +209,7 @@
     <!-- Trust Badges Section -->
     <section style="background: var(--bg-secondary); padding: 2.5rem 0; border-bottom: 1px solid var(--border-color);">
         <div class="container">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; text-align: center;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(200px, 100%), 1fr)); gap: 1.5rem; text-align: center;">
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                     <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #22c55e, #16a34a); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">
                         <i class="fas fa-shield-alt"></i>

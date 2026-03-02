@@ -1482,7 +1482,7 @@
                 <h2 class="section-title" style="font-size: 2.5rem; margin-bottom: 12px;">How It Works</h2>
                 <p class="section-subtitle" style="font-size: 1.1rem;">Get your food in 3 easy steps</p>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2.5rem; max-width: 1000px; margin: 0 auto;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(280px, 100%), 1fr)); gap: 2.5rem; max-width: 1000px; margin: 0 auto;">
                 <!-- Step 1 -->
                 <div class="reveal" style="text-align: center; position: relative;">
                     <div style="width: 90px; height: 90px; background: linear-gradient(135deg, #DC2626, #B91C1C); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem; color: white; font-size: 2rem; box-shadow: 0 10px 30px rgba(220,38,38,0.3); position: relative;">
@@ -1677,7 +1677,7 @@
                 <p class="section-subtitle" style="font-size: 1.1rem;">Something delicious for everyone</p>
             </div>
             
-            <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(120px, 1fr)); gap: 16px;">
+            <div class="categories-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(120px, 100%), 1fr)); gap: 16px;">
                 <!-- Categories will be rendered by JavaScript -->
             </div>
         </div>
@@ -1699,7 +1699,7 @@
                 </a>
             </div>
             
-            <div class="products-grid popular-items-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+            <div class="products-grid popular-items-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 24px;">
                 <!-- Products will be rendered by JavaScript -->
             </div>
         </div>
@@ -1713,7 +1713,7 @@
                 <p style="font-size: 1.1rem; color: rgba(255,255,255,0.8);">We're not just fast food – we're better food, fast</p>
             </div>
             
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 30px;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(240px, 100%), 1fr)); gap: 30px;">
                 <div class="why-card">
                     <div class="icon-wrapper">🍔</div>
                     <h3>Premium Quality</h3>
@@ -1929,7 +1929,7 @@
                 <h2 class="section-title" style="font-size: 2.5rem; margin-bottom: 12px;">Why Choose Us?</h2>
                 <p class="section-subtitle" style="font-size: 1.1rem;">We're not just food — we're an experience</p>
             </div>
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 2rem;">
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(min(250px, 100%), 1fr)); gap: 2rem;">
                 <div class="reveal glass-card" style="padding: 2rem; text-align: center; border-radius: 1.25rem;">
                     <div style="width: 70px; height: 70px; background: linear-gradient(135deg, #f97316, #ea580c); border-radius: 1rem; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.25rem; font-size: 1.75rem; color: white;">
                         <i class="fas fa-fire"></i>
@@ -1965,7 +1965,7 @@
     <!-- Newsletter Section -->
     <section class="newsletter-premium">
         <div class="container">
-            <div class="newsletter-card">
+            <div class="newsletter-card" style="padding: clamp(1.5rem, 5vw, 60px);">
                 <div class="newsletter-icon">
                     <i class="fas fa-paper-plane"></i>
                 </div>

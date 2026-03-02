@@ -11807,3 +11807,1302 @@ body.loaded #global-loader {
         border-color: transparent;
     }
 }
+
+/* ============================================
+   COMPREHENSIVE MOBILE RESPONSIVENESS FIX
+   All-in-one mobile overhaul for every page
+   ============================================ */
+
+/* ---------- Body Scroll Lock for Mobile Menu ---------- */
+body.menu-open {
+    overflow: hidden !important;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+}
+
+/* ---------- Global Overflow Protection ---------- */
+html, body {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* ---------- Container Safe Widths ---------- */
+@media (max-width: 768px) {
+    .container {
+        padding-left: 1rem;
+        padding-right: 1rem;
+        max-width: 100%;
+        overflow-x: hidden;
+    }
+    
+    * {
+        max-width: 100%;
+    }
+    
+    img, video, iframe, embed, object {
+        max-width: 100%;
+        height: auto;
+    }
+}
+
+/* ---------- Mobile Navigation Improvements ---------- */
+@media (max-width: 768px) {
+    .mobile-nav {
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 998;
+        padding-top: 80px;
+    }
+    
+    .mobile-nav-links {
+        padding: 1rem;
+    }
+    
+    .mobile-nav-links li a {
+        padding: 1rem 1.5rem;
+        font-size: 1.1rem;
+        min-height: 48px;
+        display: flex;
+        align-items: center;
+    }
+    
+    .header .nav {
+        padding: 0 1rem;
+    }
+    
+    .nav-actions {
+        gap: 0.5rem;
+    }
+    
+    .nav-actions .btn-sm {
+        padding: 0.4rem 0.75rem;
+        font-size: 0.8rem;
+    }
+    
+    .nav-actions .btn-sm i {
+        margin-right: 0;
+    }
+    
+    .nav-actions .btn-sm span {
+        display: none;
+    }
+}
+
+/* ---------- Page Header Mobile ---------- */
+@media (max-width: 768px) {
+    .page-header {
+        padding: 5rem 0 2rem;
+        margin-top: 70px;
+    }
+    
+    .page-header h1 {
+        font-size: clamp(1.5rem, 6vw, 2rem);
+        line-height: 1.2;
+    }
+    
+    .page-header p {
+        font-size: 0.9rem;
+    }
+    
+    .breadcrumb {
+        font-size: 0.8rem;
+        flex-wrap: wrap;
+    }
+}
+
+/* ---------- Footer Mobile Fix (ALL PAGES) ---------- */
+@media (max-width: 768px) {
+    .footer {
+        padding: 3rem 0 1.5rem;
+    }
+    
+    .footer .container {
+        padding: 0 1rem;
+    }
+    
+    .footer-grid {
+        grid-template-columns: 1fr !important;
+        gap: 2rem;
+        text-align: center;
+    }
+    
+    .footer-brand {
+        text-align: center;
+    }
+    
+    .footer-brand .logo {
+        justify-content: center;
+    }
+    
+    .footer-brand p {
+        max-width: 100%;
+        margin: 0.75rem auto;
+        font-size: 0.9rem;
+        line-height: 1.6;
+    }
+    
+    .footer-social {
+        justify-content: center;
+        margin-top: 1rem;
+    }
+    
+    .footer-social a {
+        width: 44px;
+        height: 44px;
+        min-width: 44px;
+        min-height: 44px;
+    }
+    
+    .footer-column {
+        text-align: center;
+    }
+    
+    .footer-column h4 {
+        font-size: 1.1rem;
+        margin-bottom: 1rem;
+    }
+    
+    .footer-links {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 0.25rem;
+    }
+    
+    .footer-links li {
+        width: 100%;
+    }
+    
+    .footer-links a {
+        padding: 0.6rem 1rem;
+        min-height: 44px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        font-size: 0.95rem;
+    }
+    
+    .footer-links a:hover {
+        background: rgba(220, 38, 38, 0.05);
+    }
+    
+    .footer-contact-item {
+        justify-content: center;
+        text-align: center;
+        padding: 0.5rem 0;
+        font-size: 0.9rem;
+    }
+    
+    .footer-contact-item i {
+        min-width: 20px;
+    }
+    
+    .footer-bottom {
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        text-align: center;
+    }
+    
+    .footer-bottom p {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .footer-grid {
+        gap: 1.5rem;
+    }
+    
+    .footer-social a {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .footer-contact-item {
+        font-size: 0.82rem;
+        flex-direction: column;
+        gap: 0.25rem;
+    }
+}
+
+/* ---------- Reviews Page Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .reviews-hero {
+        padding: 3rem 1rem;
+        margin-top: 70px;
+    }
+    
+    .reviews-hero h1 {
+        font-size: clamp(1.5rem, 6vw, 2rem);
+    }
+    
+    .reviews-hero p {
+        font-size: 1rem;
+    }
+    
+    .rating-showcase {
+        padding: 1.25rem;
+        max-width: 100%;
+    }
+    
+    .rating-showcase .overall-rating {
+        font-size: 3rem;
+    }
+    
+    .rating-showcase .rating-stars {
+        font-size: 1.25rem;
+    }
+    
+    .reviews-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem;
+    }
+    
+    .review-card {
+        padding: 1.25rem;
+    }
+    
+    .review-form-wrapper {
+        padding: 1.5rem !important;
+        margin-top: 2rem !important;
+        border-radius: 1rem !important;
+    }
+    
+    .star-rating-input {
+        gap: 0.75rem;
+        font-size: 1.75rem;
+        justify-content: center;
+    }
+}
+
+@media (max-width: 480px) {
+    .reviews-hero h1 {
+        font-size: 1.4rem;
+    }
+    
+    .rating-showcase .overall-rating {
+        font-size: 2.5rem;
+    }
+}
+
+/* ---------- Tracking Page Mobile Fix ---------- */
+@media (max-width: 968px) {
+    .premium-tracking-section {
+        padding: 1rem 0 2rem;
+    }
+    
+    .tracking-sidebar {
+        position: static !important;
+        gap: 1rem;
+    }
+    
+    .tracking-search-card,
+    .tracking-info-card,
+    .tracking-contact-card {
+        padding: 1.25rem;
+    }
+    
+    .tracking-status-header {
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1rem;
+    }
+    
+    .tracking-status-header h2 {
+        font-size: 1.25rem;
+    }
+}
+
+@media (max-width: 768px) {
+    .swift-tracking-container {
+        padding: 2rem 1rem !important;
+        border-radius: 1.25rem !important;
+        margin: 1rem 0 !important;
+    }
+    
+    .tracking-steps {
+        flex-direction: column !important;
+        gap: 1.25rem;
+        align-items: flex-start !important;
+    }
+    
+    .tracking-step {
+        flex-direction: row !important;
+        align-items: center;
+        gap: 1rem;
+        width: 100%;
+    }
+    
+    .tracking-step-circle {
+        width: 2.5rem !important;
+        height: 2.5rem !important;
+        min-width: 2.5rem;
+        margin-bottom: 0 !important;
+    }
+    
+    .tracking-step-circle i {
+        font-size: 1rem !important;
+    }
+    
+    .tracking-step-label {
+        text-align: left !important;
+        font-size: 0.9rem;
+    }
+    
+    .tracking-step-time {
+        font-size: 0.8rem;
+    }
+    
+    .tracking-progress-track {
+        display: none !important;
+    }
+    
+    .tracking-motorcycle {
+        display: none !important;
+    }
+    
+    /* ETA card mobile */
+    .eta-card {
+        grid-template-columns: 1fr !important;
+        gap: 1rem;
+        padding: 1.25rem;
+    }
+    
+    .eta-divider {
+        display: none;
+    }
+    
+    .time-large {
+        font-size: 2rem;
+    }
+    
+    /* Order details mobile */
+    .order-details-card {
+        padding: 1.25rem;
+    }
+    
+    .item-row {
+        grid-template-columns: 1fr auto;
+        gap: 0.5rem;
+    }
+    
+    .item-quantity {
+        text-align: left;
+    }
+    
+    .item-price {
+        text-align: right;
+        grid-column: 2;
+    }
+    
+    /* Driver card mobile */
+    .driver-card {
+        padding: 1.25rem;
+    }
+    
+    .driver-info {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .driver-info .btn {
+        width: 100%;
+    }
+}
+
+/* ---------- Account Page Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .premium-account-section {
+        padding: 2rem 0 1rem;
+        margin-top: 70px;
+    }
+    
+    .premium-account-container {
+        padding: 0 1rem;
+    }
+    
+    .setting-item {
+        flex-direction: column;
+        gap: 0.75rem;
+        align-items: flex-start;
+    }
+    
+    .order-card-header {
+        flex-direction: column;
+        gap: 0.5rem;
+    }
+    
+    .order-card-actions {
+        flex-direction: column;
+    }
+    
+    .addresses-grid {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .payment-card {
+        flex-direction: column;
+        text-align: center;
+        gap: 1rem;
+    }
+    
+    .payment-actions {
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .faq-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ---------- Cart Page Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .cart-container,
+    .cart-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
+    
+    .cart-item {
+        flex-direction: column;
+        gap: 1rem;
+        text-align: center;
+    }
+    
+    .cart-item-image {
+        width: 100%;
+        max-width: 200px;
+        margin: 0 auto;
+    }
+    
+    .cart-item-details {
+        text-align: center;
+    }
+    
+    .cart-summary {
+        position: static;
+        width: 100%;
+    }
+}
+
+/* ---------- Checkout Page Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .checkout-container,
+    .checkout-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
+    
+    .checkout-steps {
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        justify-content: center;
+    }
+    
+    .checkout-step {
+        padding: 8px 12px;
+        font-size: 0.8rem;
+    }
+    
+    .checkout-step-line {
+        width: 20px;
+    }
+}
+
+/* ---------- Blog Pages Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .blog-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem;
+    }
+    
+    .blog-card,
+    .blog-card-premium {
+        max-width: 100%;
+    }
+    
+    .blog-post-container {
+        padding: 0 1rem;
+    }
+    
+    .blog-post-title {
+        font-size: clamp(1.3rem, 5vw, 1.75rem);
+    }
+    
+    .blog-post-content {
+        font-size: 0.95rem;
+    }
+    
+    .blog-post-content img {
+        border-radius: 0.75rem;
+    }
+    
+    .share-section {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+}
+
+/* ---------- Menu Page Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .menu-filters {
+        overflow-x: auto;
+        flex-wrap: nowrap;
+        -webkit-overflow-scrolling: touch;
+        scrollbar-width: none;
+        padding-bottom: 0.5rem;
+    }
+    
+    .menu-filters::-webkit-scrollbar {
+        display: none;
+    }
+    
+    .filter-btn {
+        white-space: nowrap;
+        flex-shrink: 0;
+        padding: 0.5rem 1rem;
+        font-size: 0.85rem;
+    }
+    
+    .menu-search {
+        flex-direction: column;
+    }
+    
+    .menu-grid,
+    .products-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+        gap: 1rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .menu-grid,
+    .products-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ---------- Testimonials Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .testimonials-section {
+        padding: 60px 0;
+    }
+    
+    .testimonials-header h2 {
+        font-size: 1.75rem;
+    }
+    
+    .testimonials-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem;
+    }
+    
+    .testimonial-card {
+        padding: 1.5rem;
+    }
+}
+
+/* ---------- Stats Section Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .stats-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem;
+    }
+    
+    .stat-card {
+        padding: 1.25rem;
+    }
+    
+    .stat-number {
+        font-size: 1.75rem;
+    }
+    
+    .stat-label {
+        font-size: 0.8rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .stats-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ---------- Toast Notifications Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .toast-container {
+        left: 0.75rem !important;
+        right: 0.75rem !important;
+        top: auto !important;
+        bottom: 1rem !important;
+        max-width: none !important;
+    }
+    
+    .toast {
+        min-width: auto !important;
+        width: 100% !important;
+        max-width: none !important;
+        font-size: 0.9rem;
+        padding: 0.75rem 1rem;
+    }
+}
+
+/* ---------- Floating Elements Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .floating-cart-btn {
+        width: 52px;
+        height: 52px;
+        bottom: 1.25rem;
+        right: 1.25rem;
+        font-size: 1.25rem;
+    }
+    
+    .floating-cart-count {
+        width: 22px;
+        height: 22px;
+        font-size: 0.65rem;
+        top: -5px;
+        right: -5px;
+    }
+    
+    .back-to-top,
+    #back-to-top {
+        width: 44px;
+        height: 44px;
+        bottom: 1.25rem;
+        right: 1.25rem;
+        font-size: 1rem;
+    }
+    
+    /* Move back-to-top above floating cart */
+    .floating-cart-btn ~ .back-to-top,
+    .floating-cart-btn ~ #back-to-top {
+        bottom: 5rem;
+    }
+}
+
+/* ---------- Modal Mobile Fix ---------- */
+@media (max-width: 600px) {
+    .modal-overlay {
+        padding: 0 !important;
+        align-items: flex-end !important;
+    }
+    
+    .modal-content {
+        max-width: 100% !important;
+        width: 100% !important;
+        border-radius: 1.5rem 1.5rem 0 0 !important;
+        max-height: 92vh !important;
+        animation: slideUp 0.3s ease-out !important;
+    }
+    
+    .modal-header {
+        padding: 1.25rem 1rem !important;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.25rem;
+    }
+    
+    .modal-body {
+        padding: 1rem !important;
+    }
+    
+    .modal-footer {
+        padding: 1rem !important;
+    }
+    
+    /* Social login grid stack on mobile */
+    .modal-body div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ---------- Cart Modal Slide Panel Mobile ---------- */
+@media (max-width: 480px) {
+    #cartModal .modal-content {
+        max-width: 100% !important;
+        width: 100% !important;
+    }
+}
+
+/* ---------- Auth Pages Mobile Fix ---------- */
+@media (max-width: 480px) {
+    .auth-container {
+        padding: 1rem !important;
+    }
+    
+    .auth-card {
+        padding: 1.5rem 1.25rem !important;
+        border-radius: 1rem !important;
+        margin: 0 !important;
+        max-width: 100% !important;
+    }
+    
+    .auth-header h1 {
+        font-size: 1.4rem !important;
+    }
+    
+    .auth-header p {
+        font-size: 0.85rem;
+    }
+    
+    .auth-header .logo-icon {
+        width: 40px !important;
+        height: 40px !important;
+    }
+    
+    .auth-header .logo-text {
+        font-size: 1.2rem !important;
+    }
+    
+    .auth-form input {
+        padding: 0.75rem 0.875rem !important;
+        font-size: 16px !important; /* Prevents iOS zoom */
+    }
+    
+    .auth-divider {
+        margin: 1rem 0 !important;
+    }
+    
+    .social-btn {
+        padding: 0.75rem 1rem !important;
+        font-size: 0.9rem !important;
+    }
+    
+    .auth-footer {
+        margin-top: 1rem !important;
+    }
+    
+    .forgot-illustration {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 1.5rem !important;
+    }
+    
+    .auth-decoration {
+        display: none !important;
+    }
+    
+    .auth-theme-toggle {
+        width: 38px !important;
+        height: 38px !important;
+        font-size: 1rem !important;
+    }
+}
+
+/* ---------- About Page Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .about-hero {
+        padding: 3rem 1rem !important;
+    }
+    
+    .about-hero h1 {
+        font-size: clamp(1.5rem, 6vw, 2rem) !important;
+    }
+    
+    .about-story {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+        padding: 1.5rem !important;
+    }
+    
+    .mission-vision-grid,
+    .mission-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.25rem !important;
+    }
+    
+    .stats-grid-about {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1rem !important;
+    }
+    
+    .timeline-container {
+        padding-left: 20px !important;
+    }
+    
+    .timeline-item {
+        padding-left: 30px !important;
+    }
+    
+    .timeline-item::before {
+        left: -6px !important;
+        width: 12px !important;
+        height: 12px !important;
+    }
+    
+    .team-grid {
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr)) !important;
+    }
+    
+    .values-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 480px) {
+    .stats-grid-about {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ---------- Contact Page Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .contact-grid {
+        grid-template-columns: 1fr !important;
+        gap: 1.5rem !important;
+    }
+    
+    .contact-info-card {
+        padding: 1.25rem !important;
+    }
+    
+    .contact-form-card {
+        padding: 1.5rem !important;
+    }
+    
+    .contact-hero h1 {
+        font-size: clamp(1.5rem, 6vw, 2rem) !important;
+    }
+    
+    .contact-map h2 {
+        font-size: 1.5rem !important;
+    }
+    
+    .faq-section h2 {
+        font-size: 1.5rem !important;
+    }
+}
+
+/* ---------- Terms & Privacy Pages Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .terms-container {
+        padding: 0 1rem;
+    }
+    
+    .terms-content h1 {
+        font-size: 1.5rem !important;
+    }
+    
+    .terms-content h2 {
+        font-size: 1.1rem !important;
+    }
+    
+    .terms-content p,
+    .terms-content li {
+        font-size: 0.9rem !important;
+    }
+}
+
+/* ---------- Order Success Page Mobile Fix ---------- */
+@media (max-width: 640px) {
+    .order-success-container {
+        padding: 1.5rem 1rem;
+    }
+    
+    .success-icon {
+        width: 80px;
+        height: 80px;
+        font-size: 2rem;
+    }
+    
+    .success-title {
+        font-size: 1.5rem;
+    }
+    
+    .success-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .success-actions .btn {
+        width: 100%;
+    }
+}
+
+/* ---------- Promotional Banner Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .promo-banner {
+        padding: 1.5rem;
+        border-radius: 1rem;
+    }
+}
+
+/* ---------- Gallery Grid Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .gallery-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .gallery-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ---------- Creative Tracking Progress Mobile ---------- */
+@media (max-width: 768px) {
+    .tracking-progress-container {
+        padding: 1.5rem 0.75rem !important;
+        margin: 1.5rem 0 !important;
+    }
+    
+    .tracking-progress-steps {
+        flex-direction: column !important;
+        gap: 1.5rem;
+        align-items: flex-start !important;
+    }
+    
+    .tracking-step {
+        flex-direction: row !important;
+        gap: 1rem;
+    }
+    
+    .tracking-step-circle {
+        width: 60px !important;
+        height: 60px !important;
+        min-width: 60px;
+        font-size: 1.5rem !important;
+    }
+    
+    .tracking-progress-line {
+        display: none !important;
+    }
+}
+
+/* ---------- Why Section Mobile (Index page) ---------- */
+@media (max-width: 768px) {
+    .why-section-premium {
+        padding: 60px 0 !important;
+    }
+    
+    .why-card {
+        padding: 20px !important;
+    }
+    
+    .why-card .icon-wrapper {
+        width: 60px !important;
+        height: 60px !important;
+        font-size: 1.75rem !important;
+    }
+    
+    .why-card h3 {
+        font-size: 1.1rem;
+    }
+    
+    .why-card p {
+        font-size: 0.85rem;
+    }
+}
+
+/* ---------- Deals Carousel Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .deals-section-premium {
+        padding: 60px 0 !important;
+    }
+    
+    .deal-image {
+        height: 200px !important;
+    }
+    
+    .deal-info {
+        padding: 20px !important;
+    }
+    
+    .deal-info h3 {
+        font-size: 1.25rem;
+    }
+}
+
+/* ---------- Food Card Premium Mobile Fix ---------- */
+@media (max-width: 768px) {
+    .food-card-premium .card-image {
+        height: 180px;
+    }
+    
+    .food-card-premium .card-content {
+        padding: 14px;
+    }
+    
+    .food-card-premium .card-title {
+        font-size: 1rem;
+    }
+    
+    .food-card-premium .card-desc {
+        font-size: 0.82rem;
+        margin-bottom: 10px;
+    }
+    
+    .food-card-premium .card-price {
+        font-size: 1.1rem;
+    }
+}
+
+/* ---------- Hero Section Mobile Buttons Fix ---------- */
+@media (max-width: 768px) {
+    .btn-hero-primary,
+    .btn-hero-secondary {
+        padding: 14px 24px !important;
+        font-size: 0.95rem !important;
+        width: 100%;
+        justify-content: center;
+    }
+    
+    .hero-buttons {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .hero-content-wrapper {
+        padding: 80px 16px 40px !important;
+    }
+    
+    .hero-description {
+        font-size: 1rem !important;
+    }
+    
+    .hero-social-proof {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .customer-avatars img,
+    .customer-avatars .avatar-count {
+        width: 36px;
+        height: 36px;
+    }
+    
+    .scroll-indicator {
+        bottom: 20px;
+    }
+}
+
+@media (max-width: 480px) {
+    .btn-hero-primary,
+    .btn-hero-secondary {
+        padding: 12px 20px !important;
+        font-size: 0.9rem !important;
+    }
+}
+
+/* ---------- Magic Cursor Hidden on Touch ---------- */
+@media (hover: none) and (pointer: coarse) {
+    .magic-cursor {
+        display: none !important;
+    }
+}
+
+/* ---------- Print & Reduced Motion ---------- */
+@media print {
+    .floating-cart-btn,
+    .back-to-top,
+    #back-to-top,
+    .toast-container,
+    .magic-cursor {
+        display: none !important;
+    }
+}
+/* ---------- Section Titles & Inline Style Overrides Mobile ---------- */
+@media (max-width: 768px) {
+    .section-title {
+        font-size: clamp(1.5rem, 5vw, 2rem) !important;
+    }
+    
+    .section-subtitle {
+        font-size: 0.95rem !important;
+    }
+    
+    /* Newsletter card padding */
+    .newsletter-card {
+        padding: 2rem 1.5rem !important;
+    }
+    
+    .newsletter-premium {
+        padding: 60px 0 !important;
+    }
+    
+    /* How It Works section padding */
+    .section[style*="padding: 80px"],
+    section[style*="padding: 80px"],
+    section[style*="padding: 100px"] {
+        padding: 50px 0 !important;
+    }
+    
+    /* Section header margin */
+    .section-header[style*="margin-bottom: 48px"],
+    div[style*="margin-bottom: 48px"].section-header {
+        margin-bottom: 2rem !important;
+    }
+    
+    /* Glass cards on mobile */
+    .glass-card {
+        padding: 1.5rem !important;
+    }
+    
+    /* Step circle icons smaller on mobile */
+    section div[style*="width: 90px"][style*="height: 90px"] {
+        width: 70px !important;
+        height: 70px !important;
+        font-size: 1.5rem !important;
+    }
+    
+    section div[style*="width: 70px"][style*="height: 70px"] {
+        width: 56px !important;
+        height: 56px !important;
+        font-size: 1.35rem !important;
+    }
+    
+    /* Blog scroll cards */
+    .blog-card-premium {
+        width: 270px !important;
+    }
+    
+    .blog-card-premium img {
+        height: 160px;
+    }
+}
+
+@media (max-width: 480px) {
+    .newsletter-card {
+        padding: 1.5rem 1rem !important;
+        border-radius: 1.25rem !important;
+    }
+    
+    .newsletter-form-wrapper input {
+        padding: 14px 18px !important;
+    }
+    
+    .newsletter-form-wrapper button {
+        padding: 14px 24px !important;
+        font-size: 0.9rem;
+    }
+    
+    /* Blog scroll cards even smaller */
+    .blog-card-premium {
+        width: 240px !important;
+    }
+}
+
+/* ---------- Tracking Step Labels Mobile Enhancement ---------- */
+@media (max-width: 640px) {
+    .tracking-step-title {
+        max-width: none !important;
+        white-space: normal !important;
+        overflow: visible !important;
+        text-overflow: clip !important;
+        font-size: 0.7rem !important;
+        line-height: 1.3;
+    }
+    
+    .tracking-step-time {
+        font-size: 0.65rem !important;
+    }
+    
+    .tracking-status-badge {
+        font-size: 0.6rem !important;
+        padding: 0.35rem 0.6rem !important;
+        margin-top: 0.6rem !important;
+    }
+    
+    .tracking-step-circle {
+        width: 2.25rem !important;
+        height: 2.25rem !important;
+        margin-bottom: 0.8rem !important;
+    }
+    
+    .tracking-step-circle i {
+        font-size: 0.9rem !important;
+    }
+    
+    .swift-tracking-container {
+        padding: 2rem 1rem !important;
+    }
+    
+    .tracking-progress-track {
+        left: 1.5rem !important;
+        right: 1.5rem !important;
+    }
+    
+    .tracking-motorcycle {
+        font-size: 1.2rem !important;
+    }
+    
+    .tracking-helper-text {
+        font-size: 0.95rem !important;
+        margin-top: 1.5rem !important;
+    }
+}
+
+@media (max-width: 400px) {
+    .tracking-step-title {
+        font-size: 0.6rem !important;
+    }
+    
+    .tracking-step-circle {
+        width: 2rem !important;
+        height: 2rem !important;
+    }
+    
+    .tracking-step-circle i {
+        font-size: 0.75rem !important;
+    }
+    
+    .tracking-status-badge {
+        display: none !important;
+    }
+}
+
+/* ---------- Checkout Form Grid Mobile ---------- */
+@media (max-width: 480px) {
+    .checkout-form div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .checkout-form .form-section {
+        padding: 1.25rem !important;
+    }
+    
+    .checkout-form h3 {
+        font-size: 1.1rem;
+    }
+}
+
+/* ---------- Cart Page Bottom Buttons Mobile ---------- */
+@media (max-width: 480px) {
+    .cart-container div[style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ---------- Blog Featured Post Mobile ---------- */
+@media (max-width: 768px) {
+    .section .reveal div[style*="grid-template-columns: 1fr 1fr"][style*="min-height: 300px"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .section .reveal div[style*="padding: 3rem"] {
+        padding: 2rem 1.5rem !important;
+    }
+    
+    .section .reveal div[style*="padding: 3rem"] h2 {
+        font-size: 1.35rem !important;
+    }
+}
+
+/* ---------- Modal Social Login Grid Mobile (all pages) ---------- */
+@media (max-width: 480px) {
+    div[style*="display: grid"][style*="grid-template-columns: 1fr 1fr"][style*="gap: 1rem"],
+    div[style*="display: grid"][style*="grid-template-columns: 1fr 1fr"][style*="gap: 0.75rem"] {
+        grid-template-columns: 1fr !important;
+    }
+}
