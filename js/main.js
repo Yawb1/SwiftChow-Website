@@ -4315,7 +4315,7 @@ function renderRecommendations(containerId, categoryId, excludeId) {
   const html = `
     <div style="margin-top: 48px; padding-top: 48px; border-top: 1px solid var(--border-color);">
       <h3 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 24px;">You Might Also Like</h3>
-      <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 24px;">
+      <div class="products-grid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(min(280px, 100%), 1fr)); gap: 24px;">
         ${recommendations.map(item => `
           <div class="product-card card-hover">
             <div class="product-image">
