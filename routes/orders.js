@@ -11,11 +11,6 @@ const router = express.Router();
 
 router.post('/create', requireAuth, async (req, res) => {
   try {
-    console.log('=== ORDER CREATE REQUEST ===');
-    console.log('User ID:', req.user._id);
-    console.log('User:', { firstName: req.user.firstName, lastName: req.user.lastName, phone: req.user.phone });
-    console.log('Request body:', req.body);
-    
     const { items, deliveryAddress, paymentMethod, specialInstructions } = req.body;
     
     if (!items || items.length === 0) {
@@ -36,8 +31,6 @@ router.post('/create', requireAuth, async (req, res) => {
     const timestamp = Date.now().toString().slice(-6);
     const random = Math.random().toString(36).substring(2, 7).toUpperCase();
     const orderId = `SC${timestamp}${random}`;
-    
-    console.log('Generated orderId:', orderId);
     
     // Create order
     const order = new Order({
@@ -63,7 +56,6 @@ router.post('/create', requireAuth, async (req, res) => {
     
     console.log('Order to save:', order);
     await order.save();
-    console.log('✅ Order saved successfully:', order.orderId);
     
     // Update user stats (safely)
     try {
@@ -72,7 +64,6 @@ router.post('/create', requireAuth, async (req, res) => {
         user.totalOrders = (user.totalOrders || 0) + 1;
         user.totalSpent = (user.totalSpent || 0) + total;
         await user.save();
-        console.log('✅ User stats updated');
       }
     } catch (userError) {
       console.warn('Warning: Could not update user stats:', userError.message);
@@ -84,8 +75,8 @@ router.post('/create', requireAuth, async (req, res) => {
       orderId: order.orderId
     });
   } catch (error) {
-    console.error('❌ ERROR creating order:', error);
-    res.status(500).json({ error: error.message, stack: error.stack });
+    console.error('Error creating order:', error.message);
+    res.status(500).json({ error: 'Failed to create order. Please try again.' });
   }
 });
 

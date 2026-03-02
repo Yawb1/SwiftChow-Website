@@ -11,14 +11,11 @@ let cartLoaded = false;
 
 // Load cart from API on page load
 async function loadCart() {
-  console.log('loadCart() called - isAuthenticated:', isAuthenticated());
-  
   if (!isAuthenticated()) {
     // If not logged in, use localStorage
     cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
     cartLoaded = true;
-    window.cart = cart; // Sync to window object
-    console.log('Cart loaded from localStorage:', cart.length, 'items');
+    window.cart = cart;
     updateCartDisplay();
     updateCartCount();
     return;
@@ -61,7 +58,6 @@ async function loadCart() {
               localItem.category,
               localItem.image
             );
-            console.log('Synced local item to API:', localItem.name);
           }
         }
       } catch (syncError) {
@@ -154,28 +150,19 @@ async function addToCart(productId, quantity = 1) {
     productId = parseInt(productId, 10);
     quantity = parseInt(quantity, 10);
     
-    console.log('addToCart called - productId:', productId, 'quantity:', quantity);
-    console.log('foodItems type:', typeof foodItems, 'length:', foodItems ? foodItems.length : 'undefined');
-    console.log('cart state:', cart.length, 'items, cartLoaded:', cartLoaded);
-    
     if (!cartLoaded) {
-      console.warn('Cart not loaded yet, attempting to load...');
       await loadCart();
     }
     
     const product = foodItems.find(item => item.id === productId);
     if (!product) {
-      console.error('Product not found - productId:', productId);
       if (typeof showToast === 'function') {
         showToast('Product not found', 'error');
       }
       return false;
     }
     
-    console.log('Product found:', product.name);
-    
     if (isAuthenticated()) {
-      console.log('Adding to cart via API...');
       try {
         const response = await apiAddToCart(
           productId, 
@@ -187,7 +174,6 @@ async function addToCart(productId, quantity = 1) {
         );
         cart = response.cart || response.items || cart;
         window.cart = cart;
-        console.log('Cart updated via API:', cart.length, 'items');
         saveCart();
         if (typeof showToast === 'function') {
           showToast(product.name + ' added to cart!', 'success');
@@ -211,7 +197,6 @@ async function addToCart(productId, quantity = 1) {
     
       if (existingItem) {
         existingItem.quantity += quantity;
-        console.log('Updated existing item quantity:', existingItem.quantity);
       } else {
         cart.push({
           id: product.id,
@@ -221,7 +206,6 @@ async function addToCart(productId, quantity = 1) {
           category: product.category,
           quantity: quantity
         });
-        console.log('Added new item to cart');
       }
     
       window.cart = cart;

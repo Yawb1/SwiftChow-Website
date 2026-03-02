@@ -37,8 +37,6 @@ async function apiCall(endpoint, options = {}) {
   const url = `${API_BASE_URL}${endpoint}`;
   const token = getAuthToken();
   
-  console.log('API Call:', endpoint, 'URL:', url, 'Authenticated:', !!token);
-  
   const headers = {
     'Content-Type': 'application/json',
     ...options.headers,
@@ -52,12 +50,10 @@ async function apiCall(endpoint, options = {}) {
     const response = await fetch(url, {
       ...options,
       headers,
-      credentials: 'include', // Include cookies for JWT
+      credentials: 'include',
     });
     
     const data = await response.json();
-    
-    console.log('API Response:', endpoint, 'Status:', response.status, 'Data:', data);
     
     if (!response.ok) {
       // Handle 401 - token expired or invalid
@@ -101,8 +97,6 @@ async function apiLogin(email, password) {
       method: 'POST',
       body: JSON.stringify({ email, password }),
     });
-    
-    console.log('apiLogin success:', { email, hasToken: !!response.token, hasUser: !!response.user });
     
     if (response.token) {
       setAuthToken(response.token);

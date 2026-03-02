@@ -147,8 +147,8 @@ router.put('/:id/default', requireAuth, async (req, res) => {
     );
     
     // Set this as default
-    const method = await PaymentMethod.findByIdAndUpdate(
-      id,
+    const method = await PaymentMethod.findOneAndUpdate(
+      { _id: id, userId: req.user._id },
       { isDefault: true, updatedAt: new Date() },
       { new: true }
     );

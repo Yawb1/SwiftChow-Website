@@ -21,8 +21,7 @@ const addressSchema = new mongoose.Schema({
   city: {
     type: String,
     required: true,
-    enum: ['Accra'],
-    default: 'Accra'
+    trim: true
   },
   postalCode: String,
   landmark: String,

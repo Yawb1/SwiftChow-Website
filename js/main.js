@@ -203,10 +203,6 @@ function initDealsCarousel() {
   let nextBtn = document.getElementById('dealsNext');
   let dots = document.querySelectorAll('.deals-dot');
   
-  console.log('initDealsCarousel: track element found:', !!track);
-  console.log('initDealsCarousel: prevBtn found:', !!prevBtn, 'nextBtn found:', !!nextBtn);
-  console.log('initDealsCarousel: dots count:', dots.length);
-  
   // Fallback to class selectors if IDs not found (backward compatibility or different page structure)
   if (!track) track = document.querySelector('.deals-track');
   if (!prevBtn) prevBtn = document.querySelector('.deals-prev') || document.querySelector('.carousel-btn.prev');
@@ -224,7 +220,6 @@ function initDealsCarousel() {
   if (prevBtn) {
     prevBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('Prev button clicked');
       goToDeal(currentDealIndex - 1);
     });
   }
@@ -232,7 +227,6 @@ function initDealsCarousel() {
   if (nextBtn) {
     nextBtn.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('Next button clicked');
       goToDeal(currentDealIndex + 1);
     });
   }
@@ -241,7 +235,6 @@ function initDealsCarousel() {
   dots.forEach((dot, index) => {
     dot.addEventListener('click', (e) => {
       e.preventDefault();
-      console.log('Dot', index, 'clicked');
       goToDeal(index);
     });
   });
@@ -251,7 +244,6 @@ function initDealsCarousel() {
   track.addEventListener('touchend', handleTouchEnd, { passive: true });
   
   // Start autoplay
-  console.log('Starting carousel autoplay...');
   startCarouselAutoPlay();
   
   // Pause on hover
@@ -266,14 +258,10 @@ function goToDeal(index) {
   let track = document.getElementById('dealsTrack');
   if (!track) track = document.querySelector('.deals-track');
   
-  if (!track) {
-    console.warn('goToDeal: No track element found');
-    return;
-  }
+  if (!track) return;
   
   // Determine total slides based on children or fallback
   const totalDeals = track.children.length || 5;
-  console.log('goToDeal: Current index:', index, 'Total deals:', totalDeals);
   
   // Wrap around logic
   if (index < 0) index = totalDeals - 1;
@@ -282,7 +270,6 @@ function goToDeal(index) {
   currentDealIndex = index;
   
   // Move track
-  console.log('goToDeal: Translating track to', -index * 100 + '%');
   track.style.transform = `translateX(-${index * 100}%)`;
   
   // Update dots
@@ -300,9 +287,7 @@ function goToDeal(index) {
 
 function startCarouselAutoPlay() {
   if (carouselInterval) clearInterval(carouselInterval);
-  console.log('Carousel autoplay started');
   carouselInterval = setInterval(() => {
-    console.log('Carousel auto-advancing from index', currentDealIndex);
     goToDeal(currentDealIndex + 1);
   }, 5000);
 }
@@ -4365,22 +4350,12 @@ if ('IntersectionObserver' in window) {
 if ('PerformanceObserver' in window) {
   try {
     const perfObserver = new PerformanceObserver((list) => {
-      const entries = list.getEntries();
-      entries.forEach((entry) => {
-        // Log performance metrics
-        if (entry.entryType === 'navigation') {
-          console.log(`Page load time: ${entry.loadEventEnd - entry.fetchStart}ms`);
-        }
-        if (entry.entryType === 'paint') {
-          console.log(`${entry.name}: ${entry.startTime.toFixed(2)}ms`);
-        }
-      });
+      // Performance metrics available for debugging if needed
     });
 
-    // Monitor paint timings (FCP, LCP)
     perfObserver.observe({ entryTypes: ['paint', 'navigation', 'largest-contentful-paint'] });
   } catch (e) {
-    console.log('Performance monitoring not available');
+    // Performance monitoring not available
   }
 }
 
@@ -4388,7 +4363,6 @@ if ('PerformanceObserver' in window) {
 if ('requestIdleCallback' in window) {
   requestIdleCallback(() => {
     // Non-critical initialization
-    console.log('Non-critical initialization complete');
   });
 }
 
@@ -4399,9 +4373,6 @@ document.addEventListener('visibilitychange', () => {
     document.querySelectorAll('video').forEach(video => {
       if (!video.paused) video.pause();
     });
-  } else {
-    // Page is visible - resume if needed
-    console.log('Page is now visible');
   }
 });
 
@@ -4410,18 +4381,10 @@ if ('connection' in navigator) {
   const connection = navigator.connection;
   
   const updateNetworkStatus = () => {
-    const effectiveType = connection.effectiveType;
     const saveData = connection.saveData;
     
     if (saveData) {
-      console.log('User has enabled data saver');
       // Could disable animations or reduce image quality
-    }
-    
-    if (effectiveType === '4g') {
-      console.log('Good network connection');
-    } else if (effectiveType === '3g' || effectiveType === '2g') {
-      console.log('Slow network connection - consider reducing image quality');
     }
   };
   
@@ -4432,10 +4395,8 @@ if ('connection' in navigator) {
 // Memory pressure handling
 if ('deviceMemory' in navigator) {
   const memory = navigator.deviceMemory;
-  console.log(`Device memory: ${memory}GB`);
   
   if (memory < 4) {
     // Low memory device - optimize accordingly
-    console.log('Low memory device detected');
   }
 }

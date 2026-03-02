@@ -71,9 +71,6 @@ async function login(email, password, remember = false) {
       localStorage.setItem('fafoUser', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
       
-      console.log('Auth: User logged in:', response.user.email);
-      console.log('Auth: Token saved:', response.token.substring(0, 20) + '...');
-      
       // Update UI after short delay
       setTimeout(() => {
         if (typeof updateAuthUI === 'function') {
@@ -97,8 +94,6 @@ async function login(email, password, remember = false) {
 
 // Register new user
 async function register(fullName = '', email = '', phone = '', password = '', confirmPassword = '') {
-  console.log('register() called with:', { fullName, email, phone, passwordLength: password?.length, confirmPasswordLength: confirmPassword?.length });
-  
   if (!email || !validateEmail(email)) {
     console.error('register: Invalid email:', email);
     return { success: false, message: 'Please enter a valid email address' };
@@ -120,9 +115,7 @@ async function register(fullName = '', email = '', phone = '', password = '', co
     const firstName = nameParts[0] || '';
     const lastName = nameParts.slice(1).join(' ') || '';
     
-    console.log('register: Calling apiRegister with:', { email, firstName, lastName, phone });
     const response = await apiRegister(email, password, firstName, lastName, phone);
-    console.log('register: apiRegister response:', { hasUser: !!response?.user, hasToken: !!response?.token, error: response?.error });
     
     if (response && response.user && response.token) {
       // Ensure fullName is set
@@ -135,9 +128,6 @@ async function register(fullName = '', email = '', phone = '', password = '', co
       localStorage.setItem('currentUser', JSON.stringify(response.user));
       localStorage.setItem('fafoUser', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
-      
-      console.log('Auth: User registered:', response.user.email);
-      console.log('Auth: Token saved:', response.token.substring(0, 20) + '...');
       
       // Send signup confirmation email
       try {
@@ -192,23 +182,19 @@ function saveCurrentPageForRedirect() {
 
 // Logout
 async function logout() {
-  console.log('Logout: Starting logout process...');
-  
   try {
     await apiLogout();
   } catch (error) {
     console.error('Logout error:', error);
   }
   
-  // CRITICAL: Manually clear all auth data from localStorage
+  // Clear all auth data from localStorage
   localStorage.removeItem('authToken');
   localStorage.removeItem('fafoUser');
   localStorage.removeItem('currentUser');
-  console.log('Logout: Cleared all localStorage auth data');
   
   // Clear local auth state
   currentUser = null;
-  console.log('Logout: Cleared currentUser variable');
   
   // Call updateAuthUI immediately if available
   if (typeof updateAuthUI === 'function') {
@@ -232,8 +218,6 @@ async function logout() {
     loginBtn.style.display = 'block';
   }
   
-  console.log('Logout: UI updated, redirecting to index.html...');
-  
   // Redirect after UI update
   setTimeout(() => {
     window.location.href = '/index.html';
@@ -244,7 +228,6 @@ async function logout() {
 function googleSignIn() {
   // Redirect to Google OAuth endpoint
   const redirectUrl = `${API_BASE_URL}/auth/google`;
-  console.log('Redirecting to Google OAuth:', redirectUrl);
   window.location.href = redirectUrl;
 }
 
@@ -280,10 +263,7 @@ async function signup(userData) {
   }
   
   try {
-    const [firstName, ...lastNameParts] = name.split(' ');
-    const lastName = lastNameParts.join(' ');
-    
-    const response = await register(email, password, firstName, lastName);
+    const response = await register(name, email, phone, password, confirmPassword);
     return response;
   } catch (error) {
     return { success: false, message: error.message || 'Signup failed' };
@@ -611,14 +591,14 @@ function initLoginForm() {
   const form = document.querySelector('.login-form');
   if (!form) return;
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const email = form.querySelector('input[name="email"]').value;
     const password = form.querySelector('input[name="password"]').value;
     const remember = form.querySelector('input[name="remember"]')?.checked || false;
     
-    const result = login(email, password, remember);
+    const result = await login(email, password, remember);
     
     if (result.success) {
       showToast(result.message, 'success');
@@ -649,7 +629,7 @@ function initSignupForm() {
   const form = document.querySelector('.signup-form');
   if (!form) return;
   
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     
     const userData = {
@@ -667,7 +647,7 @@ function initSignupForm() {
       return;
     }
     
-    const result = signup(userData);
+    const result = await signup(userData);
     
     if (result.success) {
       showToast(result.message, 'success');
@@ -714,26 +694,21 @@ function initForgotPasswordForm() {
 // ============================================
 
 function initAuth() {
-  console.log('Initializing auth system...');
-  
   // CHECK FOR OAUTH CALLBACK with token in URL
   const urlParams = new URLSearchParams(window.location.search);
   const tokenFromUrl = urlParams.get('token');
   const userFromUrl = urlParams.get('user');
   
   if (tokenFromUrl) {
-    console.log('Auth: OAuth callback detected, processing token...');
     try {
-      // Save token FIRST (most important)
+      // Save token
       localStorage.setItem('authToken', tokenFromUrl);
-      console.log('Auth: Token saved to localStorage');
       
       if (userFromUrl) {
         try {
           const userData = JSON.parse(decodeURIComponent(userFromUrl));
           currentUser = userData;
           localStorage.setItem('fafoUser', JSON.stringify(userData));
-          console.log('Auth: OAuth user saved:', userData.email);
         } catch (parseError) {
           console.error('Auth: Error parsing user data from URL:', parseError);
         }
@@ -745,15 +720,12 @@ function initAuth() {
       // Update UI after a short delay to ensure all scripts are loaded
       setTimeout(() => {
         if (typeof updateAuthUI === 'function') {
-          console.log('Auth: Calling updateAuthUI after OAuth callback');
           updateAuthUI();
         }
         if (typeof updateFloatingCart === 'function') {
           updateFloatingCart();
         }
       }, 100);
-      
-      console.log('Auth: OAuth login complete, token available:', !!localStorage.getItem('authToken'));
     } catch (e) {
       console.error('Auth: Error processing OAuth callback:', e);
     }
@@ -767,8 +739,6 @@ function initAuth() {
     try {
       currentUser = JSON.parse(savedUser);
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
-      console.log('Auth: User session restored:', currentUser.email);
-      console.log('Auth: Token available:', !!savedToken);
     } catch (e) {
       console.error('Auth: Error parsing user data:', e);
       localStorage.removeItem('fafoUser');
@@ -776,7 +746,6 @@ function initAuth() {
       currentUser = null;
     }
   } else {
-    console.log('Auth: No saved user session');
     currentUser = null;
   }
   
@@ -789,7 +758,6 @@ function initAuth() {
       // Only save if we don't already have a saved redirect
       if (!sessionStorage.getItem('redirectAfterLogin')) {
         sessionStorage.setItem('redirectAfterLogin', referrer);
-        console.log('Auth: Saved referrer for redirect:', referrer);
       }
     }
   }
@@ -806,7 +774,6 @@ function initAuth() {
     // main.js hasn't loaded yet, schedule it for later
     setTimeout(() => {
       if (typeof updateAuthUI === 'function') {
-        console.log('Auth: Calling updateAuthUI after main.js loaded');
         updateAuthUI();
       }
     }, 100);
@@ -826,8 +793,6 @@ function initAuth() {
   if (document.querySelector('.guest-only-page') && isLoggedIn()) {
     redirectIfLoggedIn();
   }
-  
-  console.log('Auth initialization complete. Logged in:', isLoggedIn());
 }
 
 // Initialize Google Sign In buttons
@@ -840,39 +805,24 @@ function initGoogleSignIn() {
       e.preventDefault();
       
       // Show loading state
-      const originalText = btn.innerHTML;
       btn.innerHTML = '<span class="spinner"></span> Connecting to Google...';
       btn.disabled = true;
       
-      // Simulate Google OAuth delay
+      // Save current page for redirect after OAuth
+      saveCurrentPageForRedirect();
+      
+      // Small delay for UX, then redirect to Google OAuth
       setTimeout(() => {
-        const result = googleSignIn();
-        
-        if (result.success) {
-          if (typeof showToast === 'function') {
-            showToast(result.message, 'success');
-          }
-          
-          // Go back to the page user was on, or home if no previous page
-          const redirect = getPreviousPage();
-          sessionStorage.removeItem('redirectAfterLogin');
-          setTimeout(() => window.location.href = redirect, 1000);
-        } else {
-          btn.innerHTML = originalText;
-          btn.disabled = false;
-          if (typeof showToast === 'function') {
-            showToast('Google sign in failed. Please try again.', 'error');
-          }
-        }
-      }, 1500);
+        googleSignIn();
+      }, 500);
     });
   });
 }
 
 // Initialize on page load
-document.addEventListener('DOMContentLoaded', initAuth);
-
-// Also run immediately if DOM is already loaded
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  setTimeout(initAuth, 1);
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAuth);
+} else {
+  // DOM is already loaded
+  initAuth();
 }

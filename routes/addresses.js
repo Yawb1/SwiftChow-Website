@@ -154,8 +154,8 @@ router.put('/:id/default', requireAuth, async (req, res) => {
     );
     
     // Set this as default
-    const address = await Address.findByIdAndUpdate(
-      id,
+    const address = await Address.findOneAndUpdate(
+      { _id: id, userId: req.user._id },
       { isDefault: true, updatedAt: new Date() },
       { new: true }
     );
