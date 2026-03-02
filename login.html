@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -450,7 +450,7 @@
                 <div class="form-group">
                     <label for="password">Password</label>
                     <input type="password" id="password" name="password" placeholder="Enter your password" required>
-                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password')" title="Show password">
+                    <button type="button" class="password-toggle-btn" onclick="togglePasswordVisibility('password', event)" title="Show password">
                         <i class="fas fa-eye"></i>
                     </button>
                     <div class="form-feedback error"></div>
@@ -532,7 +532,7 @@
                         <label for="login-password">Password</label>
                         <div style="position: relative;">
                             <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
-                            <button type="button" class="btn-icon" onclick="togglePasswordVisibility('login-password')" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); font-size: 1.2rem;">
+                            <button type="button" class="btn-icon" onclick="togglePasswordVisibility('login-password', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--text-secondary); font-size: 1.2rem;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -763,20 +763,7 @@
     <script src="js/main.js"></script>
     
     <script>
-    // Password visibility toggle
-    function togglePasswordVisibility(inputId) {
-        const input = document.getElementById(inputId);
-        const icon = event.target.closest('button').querySelector('i');
-        if (input.type === 'password') {
-            input.type = 'text';
-            icon.classList.remove('fa-eye');
-            icon.classList.add('fa-eye-slash');
-        } else {
-            input.type = 'password';
-            icon.classList.remove('fa-eye-slash');
-            icon.classList.add('fa-eye');
-        }
-    }
+    // Password visibility toggle handled by main.js
     </script>
 </body>
 </html>

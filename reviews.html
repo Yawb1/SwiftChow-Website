@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -148,19 +148,63 @@
     </nav>
     <div class="reviews-hero">
         <h1>What Our Customers Say</h1>
-        <p>Join thousands of happy customers who love SWIFT CHOW</p>
+        <p>Real reviews from our valued customers</p>
         <div class="rating-showcase">
-            <div class="overall-rating">4.8</div>
-            <div class="rating-stars">
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star"></i>
-                <i class="fas fa-star-half-alt"></i>
+            <div class="overall-rating" id="overallRating">0.0</div>
+            <div class="rating-stars" id="overallStars">
+                <i class="far fa-star"></i>
+                <i class="far fa-star"></i>
+                <i class="far fa-star"></i>
+                <i class="far fa-star"></i>
+                <i class="far fa-star"></i>
             </div>
-            <p>Based on 2,000+ verified reviews</p>
+            <p id="totalReviewCount">Based on 0 reviews</p>
         </div>
     </div>
+
+    <!-- Star Distribution Section -->
+    <section style="background: var(--bg-secondary); padding: 2rem 0; border-bottom: 1px solid var(--border-color);">
+        <div class="container" style="max-width: 600px;">
+            <h3 style="text-align: center; margin-bottom: 1.5rem; font-size: 1.1rem; font-weight: 700; color: var(--text-primary);">Rating Distribution</h3>
+            <div id="ratingDistribution" style="display: flex; flex-direction: column; gap: 0.5rem;">
+                <div class="rating-bar-row" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); min-width: 45px; text-align: right;">5 <i class="fas fa-star" style="color: #fbbf24; font-size: 0.7rem;"></i></span>
+                    <div style="flex: 1; height: 10px; background: var(--border-color); border-radius: 5px; overflow: hidden;">
+                        <div class="dist-bar" data-stars="5" style="height: 100%; background: linear-gradient(90deg, #22c55e, #16a34a); border-radius: 5px; width: 0%; transition: width 0.8s ease;"></div>
+                    </div>
+                    <span class="dist-count" data-stars="5" style="font-size: 0.8rem; color: var(--text-secondary); min-width: 25px;">0</span>
+                </div>
+                <div class="rating-bar-row" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); min-width: 45px; text-align: right;">4 <i class="fas fa-star" style="color: #fbbf24; font-size: 0.7rem;"></i></span>
+                    <div style="flex: 1; height: 10px; background: var(--border-color); border-radius: 5px; overflow: hidden;">
+                        <div class="dist-bar" data-stars="4" style="height: 100%; background: linear-gradient(90deg, #84cc16, #65a30d); border-radius: 5px; width: 0%; transition: width 0.8s ease;"></div>
+                    </div>
+                    <span class="dist-count" data-stars="4" style="font-size: 0.8rem; color: var(--text-secondary); min-width: 25px;">0</span>
+                </div>
+                <div class="rating-bar-row" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); min-width: 45px; text-align: right;">3 <i class="fas fa-star" style="color: #fbbf24; font-size: 0.7rem;"></i></span>
+                    <div style="flex: 1; height: 10px; background: var(--border-color); border-radius: 5px; overflow: hidden;">
+                        <div class="dist-bar" data-stars="3" style="height: 100%; background: linear-gradient(90deg, #fbbf24, #d97706); border-radius: 5px; width: 0%; transition: width 0.8s ease;"></div>
+                    </div>
+                    <span class="dist-count" data-stars="3" style="font-size: 0.8rem; color: var(--text-secondary); min-width: 25px;">0</span>
+                </div>
+                <div class="rating-bar-row" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); min-width: 45px; text-align: right;">2 <i class="fas fa-star" style="color: #fbbf24; font-size: 0.7rem;"></i></span>
+                    <div style="flex: 1; height: 10px; background: var(--border-color); border-radius: 5px; overflow: hidden;">
+                        <div class="dist-bar" data-stars="2" style="height: 100%; background: linear-gradient(90deg, #f97316, #ea580c); border-radius: 5px; width: 0%; transition: width 0.8s ease;"></div>
+                    </div>
+                    <span class="dist-count" data-stars="2" style="font-size: 0.8rem; color: var(--text-secondary); min-width: 25px;">0</span>
+                </div>
+                <div class="rating-bar-row" style="display: flex; align-items: center; gap: 0.75rem;">
+                    <span style="font-size: 0.85rem; font-weight: 600; color: var(--text-primary); min-width: 45px; text-align: right;">1 <i class="fas fa-star" style="color: #fbbf24; font-size: 0.7rem;"></i></span>
+                    <div style="flex: 1; height: 10px; background: var(--border-color); border-radius: 5px; overflow: hidden;">
+                        <div class="dist-bar" data-stars="1" style="height: 100%; background: linear-gradient(90deg, #ef4444, #dc2626); border-radius: 5px; width: 0%; transition: width 0.8s ease;"></div>
+                    </div>
+                    <span class="dist-count" data-stars="1" style="font-size: 0.8rem; color: var(--text-secondary); min-width: 25px;">0</span>
+                </div>
+            </div>
+        </div>
+    </section>
 
     <!-- Trust Badges Section -->
     <section style="background: var(--bg-secondary); padding: 2.5rem 0; border-bottom: 1px solid var(--border-color);">
@@ -185,7 +229,7 @@
                         <i class="fas fa-heart"></i>
                     </div>
                     <strong style="color: var(--text-primary);">98% Satisfaction</strong>
-                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Customers who recommend us</span>
+                    <span style="color: var(--text-secondary); font-size: 0.85rem;">Customers who would reorder</span>
                 </div>
                 <div style="display: flex; flex-direction: column; align-items: center; gap: 0.5rem;">
                     <div style="width: 60px; height: 60px; background: linear-gradient(135deg, #8b5cf6, #7c3aed); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem;">

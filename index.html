@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" data-theme="light">
+<html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -2216,7 +2216,7 @@
                         <label for="login-password">Password</label>
                         <div style="position: relative;">
                             <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
-                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password')" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
+                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -2342,7 +2342,7 @@
                             <label for="signup-password">Password</label>
                             <div style="position: relative;">
                                 <input type="password" id="signup-password" name="password" placeholder="At least 6 characters" required>
-                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-password')" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-password', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -2353,7 +2353,7 @@
                             <label for="signup-confirm">Confirm Password</label>
                             <div style="position: relative;">
                                 <input type="password" id="signup-confirm" name="confirmPassword" placeholder="Confirm password" required>
-                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-confirm')" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
+                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-confirm', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>

@@ -40,7 +40,7 @@
 // ============================================
 
 function initDarkMode() {
-  const savedTheme = localStorage.getItem('swiftChowTheme') || 'light';
+  const savedTheme = localStorage.getItem('swiftChowTheme') || 'dark';
   document.documentElement.setAttribute('data-theme', savedTheme);
   updateDarkModeIcon(savedTheme);
 }
@@ -60,18 +60,37 @@ function toggleDarkMode() {
   }, 300);
 }
 
-function togglePasswordVisibility(inputId) {
+function togglePasswordVisibility(inputId, e) {
   const passwordInput = document.getElementById(inputId);
-  const toggleBtn = passwordInput.nextElementSibling;
+  if (!passwordInput) return;
+  
+  // Find the toggle button: try event target, then sibling, then parent container
+  let toggleBtn = null;
+  const evt = e || window.event;
+  if (evt && evt.target) {
+    toggleBtn = evt.target.closest('button');
+  }
+  if (!toggleBtn) {
+    toggleBtn = passwordInput.nextElementSibling;
+    if (toggleBtn && toggleBtn.tagName !== 'BUTTON') {
+      toggleBtn = passwordInput.parentElement.querySelector('button');
+    }
+  }
   
   if (passwordInput.type === 'password') {
     passwordInput.type = 'text';
-    toggleBtn.innerHTML = '<i class="fas fa-eye-slash"></i>';
-    toggleBtn.setAttribute('title', 'Hide password');
+    if (toggleBtn) {
+      const icon = toggleBtn.querySelector('i');
+      if (icon) { icon.classList.remove('fa-eye'); icon.classList.add('fa-eye-slash'); }
+      toggleBtn.setAttribute('title', 'Hide password');
+    }
   } else {
     passwordInput.type = 'password';
-    toggleBtn.innerHTML = '<i class="fas fa-eye"></i>';
-    toggleBtn.setAttribute('title', 'Show password');
+    if (toggleBtn) {
+      const icon = toggleBtn.querySelector('i');
+      if (icon) { icon.classList.remove('fa-eye-slash'); icon.classList.add('fa-eye'); }
+      toggleBtn.setAttribute('title', 'Show password');
+    }
   }
 }
 
@@ -680,6 +699,9 @@ function renderReviews() {
     reviewsToDisplay = [];
   }
   
+  // Update rating stats (overall rating, distribution bars, total count)
+  updateRatingStats(reviewsToDisplay);
+  
   if (reviewsToDisplay.length === 0) {
     container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; padding: 2rem;">No reviews yet. Be the first to share your experience!</p>';
     return;
@@ -727,6 +749,62 @@ function renderReviews() {
 
 function getInitial(name) {
   return name ? name.charAt(0).toUpperCase() : 'U';
+}
+
+// Update rating statistics: overall score, star distribution bars, review count
+function updateRatingStats(reviewsArray) {
+  const total = reviewsArray.length;
+  
+  // Update total review count text
+  const countEl = document.getElementById('totalReviewCount');
+  if (countEl) {
+    countEl.textContent = total === 0 ? 'No reviews yet' : `Based on ${total} verified review${total !== 1 ? 's' : ''}`;
+  }
+  
+  // Calculate distribution
+  const dist = { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 };
+  let sumRatings = 0;
+  reviewsArray.forEach(r => {
+    const rating = Math.min(5, Math.max(1, Math.round(r.rating || 5)));
+    dist[rating]++;
+    sumRatings += rating;
+  });
+  
+  const avgRating = total > 0 ? (sumRatings / total).toFixed(1) : '0.0';
+  
+  // Update overall rating number
+  const overallEl = document.getElementById('overallRating');
+  if (overallEl) overallEl.textContent = avgRating;
+  
+  // Update overall star icons
+  const starsContainer = document.getElementById('overallStars');
+  if (starsContainer) {
+    const avg = parseFloat(avgRating);
+    const fullStars = Math.floor(avg);
+    const hasHalf = avg - fullStars >= 0.25 && avg - fullStars < 0.75;
+    const hasFull = avg - fullStars >= 0.75;
+    const stars = starsContainer.querySelectorAll('i');
+    stars.forEach((star, i) => {
+      star.className = '';
+      if (i < fullStars || (i === fullStars && hasFull)) {
+        star.className = 'fas fa-star';
+      } else if (i === fullStars && hasHalf) {
+        star.className = 'fas fa-star-half-alt';
+      } else {
+        star.className = 'far fa-star';
+      }
+    });
+  }
+  
+  // Update distribution bars
+  for (let star = 1; star <= 5; star++) {
+    const bar = document.querySelector(`.dist-bar[data-stars="${star}"]`);
+    const countSpan = document.querySelector(`.dist-count[data-stars="${star}"]`);
+    const pct = total > 0 ? (dist[star] / total) * 100 : 0;
+    
+    if (bar) bar.style.width = pct + '%';
+    if (countSpan) countSpan.textContent = dist[star];
+  }
 }
 
 // Helper function to render star rating
@@ -2778,6 +2856,7 @@ window.filterMenuByCategory = filterMenuByCategory;
 window.renderReviews = renderReviews;
 window.initReviewForm = initReviewForm;
 window.markHelpful = markHelpful;
+window.updateRatingStats = updateRatingStats;
 
 // ============================================
 // ADVANCED TOAST NOTIFICATION SYSTEM

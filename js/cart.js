@@ -205,11 +205,15 @@ async function addToCart(productId, quantity = 1) {
         if (typeof showToast === 'function') {
           showToast(product.name + ' added to cart!', 'success');
         }
-        updateFloatingCart();
         updateCartCount();
-        if (typeof animateCartIcon === 'function') {
-          animateCartIcon();
-        }
+        try { if (typeof updateFloatingCart === 'function') updateFloatingCart(); } catch(e) {}
+        try { if (typeof animateCartIcon === 'function') animateCartIcon(); } catch(e) {}
+        // Add bump animation to cart count badge
+        document.querySelectorAll('.cart-count').forEach(el => {
+          el.classList.remove('bump');
+          void el.offsetWidth;
+          el.classList.add('bump');
+        });
         return true;
       } catch (error) {
         console.error('Error adding to cart via API:', error);
@@ -240,11 +244,15 @@ async function addToCart(productId, quantity = 1) {
       if (typeof showToast === 'function') {
         showToast(product.name + ' added to cart!', 'success');
       }
-      updateFloatingCart();
       updateCartCount();
-      if (typeof animateCartIcon === 'function') {
-        animateCartIcon();
-      }
+      try { if (typeof updateFloatingCart === 'function') updateFloatingCart(); } catch(e) {}
+      try { if (typeof animateCartIcon === 'function') animateCartIcon(); } catch(e) {}
+      // Add bump animation to cart count badge
+      document.querySelectorAll('.cart-count').forEach(el => {
+        el.classList.remove('bump');
+        void el.offsetWidth;
+        el.classList.add('bump');
+      });
       return true;
     }
   } catch (error) {

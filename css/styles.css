@@ -11400,6 +11400,57 @@ body {
 }
 
 /* Enhanced link hover for content areas */
+.terms-container {
+    max-width: 800px;
+    margin: 0 auto;
+    padding: 0 1.5rem;
+}
+.terms-container .terms-content h1 {
+    font-size: 2rem;
+    font-weight: 800;
+    color: var(--text-primary);
+    margin-bottom: 0.5rem;
+}
+.terms-container .terms-content .terms-updated {
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    margin-bottom: 2rem;
+}
+.terms-container .terms-content h2 {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-top: 2rem;
+    margin-bottom: 0.75rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border-color);
+}
+.terms-container .terms-content h2:first-of-type {
+    border-top: none;
+    padding-top: 0;
+}
+.terms-container .terms-content h3 {
+    font-size: 1.1rem;
+    font-weight: 600;
+    color: var(--text-primary);
+    margin-top: 1.25rem;
+    margin-bottom: 0.5rem;
+}
+.terms-container .terms-content p {
+    color: var(--text-secondary);
+    line-height: 1.8;
+    margin-bottom: 1rem;
+    font-size: 0.95rem;
+}
+.terms-container .terms-content ul {
+    margin: 0.75rem 0 1.25rem 1.5rem;
+    color: var(--text-secondary);
+    line-height: 1.8;
+}
+.terms-container .terms-content ul li {
+    margin-bottom: 0.5rem;
+    font-size: 0.95rem;
+}
 .terms-content a,
 .blog-content a {
     color: var(--primary);
