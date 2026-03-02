@@ -3544,7 +3544,7 @@ function updateAuthUI() {
           border: 1px solid var(--border-color);
           border-radius: 0.75rem;
           box-shadow: 0 20px 40px rgba(0,0,0,0.3);
-          min-width: 250px;
+          min-width: min(250px, calc(100vw - 2rem));
           z-index: 10000;
           overflow: hidden;
         ">
