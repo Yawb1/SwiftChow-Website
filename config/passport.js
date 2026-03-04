@@ -5,6 +5,7 @@ const FacebookStrategy = require('passport-facebook').Strategy;
 const JwtStrategy = require('passport-jwt').Strategy;
 const { ExtractJwt } = require('passport-jwt');
 const User = require('../models/User');
+const { JWT_SECRET } = require('./constants');
 
 // ============================================
 // LOCAL STRATEGY (Email + Password)
@@ -176,7 +177,7 @@ const JwtStrategyConfig = {
     }
     return null;
   },
-  secretOrKey: process.env.JWT_SECRET || 'your-jwt-secret-change-in-production'
+  secretOrKey: JWT_SECRET
 };
 
 passport.use('jwt', new JwtStrategy(JwtStrategyConfig, async (payload, done) => {

@@ -1005,54 +1005,6 @@ function initReviewForm() {
 }
 
 // ============================================
-// FORM VALIDATION
-// ============================================
-
-function validateForm(form) {
-  let isValid = true;
-  const requiredFields = form.querySelectorAll('[required]');
-  
-  // Clear previous errors
-  form.querySelectorAll('.error-message').forEach(el => el.remove());
-  form.querySelectorAll('.error').forEach(el => el.classList.remove('error'));
-  
-  requiredFields.forEach(field => {
-    if (!field.value.trim()) {
-      isValid = false;
-      showFieldError(field, 'This field is required');
-    }
-    
-    // Email validation
-    if (field.type === 'email' && field.value) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(field.value)) {
-        isValid = false;
-        showFieldError(field, 'Please enter a valid email');
-      }
-    }
-    
-    // Phone validation
-    if (field.type === 'tel' && field.value) {
-      const phoneRegex = /^[\d\s+()-]{10,}$/;
-      if (!phoneRegex.test(field.value)) {
-        isValid = false;
-        showFieldError(field, 'Please enter a valid phone number');
-      }
-    }
-  });
-  
-  return isValid;
-}
-
-function showFieldError(field, message) {
-  field.classList.add('error');
-  const error = document.createElement('span');
-  error.className = 'error-message';
-  error.textContent = message;
-  field.parentElement.appendChild(error);
-}
-
-// ============================================
 // NEWSLETTER FORM
 // ============================================
 
@@ -2754,38 +2706,6 @@ window.addEventListener('load', () => {
   }
 });
 
-// ============================================
-// BACK TO TOP
-// ============================================
-function initBackToTop() {
-  // Create button if it doesn't exist
-  if (!document.getElementById('back-to-top')) {
-    const btn = document.createElement('button');
-    btn.id = 'back-to-top';
-    btn.setAttribute('aria-label', 'Back to top');
-    btn.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 15l-6-6-6 6"/></svg>`;
-    document.body.appendChild(btn);
-    
-    // Add click event
-    btn.addEventListener('click', () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    });
-  }
-  
-  // Handle scroll
-  const btn = document.getElementById('back-to-top');
-  window.addEventListener('scroll', () => {
-    if (window.scrollY > 300) {
-      btn.classList.add('visible');
-    } else {
-      btn.classList.remove('visible');
-    }
-  }, { passive: true });
-}
-
 // Initialize on DOM ready - Single consolidated init
 document.addEventListener('DOMContentLoaded', () => {
   try {
@@ -2797,12 +2717,6 @@ document.addEventListener('DOMContentLoaded', () => {
         console.error('Error in init():', e);
       }
     }, 0);
-    
-    try {
-      initBackToTop();
-    } catch (e) {
-      console.warn('Error in initBackToTop:', e);
-    }
     
     try {
       initAccountNavigation();
@@ -2837,7 +2751,6 @@ if (document.readyState === 'complete' || document.readyState === 'interactive')
   setTimeout(() => {
     try {
       init();
-      initBackToTop();
       initAccountNavigation();
       initTrackingNavigation();
       initEnhancements();
@@ -2901,149 +2814,6 @@ function showAdvancedToast(message, type = 'info', duration = 4000) {
     toast.classList.add('hidden');
     setTimeout(() => toast.remove(), 300);
   }, duration);
-}
-
-// ============================================
-// SCROLL ANIMATIONS
-// ============================================
-
-function initScrollAnimations() {
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '0px 0px -50px 0px'
-  };
-  
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        entry.target.classList.add('is-visible');
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-  
-  document.querySelectorAll('.animate-on-scroll').forEach(el => {
-    observer.observe(el);
-  });
-}
-
-// ============================================
-// ANIMATED COUNTERS
-// ============================================
-
-function animateCounter(element, target, duration = 2000) {
-  let start = 0;
-  const increment = target / (duration / 16);
-  
-  const timer = setInterval(() => {
-    start += increment;
-    if (start >= target) {
-      element.textContent = target + (element.textContent.includes('+') ? '+' : '');
-      clearInterval(timer);
-    } else {
-      element.textContent = Math.floor(start) + (element.textContent.includes('+') ? '+' : '');
-    }
-  }, 16);
-}
-
-function initCounters() {
-  const counters = document.querySelectorAll('.stat-number');
-  
-  const counterObserver = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting && !entry.target.dataset.animated) {
-        entry.target.dataset.animated = 'true';
-        const target = parseInt(entry.target.textContent) || 100;
-        animateCounter(entry.target, target);
-      }
-    });
-  }, { threshold: 0.5 });
-  
-  counters.forEach(counter => counterObserver.observe(counter));
-}
-
-// ============================================
-// FORM VALIDATION
-// ============================================
-
-function validateForm(form) {
-  let isValid = true;
-  
-  form.querySelectorAll('input, textarea, select').forEach(field => {
-    const value = field.value.trim();
-    const type = field.type;
-    const name = field.name;
-    const parentGroup = field.closest('.form-group');
-    
-    // Reset state
-    parentGroup.classList.remove('has-error', 'has-success');
-    const feedback = parentGroup.querySelector('.form-feedback');
-    if (feedback) feedback.textContent = '';
-    
-    // Validation rules
-    let isFieldValid = true;
-    let errorMessage = '';
-    
-    if (!value && field.hasAttribute('required')) {
-      isFieldValid = false;
-      errorMessage = `${name} is required`;
-    } else if (type === 'email' && value) {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        isFieldValid = false;
-        errorMessage = 'Please enter a valid email address';
-      }
-    } else if (type === 'tel' && value) {
-      const phoneRegex = /^\+?[\d\s\-()]{10,}$/;
-      if (!phoneRegex.test(value)) {
-        isFieldValid = false;
-        errorMessage = 'Please enter a valid phone number';
-      }
-    } else if (type === 'password' && value) {
-      if (value.length < 6) {
-        isFieldValid = false;
-        errorMessage = 'Password must be at least 6 characters';
-      }
-    }
-    
-    if (isFieldValid) {
-      parentGroup.classList.add('has-success');
-      if (feedback) {
-        feedback.innerHTML = '<i class="fas fa-check-circle form-feedback-icon"></i>Looks good!';
-        feedback.classList.remove('error');
-        feedback.classList.add('success');
-      }
-    } else {
-      parentGroup.classList.add('has-error');
-      if (feedback) {
-        feedback.innerHTML = `<i class="fas fa-exclamation-circle form-feedback-icon"></i>${errorMessage}`;
-        feedback.classList.remove('success');
-        feedback.classList.add('error');
-      }
-      isValid = false;
-    }
-  });
-  
-  return isValid;
-}
-
-function initFormValidation() {
-  document.querySelectorAll('form').forEach(form => {
-    // Real-time validation
-    form.querySelectorAll('input, textarea, select').forEach(field => {
-      field.addEventListener('blur', () => {
-        validateForm(form);
-      });
-    });
-    
-    // Form submission
-    form.addEventListener('submit', (e) => {
-      if (!validateForm(form)) {
-        e.preventDefault();
-        showAdvancedToast('Please fix the errors in the form', 'error');
-      }
-    });
-  });
 }
 
 // ============================================
@@ -3616,21 +3386,6 @@ function updateAuthUI() {
   }
 }
 
-function generateUserColor(email) {
-  const colors = [
-    { light: '#fee2e2', dark: '#fca5a5' },
-    { light: '#ccfbf1', dark: '#67e8f9' },
-    { light: '#dbeafe', dark: '#7dd3fc' },
-    { light: '#fef3c7', dark: '#fcd34d' },
-    { light: '#f3e8ff', dark: '#d8b4fe' },
-    { light: '#fce7f3', dark: '#f472b6' },
-    { light: '#dcfce7', dark: '#86efac' },
-    { light: '#fae8ff', dark: '#e9d5ff' }
-  ];
-  const index = email.charCodeAt(0) % colors.length;
-  return colors[index];
-}
-
 // Social login handlers
 function googleLogin() {
   showAdvancedToast('Google login demo - using demo credentials', 'info');
@@ -3689,21 +3444,12 @@ function toggleUserMenu() {
 
 // Auto-update cart modal when cart changes
 function initCartAutoUpdate() {
-  // Update cart modal when localStorage changes
+  // Update cart modal when localStorage changes from other tabs
   window.addEventListener('storage', (e) => {
     if (e.key === 'swiftChowCart') {
       updateCartModal();
     }
   });
-  
-  // Also hook into saveCart to update modal
-  const originalSetItem = Storage.prototype.setItem;
-  Storage.prototype.setItem = function(key, value) {
-    originalSetItem.call(this, key, value);
-    if (key === 'swiftChowCart') {
-      updateCartModal();
-    }
-  };
 }
 
 // Close user menu when clicking outside
@@ -3753,10 +3499,8 @@ function scrollBlogRight() {
 }
 
 function initEnhancements() {
-  initScrollAnimations();
-  initCounters();
+  initScrollReveal();
   initLightbox();
-  // initFloatingActionButton(); // Disabled
   initParallax();
   initFilters();
   initPageLoader();
@@ -3852,252 +3596,6 @@ window.addEventListener('storage', (e) => {
 
 
 // ============================================
-// FORM VALIDATION & FEEDBACK
-// ============================================
-function setupFormValidation() {
-  const forms = document.querySelectorAll('form');
-  
-  if (!forms || forms.length === 0) return;
-  
-  forms.forEach(form => {
-    const inputs = form.querySelectorAll('input, textarea, select');
-    
-    inputs.forEach(input => {
-      // Real-time validation
-      input.addEventListener('blur', () => {
-        try {
-          validateField(input);
-        } catch (e) {
-          console.warn('Error validating field:', e);
-        }
-      });
-      input.addEventListener('change', () => {
-        try {
-          validateField(input);
-        } catch (e) {
-          console.warn('Error validating field:', e);
-        }
-      });
-      
-      // Clear error on input
-      input.addEventListener('input', () => {
-        try {
-          const feedback = input.parentElement.querySelector('.form-feedback.error');
-          if (feedback) {
-            feedback.style.display = 'none';
-          }
-        } catch (e) {
-          console.warn('Error clearing feedback:', e);
-        }
-      });
-    });
-    
-    // Form submission
-    form.addEventListener('submit', (e) => {
-      try {
-        const isValid = validateForm(form);
-        if (!isValid) {
-          e.preventDefault();
-        }
-      } catch (e) {
-        console.warn('Error validating form:', e);
-      }
-    });
-  });
-}
-
-function validateField(input) {
-  if (!input) return true;
-  
-  const value = input.value ? input.value.trim() : '';
-  const type = input.type;
-  const name = input.name;
-  let isValid = true;
-  let message = '';
-  
-  // Required validation
-  if (input.hasAttribute('required') && !value) {
-    isValid = false;
-    message = 'This field is required';
-  }
-  
-  // Email validation
-  if (type === 'email' && value) {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      isValid = false;
-      message = 'Please enter a valid email address';
-    }
-  }
-  
-  // Password validation
-  if (name === 'password' && value) {
-    if (value.length < 6) {
-      isValid = false;
-      message = 'Password must be at least 6 characters';
-    }
-  }
-  
-  // Confirm password validation
-  if (name === 'confirmPassword' && value) {
-    const passwordField = input.form ? input.form.querySelector('input[name="password"]') : null;
-    if (passwordField && value !== passwordField.value) {
-      isValid = false;
-      message = 'Passwords do not match';
-    }
-  }
-  
-  // Phone validation
-  if (type === 'tel' && value) {
-    const phoneRegex = /^[\d\s\-\+\(\)]{10,}$/;
-    if (!phoneRegex.test(value)) {
-      isValid = false;
-      message = 'Please enter a valid phone number';
-    }
-  }
-  
-  // Show/hide feedback
-  if (input.parentElement) {
-    const errorFeedback = input.parentElement.querySelector('.form-feedback.error');
-    const successFeedback = input.parentElement.querySelector('.form-feedback.success');
-    
-    if (errorFeedback) {
-      if (!isValid) {
-        errorFeedback.textContent = message;
-        errorFeedback.style.display = 'block';
-      } else {
-        errorFeedback.style.display = 'none';
-      }
-    }
-    
-    if (successFeedback) {
-      if (isValid && value) {
-        successFeedback.style.display = 'flex';
-      } else {
-        successFeedback.style.display = 'none';
-      }
-    }
-  }
-  
-  return isValid;
-}
-
-function validateForm(form) {
-  const inputs = form.querySelectorAll('input, textarea, select');
-  let isFormValid = true;
-  
-  inputs.forEach(input => {
-    if (!validateField(input)) {
-      isFormValid = false;
-    }
-  });
-  
-  return isFormValid;
-}
-
-// ============================================
-// PRODUCT SEARCH & FILTERING
-// ============================================
-function initProductSearch() {
-  const searchInput = document.querySelector('.search-input');
-  const filterBtns = document.querySelectorAll('.filter-btn');
-  const productsGrid = document.querySelector('.products-grid');
-  
-  if (!searchInput || !productsGrid) return;
-  
-  let currentCategory = 'all';
-  let searchTerm = '';
-  
-  // Search functionality
-  searchInput.addEventListener('input', (e) => {
-    searchTerm = e.target.value.toLowerCase();
-    filterProducts();
-  });
-  
-  // Category filtering
-  filterBtns.forEach(btn => {
-    btn.addEventListener('click', () => {
-      filterBtns.forEach(b => b.classList.remove('active'));
-      btn.classList.add('active');
-      currentCategory = btn.dataset.category;
-      filterProducts();
-      
-      // Show feedback
-      showToast(`Showing ${currentCategory === 'all' ? 'all items' : currentCategory}`, 'info', 2000);
-    });
-  });
-  
-  function filterProducts() {
-    const products = productsGrid.querySelectorAll('[data-product]');
-    let visibleCount = 0;
-    
-    products.forEach(product => {
-      const category = product.dataset.category;
-      const name = product.dataset.product.toLowerCase();
-      
-      const matchesCategory = currentCategory === 'all' || category === currentCategory;
-      const matchesSearch = name.includes(searchTerm);
-      
-      if (matchesCategory && matchesSearch) {
-        product.style.display = '';
-        product.style.animation = 'fadeInUp 0.3s ease';
-        visibleCount++;
-      } else {
-        product.style.display = 'none';
-      }
-    });
-    
-    // Show no results message
-    let noResults = productsGrid.querySelector('.no-results');
-    if (visibleCount === 0) {
-      if (!noResults) {
-        noResults = document.createElement('div');
-        noResults.className = 'no-results';
-        noResults.innerHTML = `
-          <div style="grid-column: 1 / -1; text-align: center; padding: 3rem; color: var(--text-secondary);">
-            <i class="fas fa-search" style="font-size: 2.5rem; opacity: 0.3; margin-bottom: 1rem;"></i>
-            <p style="font-size: 1.1rem;">No products found matching your search</p>
-            <button class="btn btn-secondary" onclick="document.querySelector('.search-input').value = ''; document.querySelector('.search-input').dispatchEvent(new Event('input'));" style="margin-top: 1rem;">
-              Clear Search
-            </button>
-          </div>
-        `;
-        productsGrid.appendChild(noResults);
-      }
-    } else if (noResults) {
-      noResults.remove();
-    }
-  }
-}
-
-// ============================================
-// QUANTITY SELECTOR ENHANCEMENT
-// ============================================
-function setupQuantitySelectors() {
-  const quantityControls = document.querySelectorAll('.quantity-control');
-  
-  quantityControls.forEach(control => {
-    const input = control.querySelector('input[type="number"]');
-    const minusBtn = control.querySelector('.qty-minus');
-    const plusBtn = control.querySelector('.qty-plus');
-    
-    if (!input || !minusBtn || !plusBtn) return;
-    
-    minusBtn.addEventListener('click', () => {
-      if (parseInt(input.value) > 1) {
-        input.value = parseInt(input.value) - 1;
-        input.dispatchEvent(new Event('change'));
-      }
-    });
-    
-    plusBtn.addEventListener('click', () => {
-      input.value = parseInt(input.value) + 1;
-      input.dispatchEvent(new Event('change'));
-    });
-  });
-}
-
-// ============================================
 // SCROLL REVEAL ANIMATIONS
 // ============================================
 function initScrollReveal() {
@@ -4126,37 +3624,6 @@ function initScrollReveal() {
     console.warn('Error initializing scroll reveal:', e);
   }
 }
-
-// ============================================
-// PAGE TRANSITION ANIMATIONS
-// ============================================
-function initPageTransitions() {
-  // Disabled - was interfering with page navigation
-  // This function was preventing proper page loads
-}
-
-// ============================================
-// CROSS-PAGE AUTHENTICATION SYNC
-// ============================================
-// Listen for storage changes from other tabs/windows to sync auth state
-window.addEventListener('storage', (e) => {
-  // If swiftChowUser changes (login/logout), update auth UI on all open pages
-  if (e.key === 'swiftChowUser') {
-    // Update auth UI after a brief delay to ensure all data is updated
-    setTimeout(() => {
-      updateAuthUI();
-      // Also update floating cart count
-      updateFloatingCartCount();
-    }, 100);
-  }
-  // If cart changes, update cart display
-  if (e.key === 'swiftChowCart') {
-    setTimeout(() => {
-      updateCartCount();
-      updateFloatingCartCount();
-    }, 100);
-  }
-});
 
 // ============================================
 // ENHANCED FORM VALIDATION
@@ -4420,149 +3887,6 @@ function showEmptyState(containerId, icon = '📦', title = 'Nothing here yet', 
       ${message ? `<div class="empty-state-message">${message}</div>` : ''}
     </div>
   `;
-}
-
-// ============================================
-// NOTIFICATION ENHANCEMENTS
-// ============================================
-
-function createToastContainer() {
-  if (!document.querySelector('.toast-container')) {
-    const container = document.createElement('div');
-    container.className = 'toast-container';
-    container.style.cssText = `
-      position: fixed;
-      bottom: 20px;
-      right: 20px;
-      z-index: 9999;
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      max-width: 400px;
-    `;
-    document.body.appendChild(container);
-  }
-  return document.querySelector('.toast-container');
-}
-
-function showToastEnhanced(message, type = 'info', duration = 4000) {
-  const container = createToastContainer();
-  
-  const toast = document.createElement('div');
-  toast.className = `toast ${type}`;
-  toast.style.cssText = `
-    padding: 16px 20px;
-    border-radius: 8px;
-    color: white;
-    font-weight: 500;
-    display: flex;
-    align-items: center;
-    gap: 12px;
-    box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
-    animation: slideUp 0.4s ease, slideOut 0.4s ease ${duration}ms forwards;
-  `;
-
-  const icons = {
-    success: '<i class="fas fa-check-circle"></i>',
-    error: '<i class="fas fa-exclamation-circle"></i>',
-    info: '<i class="fas fa-info-circle"></i>',
-    warning: '<i class="fas fa-warning"></i>'
-  };
-
-  toast.innerHTML = `${icons[type] || icons.info} <span>${message}</span>`;
-  container.appendChild(toast);
-
-  setTimeout(() => {
-    toast.remove();
-  }, duration + 400);
-}
-// ============================================
-// PERFORMANCE OPTIMIZATION
-// ============================================
-
-// Intersection Observer for lazy loading and scroll animations
-if ('IntersectionObserver' in window) {
-  const observerOptions = {
-    threshold: 0.1,
-    rootMargin: '50px'
-  };
-
-  const observer = new IntersectionObserver((entries) => {
-    entries.forEach(entry => {
-      if (entry.isIntersecting) {
-        // Add animation class when element comes into view
-        entry.target.classList.add('in-view');
-        
-        // Lazy load images if needed
-        if (entry.target.dataset.src && !entry.target.src) {
-          entry.target.src = entry.target.dataset.src;
-        }
-        
-        // Stop observing once loaded
-        observer.unobserve(entry.target);
-      }
-    });
-  }, observerOptions);
-
-  // Observe all elements with data-observe attribute
-  document.querySelectorAll('[data-observe]').forEach(el => {
-    observer.observe(el);
-  });
-}
-
-// Performance API monitoring
-if ('PerformanceObserver' in window) {
-  try {
-    const perfObserver = new PerformanceObserver((list) => {
-      // Performance metrics available for debugging if needed
-    });
-
-    perfObserver.observe({ entryTypes: ['paint', 'navigation', 'largest-contentful-paint'] });
-  } catch (e) {
-    // Performance monitoring not available
-  }
-}
-
-// Request Idle Callback for non-critical tasks
-if ('requestIdleCallback' in window) {
-  requestIdleCallback(() => {
-    // Non-critical initialization
-  });
-}
-
-// Visibility change handler for pause/resume
-document.addEventListener('visibilitychange', () => {
-  if (document.hidden) {
-    // Page is hidden - pause animations/videos
-    document.querySelectorAll('video').forEach(video => {
-      if (!video.paused) video.pause();
-    });
-  }
-});
-
-// Network status monitoring
-if ('connection' in navigator) {
-  const connection = navigator.connection;
-  
-  const updateNetworkStatus = () => {
-    const saveData = connection.saveData;
-    
-    if (saveData) {
-      // Could disable animations or reduce image quality
-    }
-  };
-  
-  updateNetworkStatus();
-  connection.addEventListener('change', updateNetworkStatus);
-}
-
-// Memory pressure handling
-if ('deviceMemory' in navigator) {
-  const memory = navigator.deviceMemory;
-  
-  if (memory < 4) {
-    // Low memory device - optimize accordingly
-  }
 }
 
 // ============================================
@@ -5107,7 +4431,6 @@ if ('deviceMemory' in navigator) {
     initCounterAnimation();
     initNavScrollEffect();
     initFooterYear();
-    initNewsletterEnhancement();
     initOrderProgressAnimation();
     initMenuItemCount();
   }
@@ -5185,41 +4508,6 @@ if ('deviceMemory' in navigator) {
     }
   }
 
-  // 4. Newsletter success animation
-  function initNewsletterEnhancement() {
-    const forms = document.querySelectorAll('.newsletter-form, .newsletter-form-wrapper');
-    forms.forEach(form => {
-      form.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const input = this.querySelector('input[type="email"]');
-        const btn = this.querySelector('button');
-        if (!input || !input.value) return;
-        
-        const originalText = btn.innerHTML;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        btn.disabled = true;
-        
-        setTimeout(() => {
-          btn.innerHTML = '<i class="fas fa-check"></i> Subscribed!';
-          btn.style.background = '#22c55e';
-          input.value = '';
-          input.placeholder = 'You\'re subscribed! 🎉';
-          
-          if (window.showToast) {
-            window.showToast('Successfully subscribed! Welcome aboard! 🎉', 'success');
-          }
-          
-          setTimeout(() => {
-            btn.innerHTML = originalText;
-            btn.style.background = '';
-            btn.disabled = false;
-            input.placeholder = 'Enter your email address';
-          }, 3000);
-        }, 1200);
-      });
-    });
-  }
-
   // 5. Order progress auto-advance on order-success page
   function initOrderProgressAnimation() {
     if (document.body.dataset.page !== 'order-success') return;
@@ -5246,76 +4534,10 @@ if ('deviceMemory' in navigator) {
 })();
 
 /* ============================================
-   MINDBLOWING ENHANCEMENTS & ANIMATIONS
-   (Injected Globally)
+   GLOBAL ENHANCEMENTS
    ============================================ */
 document.addEventListener('DOMContentLoaded', function() {
-    // 1. Toast Notification Setup
-    var toastContainer = document.querySelector('.toast-container');
-    if (!toastContainer) {
-        toastContainer = document.createElement('div');
-        toastContainer.className = 'toast-container';
-        document.body.appendChild(toastContainer);
-    }
-
-    window.showToast = function(message, type) {
-        type = type || 'success';
-        var toast = document.createElement('div');
-        toast.className = 'toast toast-' + type;
-
-        var icon = 'fa-check-circle';
-        if (type === 'error') icon = 'fa-exclamation-circle';
-        if (type === 'info') icon = 'fa-info-circle';
-
-        toast.innerHTML = '<i class="fas ' + icon + '"></i><span>' + message + '</span>';
-        toastContainer.appendChild(toast);
-
-        setTimeout(function() { toast.remove(); }, 3500);
-    };
-
-    // Replace native alerts with toasts globally
-    window.alert = function(msg) {
-        window.showToast(msg, 'info');
-    };
-
-    // 2. Back to Top Button
-    var backToTopBtn = document.createElement('button');
-    backToTopBtn.innerHTML = '<i class="fas fa-arrow-up"></i>';
-    backToTopBtn.className = 'back-to-top';
-    backToTopBtn.setAttribute('aria-label', 'Back to top');
-    document.body.appendChild(backToTopBtn);
-
-    window.addEventListener('scroll', function() {
-        if (window.scrollY > 500) {
-            backToTopBtn.classList.add('show');
-        } else {
-            backToTopBtn.classList.remove('show');
-        }
-    });
-
-    backToTopBtn.addEventListener('click', function() {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
-    });
-
-    // 3. Scroll Reveal Animations (Intersection Observer)
-    var observerOptions = { threshold: 0.1, rootMargin: "0px 0px -50px 0px" };
-    var observer = new IntersectionObserver(function(entries) {
-        entries.forEach(function(entry) {
-            if (entry.isIntersecting) {
-                entry.target.classList.add('active');
-            }
-        });
-    }, observerOptions);
-
-    document.querySelectorAll('.section-title, .about-content, .contact-content, .blog-card, .menu-item, .category-btn').forEach(function(el, index) {
-        if (!el.classList.contains('reveal') && !el.classList.contains('reveal-left') && !el.classList.contains('reveal-right') && !el.classList.contains('reveal-scale')) {
-            el.classList.add('reveal');
-            el.style.transitionDelay = ((index % 5) * 0.1) + 's';
-        }
-        observer.observe(el);
-    });
-
-    // 4. Hero Enhancements (Particles & Typing)
+    // 1. Hero Enhancements (Particles & Typing)
     var heroSection = document.querySelector('.hero-premium');
     if (heroSection) {
         var desc = document.querySelector('.hero-description');
@@ -5440,34 +4662,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     });
 
-    // 8. Reading Progress Bar
-    var progressBar = document.createElement('div');
-    progressBar.id = 'reading-progress-bar';
-    document.body.appendChild(progressBar);
-
-    window.addEventListener('scroll', function() {
-        var winScroll = document.body.scrollTop || document.documentElement.scrollTop;
-        var height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
-        var scrolled = height > 0 ? (winScroll / height) * 100 : 0;
-        progressBar.style.width = scrolled + '%';
-    });
-
-    // 9. Confetti for order success
-    if (window.location.pathname.indexOf('order-success') !== -1) {
-        var colors = ['#DC2626', '#10B981', '#F59E0B', '#3B82F6', '#8B5CF6'];
-        for (var c = 0; c < 100; c++) {
-            var confetti = document.createElement('div');
-            confetti.className = 'confetti';
-            confetti.style.left = (Math.random() * 100) + 'vw';
-            confetti.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-            confetti.style.animationDuration = (Math.random() * 3 + 2) + 's';
-            confetti.style.animationDelay = (Math.random() * 2) + 's';
-            if (Math.random() > 0.5) confetti.style.borderRadius = '50%';
-            document.body.appendChild(confetti);
-        }
-    }
-
-    // 10. Free delivery progress injection
+    // 8. Free delivery progress injection
     setInterval(function() {
         if (typeof window.getCartSubtotal === 'function') {
             var subtotal = window.getCartSubtotal();

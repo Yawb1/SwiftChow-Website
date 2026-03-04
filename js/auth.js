@@ -36,16 +36,6 @@ function getCurrentUser() {
   return currentUser;
 }
 
-// Protect page - redirect to login if not authenticated
-function protectPage() {
-  if (!isAuthenticated()) {
-    console.warn('User not authenticated. Redirecting to login...');
-    // Redirect to login with return URL
-    const returnUrl = encodeURIComponent(window.location.pathname);
-    window.location.href = `login.html?return=${returnUrl}`;
-  }
-}
-
 // Login with email and password
 async function login(email, password, remember = false) {
   if (!email || !validateEmail(email)) {
@@ -271,22 +261,6 @@ async function signup(userData) {
 }
 
 
-// Check if user is logged in (call this on every page load)
-function checkAuthState() {
-  const storedUser = localStorage.getItem('swiftChowUser');
-  if (storedUser) {
-    try {
-      currentUser = JSON.parse(storedUser);
-      return true;
-    } catch (e) {
-      localStorage.removeItem('swiftChowUser');
-      currentUser = null;
-      return false;
-    }
-  }
-  return false;
-}
-
 // Protected pages list
 const protectedPages = ['account.html', 'checkout.html', 'tracking.html', 'order-success.html'];
 
@@ -320,65 +294,6 @@ function requestPasswordReset(email) {
   // In a real app, send email
   // For demo, we'll just show success message
   return { success: true, message: 'Password reset link sent to your email!' };
-}
-
-// Update user profile
-function updateProfile(updates) {
-  if (!currentUser) {
-    return { success: false, message: 'You must be logged in to update your profile' };
-  }
-  
-  // Validate updates
-  if (updates.name && updates.name.length < 2) {
-    return { success: false, message: 'Name must be at least 2 characters' };
-  }
-  
-  if (updates.phone && !validatePhone(updates.phone)) {
-    return { success: false, message: 'Please enter a valid phone number' };
-  }
-  
-  // Update current user
-  currentUser = { ...currentUser, ...updates };
-  
-  // Update in storage
-  localStorage.setItem('swiftChowUser', JSON.stringify(currentUser));
-  
-  // Update in "database"
-  const users = JSON.parse(localStorage.getItem('swiftChowUsers')) || [];
-  const userIndex = users.findIndex(u => u.id === currentUser.id);
-  if (userIndex > -1) {
-    users[userIndex] = { ...users[userIndex], ...updates };
-    localStorage.setItem('swiftChowUsers', JSON.stringify(users));
-  }
-  
-  return { success: true, message: 'Profile updated successfully!' };
-}
-
-// Change password
-function changePassword(currentPassword, newPassword, confirmPassword) {
-  if (!currentUser) {
-    return { success: false, message: 'You must be logged in to change your password' };
-  }
-  
-  if (!newPassword || newPassword.length < 6) {
-    return { success: false, message: 'New password must be at least 6 characters' };
-  }
-  
-  if (newPassword !== confirmPassword) {
-    return { success: false, message: 'Passwords do not match' };
-  }
-  
-  // Update in "database"
-  const users = JSON.parse(localStorage.getItem('swiftChowUsers')) || [];
-  const userIndex = users.findIndex(u => u.id === currentUser.id);
-  
-  if (userIndex > -1) {
-    // In real app, verify current password
-    users[userIndex].password = newPassword;
-    localStorage.setItem('swiftChowUsers', JSON.stringify(users));
-  }
-  
-  return { success: true, message: 'Password changed successfully!' };
 }
 
 // ============================================
@@ -417,19 +332,6 @@ function deleteAddress(addressId) {
   localStorage.setItem(`swiftChowAddresses_${currentUser.id}`, JSON.stringify(addresses));
   
   return { success: true, message: 'Address deleted' };
-}
-
-function setDefaultAddress(addressId) {
-  if (!currentUser) return { success: false };
-  
-  let addresses = getSavedAddresses();
-  addresses = addresses.map(a => ({
-    ...a,
-    isDefault: a.id === addressId
-  }));
-  localStorage.setItem(`swiftChowAddresses_${currentUser.id}`, JSON.stringify(addresses));
-  
-  return { success: true, message: 'Default address updated' };
 }
 
 // ============================================
@@ -471,36 +373,6 @@ function deletePaymentMethod(methodId) {
   return { success: true, message: 'Payment method deleted' };
 }
 
-function setDefaultPaymentMethod(methodId) {
-  if (!currentUser) return { success: false };
-  
-  let methods = getSavedPaymentMethods();
-  methods = methods.map(m => ({
-    ...m,
-    isDefault: m.id === methodId
-  }));
-  localStorage.setItem(`swiftChowPaymentMethods_${currentUser.id}`, JSON.stringify(methods));
-  
-  return { success: true, message: 'Default payment method updated' };
-}
-
-// ============================================
-// ORDER HISTORY
-// ============================================
-
-function getOrderHistory() {
-  if (!currentUser) return [];
-  
-  const orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
-  return orders.filter(o => o.customer.email === currentUser.email)
-    .sort((a, b) => new Date(b.createdAt) - new Date(a.createdAt));
-}
-
-function getOrderDetails(orderId) {
-  const orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
-  return orders.find(o => o.id === orderId);
-}
-
 // ============================================
 // VALIDATION HELPERS
 // ============================================
@@ -515,53 +387,9 @@ function validatePhone(phone) {
   return re.test(phone.replace(/\s/g, ''));
 }
 
-function generateUserId() {
-  return 'user_' + Date.now().toString(36) + Math.random().toString(36).substr(2);
-}
-
 // ============================================
 // UI FUNCTIONS
 // ============================================
-
-function updateAuthUI() {
-  const loginLinks = document.querySelectorAll('.auth-login-link');
-  const logoutLinks = document.querySelectorAll('.auth-logout-link');
-  const userNameElements = document.querySelectorAll('.auth-user-name');
-  const userEmailElements = document.querySelectorAll('.auth-user-email');
-  const userAvatarElements = document.querySelectorAll('.auth-user-avatar');
-  const authRequiredElements = document.querySelectorAll('.auth-required');
-  const guestOnlyElements = document.querySelectorAll('.guest-only');
-  
-  if (isLoggedIn()) {
-    // Show logged in state
-    loginLinks.forEach(el => el.style.display = 'none');
-    logoutLinks.forEach(el => el.style.display = 'flex');
-    authRequiredElements.forEach(el => el.style.display = 'block');
-    guestOnlyElements.forEach(el => el.style.display = 'none');
-    
-    // Update user info
-    userNameElements.forEach(el => el.textContent = currentUser.name);
-    userEmailElements.forEach(el => el.textContent = currentUser.email);
-    userAvatarElements.forEach(el => {
-      el.textContent = getInitials(currentUser.name);
-    });
-  } else {
-    // Show guest state
-    loginLinks.forEach(el => el.style.display = 'flex');
-    logoutLinks.forEach(el => el.style.display = 'none');
-    authRequiredElements.forEach(el => el.style.display = 'none');
-    guestOnlyElements.forEach(el => el.style.display = 'block');
-  }
-}
-
-function getInitials(name) {
-  if (!name) return 'U';
-  const parts = name.trim().split(' ');
-  if (parts.length === 1) {
-    return parts[0].charAt(0).toUpperCase();
-  }
-  return (parts[0].charAt(0) + parts[parts.length - 1].charAt(0)).toUpperCase();
-}
 
 // Protect pages that require authentication
 function requireAuth() {

@@ -1009,83 +1009,11 @@ const ghanaCities = [
   { name: "Obuasi", deliveryFee: 30, available: false, estimatedTime: "90-120 min" }
 ];
 
-// Popular areas in Accra
-const accraAreas = [
-  "Osu", "Cantonments", "Airport Residential", "East Legon", "Labone",
-  "Dzorwulu", "Achimota", "Dansoman", "Spintex", "Madina",
-  "Adenta", "Teshie", "Labadi", "Nungua", "Tema Community"
-];
-
-// ============================================
-// BUSINESS INFO
-// ============================================
-const businessInfo = {
-  name: "SWIFT CHOW",
-  tagline: "Hot Meals. Swift Delivery.",
-  description: "Ghana's Premium Fast Food Experience",
-  email: "orders@swiftchow.com",
-  phone: "+233 550 507 0941",
-  whatsapp: "+233 550 507 0941",
-  address: "25 Independence Avenue, Osu, Accra, Ghana",
-  openingHours: {
-    weekdays: "8:00 AM - 10:00 PM",
-    saturday: "9:00 AM - 11:00 PM",
-    sunday: "10:00 AM - 9:00 PM"
-  },
-  socialMedia: {
-    facebook: "https://facebook.com/swiftchow",
-    instagram: "https://instagram.com/swiftchow",
-    twitter: "https://twitter.com/swiftchow",
-    linkedin: "https://linkedin.com/company/swiftchow"
-  },
-  copyright: "© 2026 SWIFT CHOW. All rights reserved.",
-  developer: "Designed & Developed by Ayensu Edwin Yaw Boadi"
-};
-
 // ============================================
 // HELPER FUNCTIONS
 // ============================================
-function getPopularItems() {
-  return foodItems.filter(item => item.isPopular);
-}
-
-function getNewItems() {
-  return foodItems.filter(item => item.isNew);
-}
-
-function getItemsByCategory(category) {
-  if (category === 'all') return foodItems;
-  return foodItems.filter(item => item.category === category);
-}
-
-function getItemById(id) {
-  return foodItems.find(item => item.id === id);
-}
-
-function searchItems(query) {
-  const searchTerm = query.toLowerCase();
-  return foodItems.filter(item => 
-    item.name.toLowerCase().includes(searchTerm) ||
-    item.description.toLowerCase().includes(searchTerm) ||
-    item.category.toLowerCase().includes(searchTerm)
-  );
-}
-
-function getBlogPostById(id) {
-  return blogPosts.find(post => post.id === id);
-}
-
 function getRelatedBlogPosts(currentId, limit = 3) {
   return blogPosts.filter(post => post.id !== currentId).slice(0, limit);
-}
-
-function formatPrice(price) {
-  return `GHS ${price.toFixed(2)}`;
-}
-
-function formatDate(dateString) {
-  const options = { year: 'numeric', month: 'long', day: 'numeric' };
-  return new Date(dateString).toLocaleDateString('en-US', options);
 }
 
 // Export for use in other files (if using modules)
@@ -1097,16 +1025,6 @@ if (typeof module !== 'undefined' && module.exports) {
     blogPosts,
     reviews,
     ghanaCities,
-    accraAreas,
-    businessInfo,
-    getPopularItems,
-    getNewItems,
-    getItemsByCategory,
-    getItemById,
-    searchItems,
-    getBlogPostById,
-    getRelatedBlogPosts,
-    formatPrice,
-    formatDate
+    getRelatedBlogPosts
   };
 }

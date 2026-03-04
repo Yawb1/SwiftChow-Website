@@ -3,6 +3,7 @@ const router = express.Router();
 const passport = require('passport');
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
+const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/constants');
 
 // ============================================
 // REGISTER ENDPOINT
@@ -40,8 +41,8 @@ router.post('/register', async (req, res) => {
         userId: newUser._id,
         email: newUser.email 
       },
-      process.env.JWT_SECRET || 'your-jwt-secret-change-in-production',
-      { expiresIn: '7d' }
+      JWT_SECRET,
+      { expiresIn: JWT_EXPIRES_IN }
     );
 
     return res.status(201).json({
@@ -91,8 +92,8 @@ router.post('/login', (req, res, next) => {
           userId: user._id,
           email: user.email 
         },
-        process.env.JWT_SECRET || 'your-jwt-secret-change-in-production',
-        { expiresIn: '7d' }
+        JWT_SECRET,
+        { expiresIn: JWT_EXPIRES_IN }
       );
       
       console.log('Login successful for:', user.email, 'Token:', token.substring(0, 20) + '...');
@@ -122,8 +123,8 @@ router.post('/login', (req, res, next) => {
 router.get('/google/callback', passport.authenticate('google', { failureRedirect: '/login?error=google_auth_failed' }), (req, res) => {
   const token = jwt.sign(
     { userId: req.user._id, email: req.user.email },
-    process.env.JWT_SECRET || 'your-jwt-secret-change-in-production',
-    { expiresIn: '7d' }
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
   );
   
   res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/menu.html?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`);
@@ -136,8 +137,8 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
 router.get('/facebook/callback', passport.authenticate('facebook', { failureRedirect: '/login?error=facebook_auth_failed' }), (req, res) => {
   const token = jwt.sign(
     { userId: req.user._id, email: req.user.email },
-    process.env.JWT_SECRET || 'your-jwt-secret-change-in-production',
-    { expiresIn: '7d' }
+    JWT_SECRET,
+    { expiresIn: JWT_EXPIRES_IN }
   );
   
   res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/menu.html?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`);

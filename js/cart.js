@@ -129,11 +129,6 @@ async function saveCart() {
   }
 }
 
-// Get cart
-function getCart() {
-  return cart;
-}
-
 // Update cart count in header
 function updateCartCount() {
   const cartCountElements = document.querySelectorAll('.cart-count');
@@ -353,11 +348,6 @@ function getCartSubtotal() {
   return cart.reduce((sum, item) => sum + (item.price * item.quantity), 0);
 }
 
-// Get cart total with delivery
-function getCartTotal(deliveryFee = 0) {
-  return getCartSubtotal() + deliveryFee;
-}
-
 // Get total items count
 function getCartItemCount() {
   return cart.reduce((sum, item) => sum + item.quantity, 0);
@@ -381,11 +371,6 @@ async function clearCart() {
   if (typeof updateCartModal === 'function') updateCartModal();
   if (typeof updateFloatingCart === 'function') updateFloatingCart();
   showToast('Cart cleared', 'info');
-}
-
-// Check if cart is empty
-function isCartEmpty() {
-  return cart.length === 0;
 }
 
 // Animate cart icon when adding items
@@ -589,13 +574,6 @@ function updateCheckoutTotals(selectedCity = null) {
   if (totalEl) totalEl.textContent = `GHS ${total.toFixed(2)}`;
 }
 
-// Generate order ID
-function generateOrderId() {
-  const timestamp = Date.now().toString(36).toUpperCase();
-  const random = Math.random().toString(36).substring(2, 6).toUpperCase();
-  return `SWIFT-${timestamp}-${random}`;
-}
-
 // Process order - NOW SAVES TO DATABASE
 async function processOrder(orderData) {
   try {
@@ -703,81 +681,10 @@ async function processOrder(orderData) {
   }
 }
 
-// Calculate estimated delivery time
-function calculateEstimatedDelivery(city) {
-  const cityData = ghanaCities.find(c => c.name === city);
-  const estimatedMinutes = cityData ? parseInt(cityData.estimatedTime.split('-')[1]) : 60;
-  const deliveryTime = new Date(Date.now() + estimatedMinutes * 60000);
-  return deliveryTime.toISOString();
-}
-
 // Get order by ID
 function getOrderById(orderId) {
   const orders = JSON.parse(localStorage.getItem('swiftChowOrders')) || [];
   return orders.find(order => order.id === orderId);
-}
-
-// Get last order
-function getLastOrder() {
-  return JSON.parse(localStorage.getItem('lastOrder'));
-}
-
-// ============================================
-// PROMO CODE FUNCTIONS
-// ============================================
-
-const promoCodes = {
-  'SWIFT10': { type: 'percentage', value: 10, minOrder: 50 },
-  'SWIFT20': { type: 'percentage', value: 20, minOrder: 100 },
-  'FREESHIP': { type: 'freeDelivery', value: 0, minOrder: 0 },
-  'WELCOME': { type: 'fixed', value: 15, minOrder: 50 }
-};
-
-function applyPromoCode(code) {
-  const promo = promoCodes[code.toUpperCase()];
-  
-  if (!promo) {
-    return { success: false, message: 'Invalid promo code' };
-  }
-  
-  const subtotal = getCartSubtotal();
-  
-  if (subtotal < promo.minOrder) {
-    return { 
-      success: false, 
-      message: `Minimum order of GHS ${promo.minOrder} required for this code` 
-    };
-  }
-  
-  localStorage.setItem('swiftChowPromoCode', code.toUpperCase());
-  
-  return { 
-    success: true, 
-    message: `Promo code applied! ${getPromoDescription(promo)}`,
-    promo: promo
-  };
-}
-
-function getPromoDescription(promo) {
-  switch (promo.type) {
-    case 'percentage':
-      return `${promo.value}% off your order`;
-    case 'fixed':
-      return `GHS ${promo.value} off your order`;
-    case 'freeDelivery':
-      return 'Free delivery on this order';
-    default:
-      return '';
-  }
-}
-
-function getAppliedPromo() {
-  const code = localStorage.getItem('swiftChowPromoCode');
-  return code ? promoCodes[code] : null;
-}
-
-function removePromoCode() {
-  localStorage.removeItem('swiftChowPromoCode');
 }
 
 // ============================================
@@ -818,4 +725,3 @@ window.saveCart = saveCart;
 window.incrementQuantity = incrementQuantity;
 window.decrementQuantity = decrementQuantity;
 window.getCartSubtotal = getCartSubtotal;
-window.getCartTotal = getCartTotal;
