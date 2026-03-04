@@ -99,25 +99,11 @@ async function loadCart() {
 // CART FUNCTIONS
 // ============================================
 
-// Save cart (to localStorage if not logged in)
-async function saveCart() {
+// Save cart to localStorage (API sync happens in addToCart/removeFromCart)
+function saveCart() {
   cart = normalizeCartState(cart);
-  window.cart = cart; // Always keep window.cart in sync FIRST
+  window.cart = cart;
   localStorage.setItem('swiftChowCart', JSON.stringify(cart));
-  
-  if (isAuthenticated()) {
-    try {
-      const response = await apiGetCart(); // Sync with server
-      if (response && (response.cart || response.items)) {
-        cart = response.cart || response.items;
-        window.cart = cart; // Update window.cart with latest from server
-      }
-    } catch (error) {
-      console.error('Error syncing cart:', error);
-    }
-  } else {
-    localStorage.setItem('swiftChowCart', JSON.stringify(cart));
-  }
   
   updateCartCount();
   updateCartDisplay();
@@ -133,19 +119,8 @@ async function saveCart() {
 function updateCartCount() {
   const cartCountElements = document.querySelectorAll('.cart-count');
 
-  // Prefer in-memory cart, fallback to window.cart/localStorage if needed
-  let sourceCart = Array.isArray(cart) ? cart : [];
-  if (!sourceCart.length && Array.isArray(window.cart) && window.cart.length) {
-    sourceCart = window.cart;
-  }
-  if (!sourceCart.length) {
-    sourceCart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
-  }
-
-  sourceCart = normalizeCartState(sourceCart);
-  cart = sourceCart;
-  window.cart = sourceCart;
-
+  // Use in-memory cart as single source of truth (already synced by loadCart/saveCart)
+  const sourceCart = Array.isArray(cart) ? cart : [];
   const totalItems = sourceCart.reduce((sum, item) => sum + (item.quantity || 0), 0);
   
   cartCountElements.forEach(el => {
@@ -183,67 +158,10 @@ async function addToCart(productId, quantity = 1) {
       }
       return false;
     }
-    
-    if (isAuthenticated()) {
-      try {
-        const response = await apiAddToCart(
-          productId, 
-          quantity,
-          product.price,
-          product.name,
-          product.category,
-          product.image
-        );
-        cart = response.cart || response.items || cart;
-        window.cart = cart;
-        saveCart();
-        if (typeof showToast === 'function') {
-          showToast(product.name + ' added to cart!', 'success');
-        }
-        updateCartCount();
-        try { if (typeof updateFloatingCart === 'function') updateFloatingCart(); } catch(e) {}
-        try { if (typeof animateCartIcon === 'function') animateCartIcon(); } catch(e) {}
-        // Add bump animation to cart count badge
-        document.querySelectorAll('.cart-count').forEach(el => {
-          el.classList.remove('bump');
-          void el.offsetWidth;
-          el.classList.add('bump');
-        });
-        return true;
-      } catch (error) {
-        console.error('API cart error, falling back to localStorage:', error);
-        // Fallback: save to localStorage just like the non-authenticated path
-        var existingItem = cart.find(function(item) { return item.id === productId; });
-        if (existingItem) {
-          existingItem.quantity += quantity;
-        } else {
-          cart.push({
-            id: product.id,
-            name: product.name,
-            price: product.price,
-            image: product.image,
-            category: product.category,
-            quantity: quantity
-          });
-        }
-        window.cart = cart;
-        saveCart();
-        if (typeof showToast === 'function') {
-          showToast(product.name + ' added to cart!', 'success');
-        }
-        updateCartCount();
-        try { if (typeof updateFloatingCart === 'function') updateFloatingCart(); } catch(e) {}
-        document.querySelectorAll('.cart-count').forEach(function(el) {
-          el.classList.remove('bump');
-          void el.offsetWidth;
-          el.classList.add('bump');
-        });
-        return true;
-      }
-    } else {
-      console.log('Adding to cart via localStorage...');
+
+    // Helper: merge item into local cart array
+    function mergeIntoLocalCart() {
       const existingItem = cart.find(item => item.id === productId);
-    
       if (existingItem) {
         existingItem.quantity += quantity;
       } else {
@@ -256,7 +174,10 @@ async function addToCart(productId, quantity = 1) {
           quantity: quantity
         });
       }
-    
+    }
+
+    // Helper: post-add UI feedback
+    function onItemAdded() {
       window.cart = cart;
       saveCart();
       if (typeof showToast === 'function') {
@@ -265,14 +186,34 @@ async function addToCart(productId, quantity = 1) {
       updateCartCount();
       try { if (typeof updateFloatingCart === 'function') updateFloatingCart(); } catch(e) {}
       try { if (typeof animateCartIcon === 'function') animateCartIcon(); } catch(e) {}
-      // Add bump animation to cart count badge
       document.querySelectorAll('.cart-count').forEach(el => {
         el.classList.remove('bump');
         void el.offsetWidth;
         el.classList.add('bump');
       });
-      return true;
     }
+    
+    if (isAuthenticated()) {
+      try {
+        const response = await apiAddToCart(
+          productId, 
+          quantity,
+          product.price,
+          product.name,
+          product.category,
+          product.image
+        );
+        cart = response.cart || response.items || cart;
+      } catch (error) {
+        console.error('API cart error, falling back to localStorage:', error);
+        mergeIntoLocalCart();
+      }
+    } else {
+      mergeIntoLocalCart();
+    }
+
+    onItemAdded();
+    return true;
   } catch (error) {
     console.error('CRITICAL ERROR in addToCart:', error);
     return false;

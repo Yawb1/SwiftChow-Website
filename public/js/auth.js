@@ -8,19 +8,7 @@
 // ============================================
 let currentUser = null;
 
-// Initialize user from storage on page load
-(function initUserState() {
-  const storedUser = localStorage.getItem('currentUser');
-  if (storedUser) {
-    try {
-      currentUser = JSON.parse(storedUser);
-      console.log('User loaded from storage:', currentUser.email);
-    } catch (e) {
-      console.error('Error parsing stored user:', e);
-      localStorage.removeItem('currentUser');
-    }
-  }
-})();
+// User state is initialized in initAuth() called from main.js DOMContentLoaded
 
 // ============================================
 // AUTHENTICATION FUNCTIONS
@@ -566,7 +554,9 @@ function initAuth() {
   if (savedUser) {
     try {
       currentUser = JSON.parse(savedUser);
+      // Ensure both keys stay in sync
       localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      localStorage.setItem('swiftChowUser', JSON.stringify(currentUser));
     } catch (e) {
       console.error('Auth: Error parsing user data:', e);
       localStorage.removeItem('swiftChowUser');

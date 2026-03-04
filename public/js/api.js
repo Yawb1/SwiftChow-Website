@@ -56,7 +56,7 @@ async function apiCall(endpoint, options = {}) {
         window.location.href = '/login.html';
         throw new Error('Session expired. Please login again.');
       }
-      throw new Error(data.message || `API Error: ${response.status}`);
+      throw new Error(data.error?.message || data.message || `API Error: ${response.status}`);
     }
     
     return data;

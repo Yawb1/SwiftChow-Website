@@ -96,7 +96,6 @@ function togglePasswordVisibility(inputId, e) {
 }
 
 function updateDarkModeIcon(theme) {
-  const icons = document.querySelectorAll('.dark-mode-toggle i, .dark-mode-toggle svg');
   const toggleBtns = document.querySelectorAll('.dark-mode-toggle');
   
   toggleBtns.forEach(btn => {
@@ -265,8 +264,6 @@ function initDealsCarousel() {
     console.warn('initDealsCarousel: No track element found, aborting');
     return;
   }
-  
-  const totalDeals = 5; // Fixed number of deals in HTML or data
   
   // Setup Event Listeners
   if (prevBtn) {
@@ -1075,7 +1072,8 @@ function initContactForm() {
   form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
-    if (!validateForm(form)) {
+    if (!form.checkValidity()) {
+      form.reportValidity();
       showToast('Please fill in all required fields', 'error');
       return;
     }
@@ -1483,7 +1481,8 @@ function initCheckoutForm() {
   form.addEventListener('submit', (e) => {
     e.preventDefault();
     
-    if (!validateForm(form)) {
+    if (!form.checkValidity()) {
+      form.reportValidity();
       showToast('Please fill in all required fields', 'error');
       return;
     }
@@ -2057,19 +2056,6 @@ function updateNavAuthUI() {
   console.log('=== updateNavAuthUI complete ===');
 }
 
-function toggleUserMenu(btn) {
-  const menu = btn.nextElementSibling;
-  menu.classList.toggle('show');
-  
-  // Close when clicking outside
-  document.addEventListener('click', function closeMenu(e) {
-    if (!btn.contains(e.target) && !menu.contains(e.target)) {
-      menu.classList.remove('show');
-      document.removeEventListener('click', closeMenu);
-    }
-  });
-}
-
 function getInitials(name) {
   if (!name) return 'U';
   const parts = name.trim().split(' ');
@@ -2163,6 +2149,10 @@ function init() {
         
         case 'blog-post':
           try { renderBlogPostPage(); } catch (e) { console.warn('renderBlogPostPage error:', e); }
+          break;
+        
+        case 'order-success':
+          try { initOrderSuccess(); } catch (e) { console.warn('initOrderSuccess error:', e); }
           break;
         
         case 'contact':
@@ -2641,7 +2631,7 @@ function initAccountFormHandlers() {
       e.preventDefault();
       const confirmed = confirm('Are you sure you want to delete your account? This action cannot be undone. All your data will be permanently deleted.');
       if (confirmed) {
-        const finalConfirm = confirm('This will delete your account permanently. Type DELETE to confirm.');
+        const finalConfirm = prompt('This will delete your account permanently. Type DELETE to confirm.');
         if (finalConfirm === 'DELETE') {
           deleteUserAccount();
         }
@@ -2747,19 +2737,9 @@ document.addEventListener('DOMContentLoaded', () => {
   }
 });
 
-// Also try to initialize immediately if DOM is already loaded
-if (document.readyState === 'complete' || document.readyState === 'interactive') {
-  setTimeout(() => {
-    try {
-      init();
-      initAccountNavigation();
-      initTrackingNavigation();
-      initEnhancements();
-    } catch (e) {
-      console.error('Error in immediate init:', e);
-    }
-  }, 1);
-}
+// Note: DOMContentLoaded handler above is sufficient.
+// No duplicate init needed — the event fires even if DOM was already loaded
+// before the listener was registered (in 'interactive' state).
 
 // Export functions for global use
 window.toggleDarkMode = toggleDarkMode;
@@ -3235,7 +3215,7 @@ function closeModal(modal) {
 // ============================================
 
 function updateAuthUI() {
-  const user = getCurrentUser();
+  let user = getCurrentUser();
   const navActions = document.querySelector('.nav-actions');
   
   if (!navActions) {
@@ -3388,22 +3368,22 @@ function updateAuthUI() {
 }
 
 // Social login handlers
-function googleLogin() {
+async function googleLogin() {
   showAdvancedToast('Google login demo - using demo credentials', 'info');
   const email = 'demo.google@swift.com';
   const password = 'demo1234';
-  if (login(email, password)) {
+  if (await login(email, password)) {
     const loginModal = document.getElementById('loginModal');
     closeModal(loginModal);
     setTimeout(() => updateAuthUI(), 100);
   }
 }
 
-function facebookLogin() {
+async function facebookLogin() {
   showAdvancedToast('Facebook login demo - using demo credentials', 'info');
   const email = 'demo.facebook@swift.com';
   const password = 'demo1234';
-  if (login(email, password)) {
+  if (await login(email, password)) {
     const loginModal = document.getElementById('loginModal');
     closeModal(loginModal);
     setTimeout(() => updateAuthUI(), 100);
@@ -3921,7 +3901,7 @@ function showEmptyState(containerId, icon = '📦', title = 'Nothing here yet', 
     initTypingEffect();
     initSmoothAnchorScroll();
     initStaggerGrids();
-    initContactFormSuccess();
+    // initContactFormSuccess removed — duplicate of initContactForm()
     initBlogReadingProgress();
     initCheckoutSteps();
   }
@@ -4333,41 +4313,7 @@ function showEmptyState(containerId, icon = '📦', title = 'Nothing here yet', 
   }
 
   // ---------- 17. Contact Form Success Animation ----------
-  function initContactFormSuccess() {
-    const contactForm = document.querySelector('.contact-form');
-    if (!contactForm) return;
-
-    contactForm.addEventListener('submit', function(e) {
-      e.preventDefault();
-
-      const btn = contactForm.querySelector('button[type="submit"]');
-      const originalHTML = btn.innerHTML;
-
-      // Show loading
-      btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending...';
-      btn.disabled = true;
-
-      setTimeout(() => {
-        // Success state
-        btn.innerHTML = '<i class="fas fa-check"></i> Message Sent!';
-        btn.style.background = 'linear-gradient(135deg, #10B981, #059669)';
-
-        // Show toast
-        if (typeof showToast === 'function') {
-          showToast('Your message has been sent! We\'ll get back to you within 24 hours.', 'success');
-        }
-
-        // Reset form
-        contactForm.reset();
-
-        setTimeout(() => {
-          btn.innerHTML = originalHTML;
-          btn.style.background = '';
-          btn.disabled = false;
-        }, 3000);
-      }, 1500);
-    });
-  }
+  // Removed: was a duplicate of initContactForm() which handles the same form
 
   // ---------- 18. Blog Post Reading Progress ----------
   function initBlogReadingProgress() {
