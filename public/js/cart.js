@@ -24,7 +24,15 @@ function normalizeCartState(sourceCart = cart) {
 async function loadCart() {
   if (!isAuthenticated()) {
     // If not logged in, use localStorage
-    cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
+    // SECURITY: Validate parsed cart data to prevent malformed JSON crashes
+    try {
+      const raw = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
+      cart = normalizeCartState(raw);
+    } catch (e) {
+      console.warn('Invalid cart data in localStorage, resetting:', e);
+      cart = [];
+      localStorage.removeItem('swiftChowCart');
+    }
     cartLoaded = true;
     window.cart = cart;
     updateCartDisplay();
@@ -386,15 +394,15 @@ function updateCartDisplay() {
   if (emptyCartMessage) emptyCartMessage.style.display = 'none';
   if (cartContent) cartContent.style.display = 'grid';
   
-  // Render cart items
+  // Render cart items — SECURITY: escape all dynamic data to prevent XSS
   cartItemsContainer.innerHTML = cart.map(item => `
     <div class="cart-item" data-id="${item.id}">
       <div class="cart-item-image">
-        <img src="${item.image}" alt="${item.name}" loading="lazy">
+        <img src="${sanitizeURL(item.image)}" alt="${escapeHTML(item.name)}" loading="lazy">
       </div>
       <div class="cart-item-details">
-        <span class="cart-item-category">${item.category}</span>
-        <h4 class="cart-item-name">${item.name}</h4>
+        <span class="cart-item-category">${escapeHTML(item.category)}</span>
+        <h4 class="cart-item-name">${escapeHTML(item.name)}</h4>
         <div class="cart-item-price">GHS ${item.price.toFixed(2)}</div>
       </div>
       <div class="cart-item-actions">
@@ -477,9 +485,9 @@ function renderMiniCart() {
     <div class="mini-cart-list">
       ${cart.slice(0, 3).map(item => `
         <div class="mini-cart-item">
-          <img src="${item.image}" alt="${item.name}">
+          <img src="${sanitizeURL(item.image)}" alt="${escapeHTML(item.name)}">
           <div class="mini-cart-item-info">
-            <span class="mini-cart-item-name">${item.name}</span>
+            <span class="mini-cart-item-name">${escapeHTML(item.name)}</span>
             <span class="mini-cart-item-price">${item.quantity} × GHS ${item.price}</span>
           </div>
         </div>
@@ -509,12 +517,12 @@ function renderCheckoutSummary() {
   orderItemsContainer.innerHTML = cart.map(item => `
     <div class="order-item">
       <div class="order-item-image">
-        <img src="${item.image}" alt="${item.name}">
+        <img src="${sanitizeURL(item.image)}" alt="${escapeHTML(item.name)}">
         <span class="order-item-qty">${item.quantity}</span>
       </div>
       <div class="order-item-details">
-        <h4>${item.name}</h4>
-        <span class="order-item-category">${item.category}</span>
+        <h4>${escapeHTML(item.name)}</h4>
+        <span class="order-item-category">${escapeHTML(item.category)}</span>
       </div>
       <div class="order-item-price">GHS ${(item.price * item.quantity).toFixed(2)}</div>
     </div>

@@ -1,5 +1,5 @@
-/* Google Fonts Import — must be first */
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
+/* Google Fonts loaded via <link> in HTML for better performance
+   (avoids render-blocking @import waterfall) */
 
 /* ============================================
    SWIFT CHOW - Complete Professional Stylesheet
@@ -212,6 +212,24 @@ p {
         transition-duration: 0.01ms !important;
         scroll-behavior: auto !important;
     }
+}
+
+/* Skip to content link */
+.skip-link {
+    position: absolute;
+    top: -100%;
+    left: 1rem;
+    z-index: 10000;
+    padding: 0.75rem 1.5rem;
+    background: var(--primary);
+    color: #fff;
+    font-weight: 600;
+    border-radius: var(--radius-md);
+    text-decoration: none;
+    transition: top 0.2s;
+}
+.skip-link:focus {
+    top: 1rem;
 }
 
 /* Focus visible for keyboard navigation */
@@ -3859,6 +3877,15 @@ select {
     .order-summary {
         position: static;
     }
+    
+    /* Switch to mobile nav on tablets */
+    .nav-links {
+        display: none;
+    }
+    
+    .mobile-menu-btn {
+        display: flex;
+    }
 }
 
 @media (max-width: 768px) {
@@ -4613,7 +4640,6 @@ select {
     }
     
     /* ===== GRID LAYOUTS ===== */
-    .products-grid,
     .features-grid,
     .blog-preview-grid,
     .gallery-grid {
@@ -4940,10 +4966,8 @@ select {
         font-size: 1.1rem;
     }
     
-    /* Checkout form */
+    /* Checkout form — single column (grid 1fr set by later rule) */
     .checkout-container {
-        display: flex;
-        flex-direction: column;
         gap: 1.5rem;
     }
     
@@ -5300,17 +5324,8 @@ select {
    PERFORMANCE & INTERACTION POLISH
    ============================================ */
 
-/* Font optimization - dynamic loading */
-@font-face {
-    font-family: 'Poppins';
-    font-display: swap; /* Show fallback text immediately */
-    src: url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap');
-}
-
-/* Image optimization - prevent layout shift */
-img {
-    content-visibility: auto;
-}
+/* Font optimization: Poppins loaded via <link> in HTML with display=swap
+   to show fallback text immediately and avoid FOUT */
 
 /* ============================================
    MICRO-ANIMATIONS & POLISH
@@ -8215,8 +8230,8 @@ select:disabled {
 @media (max-width: 600px) {
     .modal-content {
         width: 100%;
-        max-height: 100vh;
-        border-radius: 1rem 1rem 0 0;
+        max-height: 92vh;
+        border-radius: 1.5rem 1.5rem 0 0;
         max-width: none;
     }
     
@@ -12638,7 +12653,6 @@ html, body {
         width: 100% !important;
         border-radius: 1.5rem 1.5rem 0 0 !important;
         max-height: 92vh !important;
-        animation: slideUp 0.3s ease-out !important;
     }
     
     .modal-header {

@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Cart - SWIFT CHOW</title>
     <meta name="description" content="Review your cart and proceed to checkout.">
+    <!-- Performance: DNS prefetch + preconnect for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Favicon -->
@@ -22,11 +29,12 @@
     </div>
 
     <!-- Header -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <header class="header">
-        <nav class="nav">
+        <nav class="nav" aria-label="Main navigation">
             <a href="index.html" class="logo">
                 <div class="logo-icon">
-                    <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;">
+                    <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;" width="45" height="45">
                 </div>
                 <span class="logo-text">SWIFT <span>CHOW</span></span>
             </a>
@@ -59,9 +67,10 @@
             </div>
         </nav>
     </header>
+    <main id="main-content">
     
     <!-- Mobile Navigation -->
-    <nav class="mobile-nav">
+    <nav class="mobile-nav" aria-label="Mobile navigation">
         <ul class="mobile-nav-links">
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="menu.html"><i class="fas fa-utensils"></i> Menu</a></li>
@@ -160,13 +169,14 @@
     </section>
     
     <!-- Footer -->
+    </main>
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="index.html" class="logo">
                         <div class="logo-icon">
-                            <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;">
+                            <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;" width="45" height="45">
                         </div>
                         <span class="logo-text" style="color: white;">SWIFT <span style="color: var(--primary);">CHOW</span></span>
                     </a>
@@ -229,11 +239,11 @@
     </footer>
     
     <!-- JavaScript Files - Order matters! -->
-    <script src="js/data.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/data.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/cart.js" defer></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/main.js" defer></script>
     <script>
     // Show Track Order link only when signed in
     document.addEventListener('DOMContentLoaded', function() {

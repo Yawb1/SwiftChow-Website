@@ -4,6 +4,24 @@
 publish = "public"
 command = "echo 'No build required for static site'"
 
+# Asset optimization — Netlify minifies/compresses on deploy
+[build.processing]
+skip_processing = false
+
+[build.processing.css]
+bundle = true
+minify = true
+
+[build.processing.js]
+bundle = false
+minify = true
+
+[build.processing.html]
+pretty_urls = true
+
+[build.processing.images]
+compress = true
+
 # Pretty URLs - redirect .html to clean URLs
 [[redirects]]
 from = "/:splat.html"
@@ -27,3 +45,38 @@ for = "/*"
 Access-Control-Allow-Origin = "https://swift-chow-backend.onrender.com"
 Access-Control-Allow-Methods = "GET, POST, PUT, DELETE, OPTIONS"
 Access-Control-Allow-Headers = "Content-Type, Authorization"
+X-Content-Type-Options = "nosniff"
+X-Frame-Options = "DENY"
+Referrer-Policy = "strict-origin-when-cross-origin"
+
+# Cache static assets aggressively
+[[headers]]
+for = "/css/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "/js/*"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "*.png"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "*.jpg"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+[[headers]]
+for = "*.ico"
+[headers.values]
+Cache-Control = "public, max-age=31536000, immutable"
+
+# HTML pages - short cache with revalidation
+[[headers]]
+for = "*.html"
+[headers.values]
+Cache-Control = "public, max-age=0, must-revalidate"

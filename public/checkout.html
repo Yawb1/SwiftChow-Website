@@ -5,6 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Checkout - SWIFT CHOW</title>
     <meta name="description" content="Complete your order and get your food delivered.">
+    <!-- Performance: DNS prefetch + preconnect for external resources -->
+    <link rel="dns-prefetch" href="https://fonts.googleapis.com">
+    <link rel="dns-prefetch" href="https://fonts.gstatic.com">
+    <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="logo.png">
@@ -27,11 +34,12 @@
     </div>
 
     <!-- Header -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <header class="header">
-        <nav class="nav">
+        <nav class="nav" aria-label="Main navigation">
             <a href="index.html" class="logo">
                 <div class="logo-icon">
-                    <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;">
+                    <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;" width="45" height="45">
                 </div>
                 <span class="logo-text">SWIFT <span>CHOW</span></span>
             </a>
@@ -64,9 +72,10 @@
             </div>
         </nav>
     </header>
+    <main id="main-content">
     
     <!-- Mobile Navigation -->
-    <nav class="mobile-nav">
+    <nav class="mobile-nav" aria-label="Mobile navigation">
         <ul class="mobile-nav-links">
             <li><a href="index.html">Home</a></li>
             <li><a href="menu.html">Menu</a></li>
@@ -120,13 +129,13 @@
                             <label style="font-weight: 600; margin-bottom: 0.75rem; display: block;">Who is this order for?</label>
                             <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                                 <label style="padding: 1rem; border: 2px solid var(--border-color); border-radius: 0.5rem; cursor: pointer; text-align: center; transition: all 0.3s ease;" id="deliverToMeLabel">
-                                    <input type="radio" name="recipient" value="myself" checked style="display: none;">
+                                    <input type="radio" name="recipient" value="myself" checked style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);">
                                     <i class="fas fa-user" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem; color: var(--primary);"></i>
                                     <span style="font-weight: 600; display: block;">Deliver to Me</span>
                                     <span style="font-size: 0.8rem; color: var(--text-secondary);">Use my details</span>
                                 </label>
                                 <label style="padding: 1rem; border: 2px solid var(--border-color); border-radius: 0.5rem; cursor: pointer; text-align: center; transition: all 0.3s ease;" id="deliverToOtherLabel">
-                                    <input type="radio" name="recipient" value="other" style="display: none;">
+                                    <input type="radio" name="recipient" value="other" style="position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0,0,0,0);">
                                     <i class="fas fa-users" style="font-size: 1.5rem; display: block; margin-bottom: 0.5rem;"></i>
                                     <span style="font-weight: 600; display: block;">Deliver to Someone</span>
                                     <span style="font-size: 0.8rem; color: var(--text-secondary);">Use different details</span>
@@ -137,23 +146,23 @@
                         <div class="form-grid">
                             <div class="form-group">
                                 <label for="firstName">First Name *</label>
-                                <input type="text" id="firstName" name="firstName" required>
+                                <input type="text" id="firstName" name="firstName" required minlength="2" maxlength="100">
                             </div>
                             <div class="form-group">
                                 <label for="lastName">Last Name *</label>
-                                <input type="text" id="lastName" name="lastName" required>
+                                <input type="text" id="lastName" name="lastName" required minlength="2" maxlength="100">
                             </div>
                             <div class="form-group">
                                 <label for="email">Email *</label>
-                                <input type="email" id="email" name="email" required>
+                                <input type="email" id="email" name="email" required maxlength="254">
                             </div>
                             <div class="form-group">
                                 <label for="phone">Phone Number *</label>
-                                <input type="tel" id="phone" name="phone" placeholder="+233" required>
+                                <input type="tel" id="phone" name="phone" placeholder="+233" required maxlength="20">
                             </div>
                             <div class="form-group full-width">
                                 <label for="address">Delivery Address *</label>
-                                <input type="text" id="address" name="address" placeholder="Street address, house number" required>
+                                <input type="text" id="address" name="address" placeholder="Street address, house number" required minlength="5" maxlength="200">
                             </div>
                             <div class="form-group">
                                 <label for="city">City *</label>
@@ -169,11 +178,11 @@
                             </div>
                             <div class="form-group">
                                 <label for="landmark">Landmark</label>
-                                <input type="text" id="landmark" name="landmark" placeholder="Near...">
+                                <input type="text" id="landmark" name="landmark" placeholder="Near..." maxlength="200">
                             </div>
                             <div class="form-group full-width">
                                 <label for="notes">Delivery Notes</label>
-                                <textarea id="notes" name="notes" placeholder="Any special instructions for delivery..."></textarea>
+                                <textarea id="notes" name="notes" placeholder="Any special instructions for delivery..." maxlength="500"></textarea>
                             </div>
                             <div class="form-group full-width">
                                 <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer; font-weight: 500;">
@@ -263,6 +272,7 @@
     </section>
     
     <!-- Footer -->
+    </main>
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
@@ -351,20 +361,20 @@
     </footer>
     
     <!-- JavaScript Files - Order matters! -->
-    <script src="js/data.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/data.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/cart.js" defer></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/main.js" defer></script>
 
     <!-- LOGIN MODAL -->
-    <div id="loginModal" class="modal-overlay">
+    <div id="loginModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Sign in">
         <div class="modal-content">
             <button class="modal-close" aria-label="Close modal"><i class="fas fa-times"></i></button>
             
             <div class="modal-header">
                 <a href="#" class="logo">
-                    <div class="logo-icon"><img src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
+                    <div class="logo-icon"><img loading="lazy" src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
                     <div class="logo-text">SWIFT <span>CHOW</span></div>
                 </a>
                 <h2>Welcome Back!</h2>
@@ -375,14 +385,14 @@
                 <form id="loginModalForm" class="form">
                     <div class="form-group">
                         <label for="login-email">Email Address</label>
-                        <input type="email" id="login-email" name="email" placeholder="your@email.com" required>
+                        <input type="email" id="login-email" name="email" placeholder="your@email.com" required maxlength="254">
                         <div class="form-feedback error" style="display: none;"></div>
                         <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Email verified</div>
                     </div>
 
                     <div class="form-group">
                         <label for="login-password">Password</label>
-                        <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
+                        <input type="password" id="login-password" name="password" placeholder="Enter your password" required minlength="6">
                         <div class="form-feedback error" style="display: none;"></div>
                         <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Password valid</div>
                     </div>
@@ -416,13 +426,13 @@
     </div>
 
     <!-- SIGNUP MODAL -->
-    <div id="signupModal" class="modal-overlay">
+    <div id="signupModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Create account">
         <div class="modal-content">
             <button class="modal-close" aria-label="Close modal"><i class="fas fa-times"></i></button>
             
             <div class="modal-header">
                 <a href="#" class="logo">
-                    <div class="logo-icon"><img src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
+                    <div class="logo-icon"><img loading="lazy" src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
                     <div class="logo-text">SWIFT <span>CHOW</span></div>
                 </a>
                 <h2>Join Us!</h2>
@@ -433,21 +443,21 @@
                 <form id="signupModalForm" class="form">
                     <div class="form-group">
                         <label for="signup-fullname">Full Name</label>
-                        <input type="text" id="signup-fullname" name="fullName" placeholder="Your full name" required>
+                        <input type="text" id="signup-fullname" name="fullName" placeholder="Your full name" required minlength="2" maxlength="100">
                         <div class="form-feedback error" style="display: none;"></div>
                         <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Name valid</div>
                     </div>
 
                     <div class="form-group">
                         <label for="signup-email">Email Address</label>
-                        <input type="email" id="signup-email" name="email" placeholder="your@email.com" required>
+                        <input type="email" id="signup-email" name="email" placeholder="your@email.com" required maxlength="254">
                         <div class="form-feedback error" style="display: none;"></div>
                         <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Email verified</div>
                     </div>
 
                     <div class="form-group">
                         <label for="signup-phone">Phone Number</label>
-                        <input type="tel" id="signup-phone" name="phone" placeholder="+233 50 507 0941" required>
+                        <input type="tel" id="signup-phone" name="phone" placeholder="+233 50 507 0941" required maxlength="20">
                         <div class="form-feedback error" style="display: none;"></div>
                         <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Phone valid</div>
                     </div>
@@ -455,13 +465,13 @@
                     <div class="form-row">
                         <div class="form-group">
                             <label for="signup-password">Password</label>
-                            <input type="password" id="signup-password" name="password" placeholder="At least 6 characters" required>
+                            <input type="password" id="signup-password" name="password" placeholder="At least 6 characters" required minlength="6">
                             <div class="form-feedback error" style="display: none;"></div>
                             <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Password valid</div>
                         </div>
                         <div class="form-group">
                             <label for="signup-confirm">Confirm Password</label>
-                            <input type="password" id="signup-confirm" name="confirmPassword" placeholder="Confirm password" required>
+                            <input type="password" id="signup-confirm" name="confirmPassword" placeholder="Confirm password" required minlength="6">
                             <div class="form-feedback error" style="display: none;"></div>
                             <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Passwords match</div>
                         </div>

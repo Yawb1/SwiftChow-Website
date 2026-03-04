@@ -3,8 +3,43 @@
    Handles all backend API communication
    ============================================ */
 
-// API Base URL - Update this when you deploy to Render
-const API_BASE_URL = localStorage.getItem('apiUrl') || 'https://swift-chow-backend.onrender.com/api';
+// ============================================
+// SECURITY: HTML Sanitization Utility
+// Escapes HTML special characters to prevent XSS when
+// interpolating dynamic data into innerHTML templates.
+// Loaded early (api.js) so cart.js, auth.js, main.js can use it.
+// ============================================
+function escapeHTML(str) {
+  if (str == null) return '';
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;')
+    .replace(/'/g, '&#39;');
+}
+
+// Sanitize a URL: only allow http(s) and data:image URIs.
+// Blocks javascript: URIs that could execute code via <img src> or <a href>.
+function sanitizeURL(url) {
+  if (!url) return '';
+  const str = String(url).trim();
+  if (/^https?:\/\//i.test(str) || /^data:image\//i.test(str) || str.startsWith('/') || str.startsWith('./')) {
+    return str;
+  }
+  return '';
+}
+
+// Validate that a value matches an expected format (alphanumeric + hyphens)
+// Used for order IDs, user IDs, etc. before interpolating into URL paths.
+function sanitizeId(id) {
+  return String(id).replace(/[^a-zA-Z0-9_\-]/g, '');
+}
+
+// API Base URL - hardcoded to prevent API-endpoint hijacking via localStorage
+// SECURITY FIX: Removed localStorage.getItem('apiUrl') — any XSS could redirect
+// all API calls (including credentials) to an attacker-controlled server.
+const API_BASE_URL = 'https://swift-chow-backend.onrender.com/api';
 
 // Get stored JWT token
 function getAuthToken() {
@@ -56,12 +91,18 @@ async function apiCall(endpoint, options = {}) {
         window.location.href = '/login.html';
         throw new Error('Session expired. Please login again.');
       }
-      throw new Error(data.error?.message || data.message || `API Error: ${response.status}`);
+      // SECURITY: Sanitize error messages — don't expose raw server errors
+      // to the UI (could reveal stack traces, DB details, etc.)
+      const rawMsg = data.error?.message || data.message || '';
+      const safeMsg = rawMsg.length > 200 ? rawMsg.substring(0, 200) : rawMsg;
+      throw new Error(safeMsg || `Request failed (${response.status})`);
     }
     
     return data;
   } catch (error) {
-    console.error('API Error:', error);
+    if (error.message && !error._sanitized) {
+      console.error('API Error:', error.message);
+    }
     throw error;
   }
 }
@@ -173,7 +214,9 @@ async function apiGetOrders() {
 
 // Get specific order
 async function apiGetOrder(orderId) {
-  return apiCall(`/orders/${orderId}`);
+  // SECURITY: Sanitize orderId to prevent path traversal (e.g., ../../admin)
+  const safeId = sanitizeId(orderId);
+  return apiCall(`/orders/${safeId}`);
 }
 
 

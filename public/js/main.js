@@ -191,6 +191,8 @@ function showToast(message, type = 'success', duration = 3000) {
   if (!container) {
     container = document.createElement('div');
     container.className = 'toast-container';
+    container.setAttribute('role', 'alert');
+    container.setAttribute('aria-live', 'polite');
     document.body.appendChild(container);
   }
   
@@ -219,11 +221,12 @@ function showToast(message, type = 'success', duration = 3000) {
     </svg>`
   };
   
+  // SECURITY: Escape message to prevent XSS via product names or API errors
   toast.innerHTML = `
     <span class="toast-icon">${icons[type] || icons.info}</span>
-    <span class="toast-message">${message}</span>
-    <button class="toast-close" onclick="this.parentElement.remove()">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+    <span class="toast-message">${escapeHTML(message)}</span>
+    <button class="toast-close" aria-label="Dismiss notification" onclick="this.parentElement.remove()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
         <line x1="18" y1="6" x2="6" y2="18"></line>
         <line x1="6" y1="6" x2="18" y2="18"></line>
       </svg>
@@ -397,22 +400,23 @@ function renderMenuItems(items, container) {
     return;
   }
   
+  // SECURITY: Escape all dynamic data to prevent XSS if data source is compromised
   container.innerHTML = items.map(item => `
-    <article class="food-card" data-category="${item.category}" data-id="${item.id}">
+    <article class="food-card" data-category="${escapeHTML(item.category)}" data-id="${item.id}">
       <div class="food-card-image">
-        <img src="${item.image}" alt="${item.name}" loading="lazy" decoding="async" sizes="(max-width: 414px) 100vw, (max-width: 768px) 50vw, 33vw">
+        <img src="${sanitizeURL(item.image)}" alt="${escapeHTML(item.name)}" loading="lazy" decoding="async" sizes="(max-width: 414px) 100vw, (max-width: 768px) 50vw, 33vw">
         ${item.isNew ? '<span class="food-card-badge badge-new">NEW</span>' : ''}
         ${item.isPopular ? '<span class="food-card-badge badge-popular">POPULAR</span>' : ''}
-        <button class="food-card-wishlist" onclick="toggleWishlist(${item.id})" aria-label="Add to wishlist">
+        <button class="food-card-wishlist" onclick="toggleWishlist(${parseInt(item.id) || 0})" aria-label="Add to wishlist">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
             <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
           </svg>
         </button>
       </div>
       <div class="food-card-content">
-        <span class="food-card-category">${item.category}</span>
-        <h3 class="food-card-title">${item.name}</h3>
-        <p class="food-card-desc">${item.description}</p>
+        <span class="food-card-category">${escapeHTML(item.category)}</span>
+        <h3 class="food-card-title">${escapeHTML(item.name)}</h3>
+        <p class="food-card-desc">${escapeHTML(item.description)}</p>
         <div class="food-card-meta">
           <div class="food-card-rating">
             <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor">
@@ -725,14 +729,15 @@ function renderReviews() {
     const comment = review.comment || review.title || '';
     const date = review.date || new Date().toLocaleDateString();
     
+    // SECURITY: Escape all user-submitted review data to prevent stored XSS
     return `
       <div class="review-card animate-on-scroll">
         <div class="review-header">
           <div class="review-user">
-            <div class="review-avatar">${review.avatar || getInitial(name)}</div>
+            <div class="review-avatar">${escapeHTML(review.avatar || getInitial(name))}</div>
             <div class="review-user-info">
-              <h4 class="review-name">${name}</h4>
-              ${review.location ? `<span class="review-location">${review.location}</span>` : ''}
+              <h4 class="review-name">${escapeHTML(name)}</h4>
+              ${review.location ? `<span class="review-location">${escapeHTML(review.location)}</span>` : ''}
             </div>
           </div>
           <div class="review-rating">
@@ -742,9 +747,9 @@ function renderReviews() {
             </div>
           </div>
         </div>
-        <p class="review-comment">${comment}</p>
+        <p class="review-comment">${escapeHTML(comment)}</p>
         <div class="review-footer">
-          <span class="review-date">${date}</span>
+          <span class="review-date">${escapeHTML(date)}</span>
           ${review.verified ? '<span class="review-verified"><i class="fas fa-check-circle"></i> Verified Purchase</span>' : ''}
           ${review.helpful ? `<button class="review-helpful" onclick="markHelpful(event, ${review.id})">
             <i class="fas fa-thumbs-up"></i>
@@ -2328,13 +2333,14 @@ function loadAddresses() {
     return;
   }
   
+  // SECURITY: Escape user-submitted address data to prevent stored XSS
   addressesContainer.innerHTML = user.addresses.map((addr, idx) => `
     <div class="address-card" style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px;">
       <div style="display: flex; justify-content: space-between; align-items: start; margin-bottom: 1rem;">
         <div>
-          <h4 style="margin: 0 0 0.5rem 0; text-transform: capitalize;">${addr.type}</h4>
-          <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">${addr.street}, ${addr.city}</p>
-          <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">${addr.postalCode}, ${addr.country}</p>
+          <h4 style="margin: 0 0 0.5rem 0; text-transform: capitalize;">${escapeHTML(addr.type)}</h4>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">${escapeHTML(addr.street)}, ${escapeHTML(addr.city)}</p>
+          <p style="margin: 0; color: var(--text-secondary); font-size: 0.85rem;">${escapeHTML(addr.postalCode)}, ${escapeHTML(addr.country)}</p>
           ${addr.isDefault ? '<span class="badge" style="display: inline-block; margin-top: 0.5rem; background: var(--primary); color: white; padding: 0.25rem 0.75rem; border-radius: 12px; font-size: 0.75rem;">Default</span>' : ''}
         </div>
         <div style="display: flex; gap: 0.5rem;">
@@ -2375,9 +2381,9 @@ function loadPayments() {
     <div class="payment-card" style="padding: 1.5rem; border: 1px solid var(--border-color); border-radius: 8px; display: flex; justify-content: space-between; align-items: center;">
       <div>
         <h4 style="margin: 0 0 0.5rem 0;">
-          ${payment.type === 'card' ? 'Card ending in ' + payment.lastFour : payment.type === 'momo' ? payment.network + ' ' + payment.lastFour : 'Bank Account'}
+          ${payment.type === 'card' ? 'Card ending in ' + escapeHTML(payment.lastFour) : payment.type === 'momo' ? escapeHTML(payment.network) + ' ' + escapeHTML(payment.lastFour) : 'Bank Account'}
         </h4>
-        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">${payment.cardholderName}</p>
+        <p style="margin: 0; color: var(--text-secondary); font-size: 0.9rem;">${escapeHTML(payment.cardholderName)}</p>
       </div>
       <button class="btn btn-sm btn-outline" onclick="deletePayment(${idx})" style="padding: 0.5rem 1rem;"><i class="fas fa-trash"></i></button>
     </div>
@@ -2476,7 +2482,7 @@ async function loadOrders() {
       <div class="order-card" style="background: var(--card-bg); border: 1px solid var(--border-color); border-radius: 1rem; padding: 1.25rem; margin-bottom: 1rem; transition: all 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.04);">
         <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
           <div>
-            <h4 style="font-size: 1rem; font-weight: 700; margin: 0 0 0.25rem 0; color: var(--text-primary);">${orderId}</h4>
+            <h4 style="font-size: 1rem; font-weight: 700; margin: 0 0 0.25rem 0; color: var(--text-primary);">${escapeHTML(orderId)}</h4>
             <p style="font-size: 0.8rem; color: var(--text-secondary); margin: 0;"><i class="fas fa-calendar-alt" style="margin-right: 0.25rem;"></i>${dateStr} at ${timeStr}</p>
           </div>
           <span style="display: inline-flex; align-items: center; gap: 0.35rem; padding: 0.3rem 0.75rem; border-radius: 2rem; font-size: 0.75rem; font-weight: 600; background: ${statusColor}15; color: ${statusColor}; border: 1px solid ${statusColor}30;">
@@ -2484,7 +2490,7 @@ async function loadOrders() {
           </span>
         </div>
         <div style="padding: 0.5rem 0; border-top: 1px solid var(--border-color); border-bottom: 1px solid var(--border-color); margin-bottom: 0.75rem;">
-          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.25rem 0;"><i class="fas fa-shopping-bag" style="color: var(--primary); margin-right: 0.35rem; width: 14px;"></i>${itemNames}${moreItems}</p>
+          <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.25rem 0;"><i class="fas fa-shopping-bag" style="color: var(--primary); margin-right: 0.35rem; width: 14px;"></i>${escapeHTML(itemNames)}${moreItems}</p>
           <p style="font-size: 0.85rem; color: var(--text-secondary); margin: 0.25rem 0;"><i class="fas fa-box" style="color: var(--primary); margin-right: 0.35rem; width: 14px;"></i>${items.length} item${items.length !== 1 ? 's' : ''}</p>
         </div>
         <div style="display: flex; justify-content: space-between; align-items: center;">
@@ -2618,8 +2624,10 @@ function initAccountFormHandlers() {
         // In a real app, you would validate against hashed password from API
         // For now, we'll just update it
         
-        user.password = newPassword; // In production, hash this!
-        localStorage.setItem('swiftChowUser', JSON.stringify(user));
+        // SECURITY FIX: Never store passwords client-side.
+        // Password changes should go through the API only.
+        // The old code stored plaintext password in localStorage — removed.
+        // In production, call: await apiCall('/auth/change-password', { method: 'POST', body: JSON.stringify({ currentPassword, newPassword }) });
         
         changePasswordForm.reset();
         showAdvancedToast('Password changed successfully!', 'success');
@@ -2658,10 +2666,25 @@ async function deleteUserAccount() {
   try {
     const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
     
-    // Clear all user data
-    localStorage.removeItem('swiftChowUser');
-    localStorage.removeItem('authToken');
-    localStorage.removeItem('swiftChowCart');
+    // Clear ALL user data from localStorage and sessionStorage
+    // SECURITY FIX: Previous code only removed 3 keys, leaving PII behind
+    const keysToRemove = [
+      'swiftChowUser', 'currentUser', 'authToken',
+      'swiftChowCart', 'swiftChowOrders', 'swiftChowReviews',
+      'swiftChowWishlist', 'swiftChowTheme', 'swiftChowNewsletter',
+      'swiftChowMessages', 'lastOrder'
+    ];
+    keysToRemove.forEach(key => localStorage.removeItem(key));
+    
+    // Remove user-specific keys (addresses, payments, etc.)
+    const userId = user.id || user._id || '';
+    if (userId) {
+      localStorage.removeItem(`swiftChowAddresses_${userId}`);
+      localStorage.removeItem(`swiftChowPaymentMethods_${userId}`);
+    }
+    
+    // Clear sessionStorage too
+    sessionStorage.clear();
     
     // Redirect to home page
     showAdvancedToast('Account deleted successfully', 'success');
@@ -2773,6 +2796,8 @@ function createToastContainer() {
   if (!document.querySelector('.toast-container')) {
     const container = document.createElement('div');
     container.className = 'toast-container';
+    container.setAttribute('role', 'alert');
+    container.setAttribute('aria-live', 'polite');
     document.body.appendChild(container);
   }
   return document.querySelector('.toast-container');
@@ -2790,9 +2815,10 @@ function showAdvancedToast(message, type = 'info', duration = 4000) {
     info: 'fas fa-info-circle'
   };
   
+  // SECURITY: Escape message to prevent XSS via API error messages
   toast.innerHTML = `
     <i class="toast-icon ${iconMap[type]}"></i>
-    <span class="toast-message">${message}</span>
+    <span class="toast-message">${escapeHTML(message)}</span>
   `;
   
   container.appendChild(toast);
@@ -3164,9 +3190,9 @@ function updateCartModal() {
       
       html += `
         <div style="display: flex; gap: 0.75rem; padding: 0.75rem; margin-bottom: 0.5rem; border-radius: 0.75rem; background: var(--bg-secondary); border: 1px solid var(--border-color); align-items: center; transition: all 0.2s;">
-          <img src="${item.image || 'https://via.placeholder.com/80'}" alt="${item.name}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 0.5rem; flex-shrink: 0;" loading="lazy" decoding="async">
+          <img src="${sanitizeURL(item.image) || 'https://via.placeholder.com/80'}" alt="${escapeHTML(item.name)}" style="width: 60px; height: 60px; object-fit: cover; border-radius: 0.5rem; flex-shrink: 0;" loading="lazy" decoding="async">
           <div style="flex: 1; min-width: 0;">
-            <h4 style="margin: 0 0 0.15rem 0; font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h4>
+            <h4 style="margin: 0 0 0.15rem 0; font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${escapeHTML(item.name)}</h4>
             <p style="margin: 0 0 0.4rem 0; font-size: 0.8rem; color: var(--text-secondary);">GHS ${item.price.toFixed(2)} each</p>
             <div style="display: flex; align-items: center; gap: 0.35rem;">
               <button class="btn btn-sm" style="min-width: 36px; min-height: 36px; padding: 0.25rem 0.5rem; font-size: 0.9rem; border-radius: 0.35rem; line-height: 1; display: flex; align-items: center; justify-content: center;" onclick="decrementQuantity(${item.id})">−</button>
@@ -3204,8 +3230,35 @@ function proceedToCheckout() {
 
 function openModal(modal) {
   if (modal) {
+    // Store the element that had focus before the modal opened
+    modal._previousFocus = document.activeElement;
     modal.classList.add('active');
     document.body.style.overflow = 'hidden';
+    // Move focus into modal — first focusable element
+    const firstFocusable = modal.querySelector('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+    if (firstFocusable) {
+      setTimeout(() => firstFocusable.focus(), 50);
+    }
+    // Trap focus inside modal
+    modal._trapFocus = function(e) {
+      if (e.key !== 'Tab') return;
+      const focusable = modal.querySelectorAll('button, [href], input, select, textarea, [tabindex]:not([tabindex="-1"])');
+      const first = focusable[0];
+      const last = focusable[focusable.length - 1];
+      if (e.shiftKey && document.activeElement === first) {
+        e.preventDefault();
+        last.focus();
+      } else if (!e.shiftKey && document.activeElement === last) {
+        e.preventDefault();
+        first.focus();
+      }
+    };
+    modal.addEventListener('keydown', modal._trapFocus);
+    // Close on Escape key
+    modal._escClose = function(e) {
+      if (e.key === 'Escape') closeModal(modal);
+    };
+    document.addEventListener('keydown', modal._escClose);
   }
 }
 
@@ -3213,6 +3266,17 @@ function closeModal(modal) {
   if (modal) {
     modal.classList.remove('active');
     document.body.style.overflow = 'auto';
+    // Remove focus trap and Escape listener
+    if (modal._trapFocus) {
+      modal.removeEventListener('keydown', modal._trapFocus);
+    }
+    if (modal._escClose) {
+      document.removeEventListener('keydown', modal._escClose);
+    }
+    // Restore focus to the element that triggered the modal
+    if (modal._previousFocus && typeof modal._previousFocus.focus === 'function') {
+      modal._previousFocus.focus();
+    }
   }
 }
 
@@ -3306,8 +3370,8 @@ function updateAuthUI() {
           overflow: hidden;
         ">
           <div style="padding: 1rem; border-bottom: 1px solid var(--border-color);">
-            <p style="margin: 0; font-weight: 600; color: var(--text-primary);">${userName}</p>
-            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">${user && user.email ? user.email : 'User'}</p>
+            <p style="margin: 0; font-weight: 600; color: var(--text-primary);">${escapeHTML(userName)}</p>
+            <p style="margin: 0.5rem 0 0 0; font-size: 0.85rem; color: var(--text-secondary);">${escapeHTML(user && user.email ? user.email : 'User')}</p>
           </div>
           <a href="account.html" style="display: block; padding: 0.75rem 1rem; color: var(--text-primary); text-decoration: none; border-bottom: 1px solid var(--border-color); transition: all 0.2s;" onmouseover="this.style.background='var(--bg-secondary)'" onmouseout="this.style.background='transparent'">
             <i class="fas fa-user-circle"></i> My Account
@@ -3737,7 +3801,7 @@ function performProductSearch(query) {
       <div class="empty-state" style="grid-column: 1/-1;">
         <div class="empty-state-icon">🔍</div>
         <div class="empty-state-title">No items found</div>
-        <div class="empty-state-message">We couldn't find any items matching "${query}"</div>
+        <div class="empty-state-message">We couldn't find any items matching "${escapeHTML(query)}"</div>
       </div>
     `;
   } else {

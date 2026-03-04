@@ -13,7 +13,7 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <!-- Font optimization: display=swap prevents FOUT, preload critical font weights -->
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
     <!-- Main stylesheet with media query preload -->
     <link rel="stylesheet" href="css/styles.css" media="screen">
     <!-- Icon library -->
@@ -1329,11 +1329,12 @@
     </div>
 
     <!-- Header -->
+    <a href="#main-content" class="skip-link">Skip to main content</a>
     <header class="header" style="background: transparent; box-shadow: none;">
-        <nav class="nav">
+        <nav class="nav" aria-label="Main navigation">
             <a href="index.html" class="logo">
                 <div class="logo-icon">
-                    <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;">
+                    <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;" width="45" height="45">
                 </div>
                 <span class="logo-text">SWIFT <span>CHOW</span></span>
             </a>
@@ -1366,9 +1367,10 @@
             </div>
         </nav>
     </header>
+    <main id="main-content">
     
     <!-- Mobile Navigation -->
-    <nav class="mobile-nav">
+    <nav class="mobile-nav" aria-label="Mobile navigation">
         <ul class="mobile-nav-links">
             <li><a href="index.html" class="active"><i class="fas fa-home"></i> Home</a></li>
             <li><a href="menu.html"><i class="fas fa-utensils"></i> Menu</a></li>
@@ -1452,7 +1454,7 @@
                     
                     <!-- Main Image -->
                     <div class="hero-main-image">
-                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=600&fit=crop" alt="Delicious Burger">
+                        <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=600&fit=crop" alt="Delicious Burger" width="600" height="600" fetchpriority="high">
                         
                         <!-- Floating Price Card -->
                         <div class="floating-card floating-card-price">
@@ -1540,7 +1542,7 @@
                         <!-- Deal 1 -->
                         <div class="deal-card">
                             <div class="deal-image">
-                                <img src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=600&h=400&fit=crop" alt="Triple Burger Feast">
+                                <img loading="lazy" src="https://images.unsplash.com/photo-1594212699903-ec8a3eca50f5?w=600&h=400&fit=crop" alt="Triple Burger Feast">
                                 <div class="deal-discount">-17% OFF</div>
                             </div>
                             <div class="deal-info">
@@ -1563,7 +1565,7 @@
                         <!-- Deal 2 -->
                         <div class="deal-card">
                             <div class="deal-image">
-                                <img src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=400&fit=crop" alt="Burger & Ice Cream Combo">
+                                <img loading="lazy" src="https://images.unsplash.com/photo-1568901346375-23c9450c58cd?w=600&h=400&fit=crop" alt="Burger & Ice Cream Combo">
                                 <div class="deal-discount">-15% OFF</div>
                             </div>
                             <div class="deal-info">
@@ -1586,7 +1588,7 @@
                         <!-- Deal 3 -->
                         <div class="deal-card">
                             <div class="deal-image">
-                                <img src="https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?w=600&h=400&fit=crop" alt="Family Pizza Deal">
+                                <img loading="lazy" src="https://images.unsplash.com/photo-1593560708920-61dd98c46a4e?w=600&h=400&fit=crop" alt="Family Pizza Deal">
                                 <div class="deal-discount">-20% OFF</div>
                             </div>
                             <div class="deal-info">
@@ -1609,7 +1611,7 @@
                         <!-- Deal 4 -->
                         <div class="deal-card">
                             <div class="deal-image">
-                                <img src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=600&h=400&fit=crop" alt="Shake & Cake Combo">
+                                <img loading="lazy" src="https://images.unsplash.com/photo-1572490122747-3968b75cc699?w=600&h=400&fit=crop" alt="Shake & Cake Combo">
                                 <div class="deal-discount">-21% OFF</div>
                             </div>
                             <div class="deal-info">
@@ -1632,7 +1634,7 @@
                         <!-- Deal 5 -->
                         <div class="deal-card">
                             <div class="deal-image">
-                                <img src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&h=400&fit=crop" alt="Sandwich Lunch Special">
+                                <img loading="lazy" src="https://images.unsplash.com/photo-1528735602780-2552fd46c7af?w=600&h=400&fit=crop" alt="Sandwich Lunch Special">
                                 <div class="deal-discount">-20% OFF</div>
                             </div>
                             <div class="deal-info">
@@ -1983,7 +1985,7 @@
                 </p>
                 
                 <form class="newsletter-form-wrapper" onsubmit="handleNewsletterSubmit(event)">
-                    <input type="email" placeholder="Enter your email address" required>
+                    <input type="email" placeholder="Enter your email address" required aria-label="Email address for newsletter">
                     <button type="submit">
                         Subscribe <i class="fas fa-paper-plane"></i>
                     </button>
@@ -1993,13 +1995,14 @@
     </section>
     
     <!-- Footer -->
+    </main>
     <footer class="footer">
         <div class="container">
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="index.html" class="logo">
                         <div class="logo-icon">
-                            <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;">
+                            <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;" width="45" height="45">
                         </div>
                         <span class="logo-text">SWIFT <span>CHOW</span></span>
                     </a>
@@ -2061,11 +2064,11 @@
         </div>
     </footer>
     
-    <script src="js/data.js"></script>
-    <script src="js/api.js"></script>
-    <script src="js/cart.js"></script>
-    <script src="js/auth.js"></script>
-    <script src="js/main.js"></script>
+    <script src="js/data.js" defer></script>
+    <script src="js/api.js" defer></script>
+    <script src="js/cart.js" defer></script>
+    <script src="js/auth.js" defer></script>
+    <script src="js/main.js" defer></script>
     <script>
         // Inline functions for specific homepage features (Blog Scroll, Newsletter)
         // Carousel and main logic are in js/main.js
@@ -2198,13 +2201,13 @@
     </script>
 
     <!-- LOGIN MODAL -->
-    <div id="loginModal" class="modal-overlay">
+    <div id="loginModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Sign in">
         <div class="modal-content">
             <button class="modal-close" aria-label="Close modal"><i class="fas fa-times"></i></button>
             
             <div class="modal-header">
                 <a href="#" class="logo">
-                    <div class="logo-icon"><img src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
+                    <div class="logo-icon"><img loading="lazy" src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
                     <div class="logo-text">SWIFT <span>CHOW</span></div>
                 </a>
                 <h2>Welcome Back!</h2>
@@ -2215,7 +2218,7 @@
                 <form id="loginModalForm" class="form">
                     <div class="form-group">
                         <label for="login-email">Email Address</label>
-                        <input type="email" id="login-email" name="email" placeholder="your@email.com" required>
+                        <input type="email" id="login-email" name="email" placeholder="your@email.com" required maxlength="254">
                         <div class="form-feedback error" style="display: none;"></div>
                         <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Email verified</div>
                     </div>
@@ -2223,8 +2226,8 @@
                     <div class="form-group">
                         <label for="login-password">Password</label>
                         <div style="position: relative;">
-                            <input type="password" id="login-password" name="password" placeholder="Enter your password" required>
-                            <button type="button" class="password-toggle" onclick="togglePasswordVisibility('login-password', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
+                            <input type="password" id="login-password" name="password" placeholder="Enter your password" required minlength="6">
+                            <button type="button" class="password-toggle" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('login-password', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
                                 <i class="fas fa-eye"></i>
                             </button>
                         </div>
@@ -2309,13 +2312,13 @@
     </div>
 
     <!-- SIGNUP MODAL -->
-    <div id="signupModal" class="modal-overlay">
+    <div id="signupModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Create account">
         <div class="modal-content">
             <button class="modal-close" aria-label="Close modal"><i class="fas fa-times"></i></button>
             
             <div class="modal-header">
                 <a href="#" class="logo">
-                    <div class="logo-icon"><img src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
+                    <div class="logo-icon"><img loading="lazy" src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
                     <div class="logo-text">SWIFT <span>CHOW</span></div>
                 </a>
                 <h2>Join Us!</h2>
@@ -2326,21 +2329,21 @@
                 <form id="signupModalForm" class="form">
                     <div class="form-group">
                         <label for="signup-fullname">Full Name</label>
-                        <input type="text" id="signup-fullname" name="fullName" placeholder="Your full name" required>
+                        <input type="text" id="signup-fullname" name="fullName" placeholder="Your full name" required minlength="2" maxlength="100">
                         <div class="form-feedback error" style="display: none;"></div>
                         <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Name valid</div>
                     </div>
 
                     <div class="form-group">
                         <label for="signup-email">Email Address</label>
-                        <input type="email" id="signup-email" name="email" placeholder="your@email.com" required>
+                        <input type="email" id="signup-email" name="email" placeholder="your@email.com" required maxlength="254">
                         <div class="form-feedback error" style="display: none;"></div>
                         <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Email verified</div>
                     </div>
 
                     <div class="form-group">
                         <label for="signup-phone">Phone Number</label>
-                        <input type="tel" id="signup-phone" name="phone" placeholder="+233 50 507 0941" required>
+                        <input type="tel" id="signup-phone" name="phone" placeholder="+233 50 507 0941" required maxlength="20">
                         <div class="form-feedback error" style="display: none;"></div>
                         <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Phone valid</div>
                     </div>
@@ -2349,8 +2352,8 @@
                         <div class="form-group">
                             <label for="signup-password">Password</label>
                             <div style="position: relative;">
-                                <input type="password" id="signup-password" name="password" placeholder="At least 6 characters" required>
-                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-password', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
+                                <input type="password" id="signup-password" name="password" placeholder="At least 6 characters" required minlength="6">
+                                <button type="button" class="password-toggle" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('signup-password', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>
@@ -2360,8 +2363,8 @@
                         <div class="form-group">
                             <label for="signup-confirm">Confirm Password</label>
                             <div style="position: relative;">
-                                <input type="password" id="signup-confirm" name="confirmPassword" placeholder="Confirm password" required>
-                                <button type="button" class="password-toggle" onclick="togglePasswordVisibility('signup-confirm', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
+                                <input type="password" id="signup-confirm" name="confirmPassword" placeholder="Confirm password" required minlength="6">
+                                <button type="button" class="password-toggle" aria-label="Toggle password visibility" onclick="togglePasswordVisibility('signup-confirm', event)" style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); background: none; border: none; cursor: pointer; color: var(--primary); font-size: 1rem;">
                                     <i class="fas fa-eye"></i>
                                 </button>
                             </div>

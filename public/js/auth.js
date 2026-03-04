@@ -45,7 +45,6 @@ async function login(email, password, remember = false) {
       
       // Save user and token
       currentUser = response.user;
-      localStorage.setItem('currentUser', JSON.stringify(response.user));
       localStorage.setItem('swiftChowUser', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
       
@@ -103,7 +102,6 @@ async function register(fullName = '', email = '', phone = '', password = '', co
       
       // Save user and token
       currentUser = response.user;
-      localStorage.setItem('currentUser', JSON.stringify(response.user));
       localStorage.setItem('swiftChowUser', JSON.stringify(response.user));
       localStorage.setItem('authToken', response.token);
       
@@ -523,8 +521,19 @@ function initAuth() {
       if (userFromUrl) {
         try {
           const userData = JSON.parse(decodeURIComponent(userFromUrl));
-          currentUser = userData;
-          localStorage.setItem('swiftChowUser', JSON.stringify(userData));
+          // SECURITY: Validate parsed user data has expected shape
+          // Only allow known safe fields to prevent prototype pollution
+          const safeUser = {
+            id: userData.id || userData._id || '',
+            email: String(userData.email || ''),
+            firstName: String(userData.firstName || ''),
+            lastName: String(userData.lastName || ''),
+            fullName: String(userData.fullName || userData.firstName || ''),
+            phone: String(userData.phone || ''),
+            avatar: userData.avatar ? String(userData.avatar) : undefined
+          };
+          currentUser = safeUser;
+          localStorage.setItem('swiftChowUser', JSON.stringify(safeUser));
         } catch (parseError) {
           console.error('Auth: Error parsing user data from URL:', parseError);
         }
@@ -547,15 +556,20 @@ function initAuth() {
     }
   }
   
-  // CRITICAL: Load user from localStorage on every page
-  const savedUser = localStorage.getItem('currentUser') || localStorage.getItem('swiftChowUser');
+  // Load user from localStorage on every page (single canonical key)
+  const savedUser = localStorage.getItem('swiftChowUser');
   const savedToken = localStorage.getItem('authToken');
   
-  if (savedUser) {
+  // Migrate legacy 'currentUser' key if it exists
+  const legacyUser = localStorage.getItem('currentUser');
+  if (legacyUser && !savedUser) {
+    localStorage.setItem('swiftChowUser', legacyUser);
+  }
+  localStorage.removeItem('currentUser'); // Clean up duplicate key
+  
+  if (savedUser || legacyUser) {
     try {
-      currentUser = JSON.parse(savedUser);
-      // Ensure both keys stay in sync
-      localStorage.setItem('currentUser', JSON.stringify(currentUser));
+      currentUser = JSON.parse(savedUser || legacyUser);
       localStorage.setItem('swiftChowUser', JSON.stringify(currentUser));
     } catch (e) {
       console.error('Auth: Error parsing user data:', e);
