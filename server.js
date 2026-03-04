@@ -93,8 +93,8 @@ app.use(passport.session());
 // Load Passport strategies
 require('./config/passport');
 
-// Static files (serve frontend)
-app.use(express.static(path.join(__dirname), {
+// Static files (serve frontend from public/)
+app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, filePath) => {
     // Cache HTML files for 1 hour, assets for 1 day
     if (filePath.endsWith('.html')) {
@@ -339,7 +339,7 @@ app.get('*', (req, res, next) => {
   }
   
   // Serve index.html for all other routes
-  res.sendFile(path.join(__dirname, 'index.html'), (err) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
     if (err) {
       res.status(404).json({ error: 'Page not found' });
     }
