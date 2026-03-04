@@ -3169,10 +3169,10 @@ function updateCartModal() {
             <h4 style="margin: 0 0 0.15rem 0; font-size: 0.9rem; font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${item.name}</h4>
             <p style="margin: 0 0 0.4rem 0; font-size: 0.8rem; color: var(--text-secondary);">GHS ${item.price.toFixed(2)} each</p>
             <div style="display: flex; align-items: center; gap: 0.35rem;">
-              <button class="btn btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.8rem; border-radius: 0.35rem; line-height: 1;" onclick="decrementQuantity(${item.id})">−</button>
-              <span style="width: 24px; text-align: center; font-weight: 600; font-size: 0.85rem;">${item.quantity}</span>
-              <button class="btn btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.8rem; border-radius: 0.35rem; line-height: 1;" onclick="incrementQuantity(${item.id})">+</button>
-              <button class="btn btn-sm" style="padding: 0.15rem 0.45rem; font-size: 0.8rem; margin-left: auto; color: #dc2626; border-radius: 0.35rem;" onclick="removeFromCart(${item.id})" title="Remove"><i class="fas fa-trash-alt"></i></button>
+              <button class="btn btn-sm" style="min-width: 36px; min-height: 36px; padding: 0.25rem 0.5rem; font-size: 0.9rem; border-radius: 0.35rem; line-height: 1; display: flex; align-items: center; justify-content: center;" onclick="decrementQuantity(${item.id})">−</button>
+              <span style="width: 28px; text-align: center; font-weight: 600; font-size: 0.9rem;">${item.quantity}</span>
+              <button class="btn btn-sm" style="min-width: 36px; min-height: 36px; padding: 0.25rem 0.5rem; font-size: 0.9rem; border-radius: 0.35rem; line-height: 1; display: flex; align-items: center; justify-content: center;" onclick="incrementQuantity(${item.id})">+</button>
+              <button class="btn btn-sm" style="min-width: 36px; min-height: 36px; padding: 0.25rem 0.5rem; font-size: 0.9rem; margin-left: auto; color: #dc2626; border-radius: 0.35rem; display: flex; align-items: center; justify-content: center;" onclick="removeFromCart(${item.id})" title="Remove"><i class="fas fa-trash-alt"></i></button>
             </div>
           </div>
           <div style="text-align: right; font-weight: 700; font-size: 0.9rem; color: var(--primary); white-space: nowrap; flex-shrink: 0;">GHS ${itemTotal.toFixed(2)}</div>
@@ -4104,20 +4104,17 @@ function showEmptyState(containerId, icon = '📦', title = 'Nothing here yet', 
 
   // ---------- 9. Cart Badge Bump Animation ----------
   function initCartBadgeBump() {
-    const origUpdateCount = window.updateCartCount;
-    if (typeof origUpdateCount !== 'function') return;
-
-    window.updateCartCount = function() {
-      origUpdateCount.apply(this, arguments);
-      const badges = document.querySelectorAll('.cart-count');
-      badges.forEach(badge => {
-        if (badge.textContent !== '0' && badge.style.display !== 'none') {
+    document.addEventListener('cart:countUpdated', function(e) {
+      const count = e.detail && e.detail.count;
+      if (count > 0) {
+        const badges = document.querySelectorAll('.cart-count');
+        badges.forEach(badge => {
           badge.classList.remove('bump');
           void badge.offsetWidth; // trigger reflow
           badge.classList.add('bump');
-        }
-      });
-    };
+        });
+      }
+    });
   }
 
   // ---------- 10. Account Page Welcome Greeting ----------

@@ -138,6 +138,9 @@ function updateCartCount() {
   if (typeof updateFloatingCartCount === 'function') {
     updateFloatingCartCount();
   }
+
+  // Dispatch event so main.js can run badge bump animation
+  document.dispatchEvent(new CustomEvent('cart:countUpdated', { detail: { count: totalItems } }));
 }
 
 // Add item to cart
@@ -222,6 +225,7 @@ async function addToCart(productId, quantity = 1) {
 
 // Remove item from cart
 function removeFromCart(productId) {
+  productId = parseInt(productId, 10);
   const itemIndex = cart.findIndex(item => item.id === productId);
   
   if (itemIndex > -1) {
@@ -229,15 +233,24 @@ function removeFromCart(productId) {
     cart.splice(itemIndex, 1);
     window.cart = cart;
     saveCart();
-    showToast(itemName + ' removed from cart', 'info');
-    updateFloatingCart();
+    if (typeof showToast === 'function') showToast(itemName + ' removed from cart', 'info');
+    if (typeof updateFloatingCart === 'function') updateFloatingCart();
     updateCartCount();
-    updateCartModal();
+    if (typeof updateCartModal === 'function') updateCartModal();
+
+    // Sync removal with API for authenticated users
+    if (isAuthenticated() && typeof apiRemoveFromCart === 'function') {
+      apiRemoveFromCart(productId).catch(err => {
+        console.warn('Could not sync cart removal to API:', err);
+      });
+    }
   }
 }
 
 // Update item quantity
 function updateQuantity(productId, newQuantity) {
+  productId = parseInt(productId, 10);
+  newQuantity = parseInt(newQuantity, 10);
   const item = cart.find(item => item.id === productId);
   
   if (item) {
@@ -247,37 +260,60 @@ function updateQuantity(productId, newQuantity) {
       item.quantity = newQuantity;
       window.cart = cart;
       saveCart();
-      updateFloatingCart();
+      if (typeof updateFloatingCart === 'function') updateFloatingCart();
       updateCartCount();
-      updateCartModal();
+      if (typeof updateCartModal === 'function') updateCartModal();
+
+      // Sync quantity with API for authenticated users
+      if (isAuthenticated() && typeof apiUpdateCartItem === 'function') {
+        apiUpdateCartItem(productId, newQuantity).catch(err => {
+          console.warn('Could not sync cart update to API:', err);
+        });
+      }
     }
   }
 }
 
 // Increment quantity
 function incrementQuantity(productId) {
+  productId = parseInt(productId, 10);
   const item = cart.find(item => item.id === productId);
   if (item) {
     item.quantity += 1;
     window.cart = cart;
     saveCart();
-    updateFloatingCart();
+    if (typeof updateFloatingCart === 'function') updateFloatingCart();
     updateCartCount();
-    updateCartModal();
+    if (typeof updateCartModal === 'function') updateCartModal();
+
+    // Sync with API
+    if (isAuthenticated() && typeof apiUpdateCartItem === 'function') {
+      apiUpdateCartItem(productId, item.quantity).catch(err => {
+        console.warn('Could not sync cart increment to API:', err);
+      });
+    }
   }
 }
 
 // Decrement quantity
 function decrementQuantity(productId) {
+  productId = parseInt(productId, 10);
   const item = cart.find(item => item.id === productId);
   if (item) {
     if (item.quantity > 1) {
       item.quantity -= 1;
       window.cart = cart;
       saveCart();
-      updateFloatingCart();
+      if (typeof updateFloatingCart === 'function') updateFloatingCart();
       updateCartCount();
-      updateCartModal();
+      if (typeof updateCartModal === 'function') updateCartModal();
+
+      // Sync with API
+      if (isAuthenticated() && typeof apiUpdateCartItem === 'function') {
+        apiUpdateCartItem(productId, item.quantity).catch(err => {
+          console.warn('Could not sync cart decrement to API:', err);
+        });
+      }
     } else {
       removeFromCart(productId);
     }

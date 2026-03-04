@@ -141,6 +141,19 @@ async function apiClearCart() {
   return apiCall('/cart/clear', { method: 'DELETE' });
 }
 
+// Remove item from cart
+async function apiRemoveFromCart(foodId) {
+  return apiCall(`/cart/remove/${foodId}`, { method: 'DELETE' });
+}
+
+// Update cart item quantity
+async function apiUpdateCartItem(foodId, quantity) {
+  return apiCall('/cart/update', {
+    method: 'PUT',
+    body: JSON.stringify({ foodId, quantity }),
+  });
+}
+
 /* ============================================
    ORDER ENDPOINTS
    ============================================ */

@@ -2061,6 +2061,11 @@ input, textarea, select {
     transform: scale(1.1);
 }
 
+.add-to-cart-btn:active {
+    transform: scale(0.9);
+    transition-duration: 80ms;
+}
+
 /* No Results */
 .no-results {
     grid-column: 1 / -1;
