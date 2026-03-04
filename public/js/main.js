@@ -135,43 +135,49 @@ function initMobileMenu() {
   const body = document.body;
   
   if (!menuBtn || !mobileNav) return;
+
+  // Create backdrop overlay if it doesn't exist
+  let backdrop = document.querySelector('.mobile-nav-backdrop');
+  if (!backdrop) {
+    backdrop = document.createElement('div');
+    backdrop.className = 'mobile-nav-backdrop';
+    document.body.appendChild(backdrop);
+  }
+
+  function openMenu() {
+    menuBtn.classList.add('active');
+    mobileNav.classList.add('active');
+    backdrop.classList.add('active');
+    body.classList.add('menu-open');
+    body.style.overflow = 'hidden';
+    menuBtn.setAttribute('aria-expanded', 'true');
+  }
+
+  function closeMenu() {
+    menuBtn.classList.remove('active');
+    mobileNav.classList.remove('active');
+    backdrop.classList.remove('active');
+    body.classList.remove('menu-open');
+    body.style.overflow = '';
+    menuBtn.setAttribute('aria-expanded', 'false');
+  }
   
   menuBtn.addEventListener('click', () => {
     const isOpen = menuBtn.classList.contains('active');
-    
-    menuBtn.classList.toggle('active');
-    mobileNav.classList.toggle('active');
-    body.classList.toggle('menu-open');
-    
-    // Animate hamburger
-    menuBtn.setAttribute('aria-expanded', !isOpen);
+    if (isOpen) { closeMenu(); } else { openMenu(); }
   });
-  
-  // Close menu when clicking outside
-  document.addEventListener('click', (e) => {
-    if (!menuBtn.contains(e.target) && !mobileNav.contains(e.target)) {
-      menuBtn.classList.remove('active');
-      mobileNav.classList.remove('active');
-      body.classList.remove('menu-open');
-    }
-  });
+
+  // Close menu when clicking backdrop
+  backdrop.addEventListener('click', closeMenu);
   
   // Close menu when clicking a link
   mobileNav.querySelectorAll('a').forEach(link => {
-    link.addEventListener('click', () => {
-      menuBtn.classList.remove('active');
-      mobileNav.classList.remove('active');
-      body.classList.remove('menu-open');
-    });
+    link.addEventListener('click', closeMenu);
   });
   
   // Close menu on escape key
   document.addEventListener('keydown', (e) => {
-    if (e.key === 'Escape') {
-      menuBtn.classList.remove('active');
-      mobileNav.classList.remove('active');
-      body.classList.remove('menu-open');
-    }
+    if (e.key === 'Escape') closeMenu();
   });
 }
 
