@@ -719,7 +719,6 @@ window.addToCart = addToCart;
 window.removeFromCart = removeFromCart;
 window.updateQuantity = updateQuantity;
 window.updateCartDisplay = updateCartDisplay;
-window.getCart = getCart;
 window.loadCart = loadCart;
 window.saveCart = saveCart;
 window.incrementQuantity = incrementQuantity;

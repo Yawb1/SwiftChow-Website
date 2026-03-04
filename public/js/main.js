@@ -7,6 +7,7 @@
 // CLEAN .html FROM URLs (Pretty URLs)
 // ============================================
 (function() {
+  if (window.location.protocol === 'file:') return; // Skip on local file system
   const path = window.location.pathname;
   if (path.endsWith('.html') && path !== '/index.html') {
     const cleanPath = path.replace(/\.html$/, '');
