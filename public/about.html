@@ -16,6 +16,7 @@
         .about-hero {
             background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
             padding: 8rem 0 4rem;
+            margin-top: 70px;
             text-align: center;
             color: white;
         }
@@ -33,7 +34,7 @@
         .about-story {
             display: grid;
             grid-template-columns: 1fr 1fr;
-            gap: 4rem;
+            gap: 3rem;
             align-items: center;
         }
         
@@ -45,7 +46,7 @@
         
         .about-story-image img {
             width: 100%;
-            height: 400px;
+            height: 320px;
             object-fit: cover;
         }
         
@@ -115,8 +116,17 @@
         }
         
         @media (max-width: 768px) {
+            .about-hero {
+                padding: 6rem 0 3rem;
+            }
+
             .about-story {
                 grid-template-columns: 1fr;
+                gap: 2rem;
+            }
+
+            .about-story-image img {
+                height: 220px;
             }
             
             .mission-vision-grid {

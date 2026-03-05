@@ -1483,19 +1483,26 @@ input, textarea, select {
 .mobile-nav {
     position: fixed;
     top: 70px;
-    left: 0;
-    width: 100%;
-    height: calc(100vh - 70px);
-    background: var(--bg-primary);
-    padding: 1.5rem;
+    right: -100%;
+    width: min(320px, 85vw);
+    height: auto;
+    max-height: calc(100vh - 90px);
+    background: rgba(20, 20, 20, 0.92);
+    backdrop-filter: blur(20px) saturate(180%);
+    -webkit-backdrop-filter: blur(20px) saturate(180%);
+    padding: 1rem;
     z-index: var(--z-fixed);
     overflow-y: auto;
-    transform: translateX(-100%);
-    transition: transform var(--transition-normal) cubic-bezier(0.4, 0, 0.2, 1);
+    transform: none;
+    transition: right 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 0 0 0 1.25rem;
+    border-left: 1px solid rgba(255, 255, 255, 0.08);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: -8px 8px 32px rgba(0, 0, 0, 0.4);
 }
 
 .mobile-nav.active {
-    transform: translateX(0);
+    right: 0;
 }
 
 /* Backdrop overlay when mobile menu is open */
@@ -1503,11 +1510,11 @@ input, textarea, select {
     position: fixed;
     inset: 0;
     top: 70px;
-    background: rgba(0, 0, 0, 0.4);
+    background: rgba(0, 0, 0, 0.35);
     z-index: calc(var(--z-fixed) - 1);
     opacity: 0;
     visibility: hidden;
-    transition: opacity var(--transition-normal), visibility var(--transition-normal);
+    transition: opacity 0.3s ease, visibility 0.3s ease;
     backdrop-filter: blur(2px);
 }
 
@@ -1519,35 +1526,37 @@ input, textarea, select {
 .mobile-nav-links {
     display: flex;
     flex-direction: column;
-    gap: 0.375rem;
+    gap: 0.25rem;
 }
 
 .mobile-nav-links a {
     display: flex;
     align-items: center;
     gap: 0.75rem;
-    padding: 0.875rem 1.25rem;
-    background: var(--bg-secondary);
-    border-radius: var(--radius-lg);
-    color: var(--text-primary);
+    padding: 0.8rem 1rem;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 0.75rem;
+    color: rgba(255, 255, 255, 0.9);
     font-weight: 500;
     font-size: 0.95rem;
-    transition: all var(--transition-fast);
-    min-height: 48px;
+    transition: all 0.2s ease;
+    min-height: 44px;
+    border: 1px solid transparent;
 }
 
 .mobile-nav-links a i {
     width: 20px;
     text-align: center;
     font-size: 1rem;
-    color: var(--text-muted);
-    transition: color var(--transition-fast);
+    color: rgba(255, 255, 255, 0.5);
+    transition: color 0.2s ease;
 }
 
 .mobile-nav-links a:hover,
 .mobile-nav-links a.active {
     background: var(--primary);
     color: white;
+    border-color: rgba(255, 255, 255, 0.1);
 }
 
 .mobile-nav-links a:hover i,
@@ -3119,7 +3128,8 @@ body[data-page="cart"] .empty-cart {
 .password-toggle-btn {
     position: absolute;
     right: 0.75rem;
-    top: 2.25rem;
+    top: auto;
+    bottom: 0.7rem;
     background: none;
     border: none;
     cursor: pointer;
@@ -10685,43 +10695,17 @@ button:focus-visible, a:focus-visible { box-shadow: 0 0 0 4px rgba(220, 38, 38, 
     position: relative;
     overflow: hidden;
 }
-.page-header::before {
-    content: '';
-    position: absolute;
-    top: -50%;
-    right: -20%;
-    width: 400px;
-    height: 400px;
-    background: radial-gradient(circle, rgba(255,255,255,0.08) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-}
-.page-header::after {
-    content: '';
-    position: absolute;
-    bottom: -30%;
-    left: -10%;
-    width: 300px;
-    height: 300px;
-    background: radial-gradient(circle, rgba(251,191,36,0.1) 0%, transparent 70%);
-    border-radius: 50%;
-    pointer-events: none;
-}
 .page-header h1 {
     position: relative;
     z-index: 1;
 }
-
-/* ---------- Enhanced Footer ---------- */
-.footer::before {
-    content: '';
-    display: block;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary), #F97316, #FBBF24, #10B981, #3B82F6, var(--primary));
-    background-size: 200% 100%;
-    animation: footerGradient 4s ease infinite;
+.page-header p,
+.page-header .breadcrumb {
+    position: relative;
+    z-index: 1;
 }
-@keyframes footerGradient { 0% { background-position: 0% 50%; } 50% { background-position: 100% 50%; } 100% { background-position: 0% 50%; } }
+
+/* Footer — decorative strip removed for clean look */
 
 .footer-links a {
     position: relative;
@@ -11354,26 +11338,7 @@ button:focus-visible, a:focus-visible { box-shadow: 0 0 0 4px rgba(220, 38, 38, 
     font-variant-numeric: tabular-nums;
 }
 
-/* Enhanced Page Header Gradient */
-.page-header {
-    position: relative;
-    overflow: hidden;
-}
-.page-header::after {
-    content: '';
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    height: 4px;
-    background: linear-gradient(90deg, var(--primary), #f59e0b, #22c55e, #3b82f6, #8b5cf6, var(--primary));
-    background-size: 200% auto;
-    animation: rainbowSlide 4s linear infinite;
-}
-@keyframes rainbowSlide {
-    0% { background-position: 0% center; }
-    100% { background-position: 200% center; }
-}
+/* Page Header Gradient — decorative strip removed for clean look */
 
 /* Glass morphism navigation on scroll */
 .header.scrolled {
@@ -11862,12 +11827,11 @@ body {
     position: fixed;
     top: 0;
     left: 0;
-    height: 4px;
+    height: 3px;
     background: linear-gradient(90deg, var(--primary), var(--warning));
     width: 0%;
-    z-index: 99999;
+    z-index: 999;
     transition: width 0.1s ease;
-    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.4);
 }
 /* ============================================
    GLOBAL PAGE LOADER
@@ -11876,7 +11840,7 @@ body {
     position: fixed;
     top: 0; left: 0; width: 100vw; height: 100vh;
     background: var(--bg-primary);
-    z-index: 999999;
+    z-index: 9999;
     display: flex;
     justify-content: center;
     align-items: center;
@@ -11911,7 +11875,7 @@ body.loaded #global-loader {
         border: 2px solid var(--primary);
         border-radius: 50%;
         pointer-events: none;
-        z-index: 999999;
+        z-index: 9999;
         transform: translate(-50%, -50%);
         transition: width 0.2s, height 0.2s, background-color 0.2s;
         mix-blend-mode: difference;
@@ -11930,11 +11894,9 @@ body.loaded #global-loader {
    ============================================ */
 
 /* ---------- Body Scroll Lock for Mobile Menu ---------- */
+/* Floating panel doesn't need full scroll lock — only prevent pull-through on iOS */
 body.menu-open {
-    overflow: hidden !important;
-    position: fixed;
-    width: 100%;
-    height: 100%;
+    overflow: hidden;
 }
 
 /* ---------- Global Overflow Protection ---------- */
@@ -11966,51 +11928,8 @@ html, body {
 
 /* ---------- Mobile Navigation Improvements ---------- */
 @media (max-width: 768px) {
-    .mobile-nav {
-        position: fixed;
-        top: 70px;
-        left: -100%;
-        right: 0;
-        bottom: 0;
-        width: 100%;
-        height: calc(100vh - 70px);
-        z-index: 998;
-        background: var(--bg-primary);
-        overflow-y: auto;
-        transition: left 0.3s ease;
-    }
-    
-    .mobile-nav.active {
-        left: 0;
-    }
-    
-    .mobile-nav-links {
-        padding: 1rem;
-    }
-    
-    .mobile-nav-links li a {
-        padding: 1rem 1.5rem;
-        font-size: 1.1rem;
-        min-height: 48px;
-        display: flex;
-        align-items: center;
-        border-bottom: 1px solid var(--border-color);
-        color: var(--text-primary);
-        text-decoration: none;
-        transition: background 0.2s ease;
-    }
-    
-    .mobile-nav-links li a:hover,
-    .mobile-nav-links li a:active {
-        background: var(--bg-secondary);
-    }
-    
-    .mobile-nav-links li a i {
-        width: 24px;
-        margin-right: 0.75rem;
-        text-align: center;
-        color: var(--primary);
-    }
+    /* Floating-panel overrides already live in the base .mobile-nav rule.
+       Only touch-target / header-bar tweaks remain here. */
     
     .header .nav {
         padding: 0 1rem;
@@ -12090,12 +12009,13 @@ html, body {
     }
     
     .footer-grid {
-        grid-template-columns: 1fr !important;
-        gap: 2rem;
-        text-align: center;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.5rem 1rem;
+        text-align: left;
     }
     
     .footer-brand {
+        grid-column: 1 / -1;   /* brand spans full width */
         text-align: center;
     }
     
@@ -12106,36 +12026,36 @@ html, body {
     .footer-brand p {
         max-width: 100%;
         margin: 0.75rem auto;
-        font-size: 0.9rem;
-        line-height: 1.6;
+        font-size: 0.85rem;
+        line-height: 1.5;
     }
     
     .footer-social {
         justify-content: center;
-        margin-top: 1rem;
+        margin-top: 0.75rem;
     }
     
     .footer-social a {
-        width: 44px;
-        height: 44px;
-        min-width: 44px;
-        min-height: 44px;
+        width: 38px;
+        height: 38px;
+        min-width: 38px;
+        min-height: 38px;
     }
     
     .footer-column {
-        text-align: center;
+        text-align: left;
     }
     
     .footer-column h4 {
-        font-size: 1.1rem;
+        font-size: 1rem;
         margin-bottom: 1rem;
     }
     
     .footer-links {
         display: flex;
         flex-direction: column;
-        align-items: center;
-        gap: 0.25rem;
+        align-items: flex-start;
+        gap: 0.15rem;
     }
     
     .footer-links li {
@@ -12143,13 +12063,13 @@ html, body {
     }
     
     .footer-links a {
-        padding: 0.6rem 1rem;
-        min-height: 44px;
+        padding: 0.35rem 0;
+        min-height: 36px;
         display: flex;
         align-items: center;
-        justify-content: center;
+        justify-content: flex-start;
         border-radius: 0.5rem;
-        font-size: 0.95rem;
+        font-size: 0.88rem;
     }
     
     .footer-links a:hover {
@@ -12157,10 +12077,10 @@ html, body {
     }
     
     .footer-contact-item {
-        justify-content: center;
-        text-align: center;
-        padding: 0.5rem 0;
-        font-size: 0.9rem;
+        justify-content: flex-start;
+        text-align: left;
+        padding: 0.3rem 0;
+        font-size: 0.85rem;
     }
     
     .footer-contact-item i {
@@ -12483,6 +12403,11 @@ html, body {
 
 /* ---------- Blog Pages Mobile Fix ---------- */
 @media (max-width: 768px) {
+    .featured-post-grid {
+        grid-template-columns: 1fr !important;
+        min-height: auto !important;
+    }
+
     .blog-grid {
         grid-template-columns: 1fr !important;
         gap: 1.5rem;

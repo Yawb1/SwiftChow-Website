@@ -2402,21 +2402,7 @@
         </div>
     </div>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', function() {
-            const header = document.querySelector('header');
-            
-            window.addEventListener('scroll', function() {
-                if (window.scrollY > 100) {
-                    header.style.background = 'var(--bg-primary)';
-                    header.style.boxShadow = 'var(--shadow-md)';
-                } else {
-                    header.style.background = 'transparent';
-                    header.style.boxShadow = 'none';
-                }
-            });
-        });
-    </script>
+    <!-- Duplicate scroll handler removed (already handled above) -->
 </body>
 </html>
 

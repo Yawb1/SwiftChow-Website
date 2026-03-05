@@ -149,7 +149,6 @@ function initMobileMenu() {
     mobileNav.classList.add('active');
     backdrop.classList.add('active');
     body.classList.add('menu-open');
-    body.style.overflow = 'hidden';
     menuBtn.setAttribute('aria-expanded', 'true');
   }
 
@@ -158,7 +157,6 @@ function initMobileMenu() {
     mobileNav.classList.remove('active');
     backdrop.classList.remove('active');
     body.classList.remove('menu-open');
-    body.style.overflow = '';
     menuBtn.setAttribute('aria-expanded', 'false');
   }
   
@@ -614,10 +612,22 @@ function renderBlogPosts(container, limit = null) {
 }
 
 function renderBlogPreview() {
-  const container = document.querySelector('.blog-preview-grid');
-  if (container) {
-    renderBlogPosts(container, 3);
-  }
+  const container = document.getElementById('blogScroll') || document.querySelector('.blog-preview-grid');
+  if (!container || typeof blogPosts === 'undefined') return;
+
+  container.innerHTML = blogPosts.slice(0, 6).map(post => `
+    <a href="blog-post.html?id=${post.id}" class="blog-card-premium">
+      <img src="${post.image}" alt="${post.title}" loading="lazy">
+      <div class="blog-content">
+        <div class="blog-meta">
+          <span class="blog-category">${post.category}</span>
+          <span class="blog-time">${post.readTime}</span>
+        </div>
+        <h3 class="blog-title">${post.title}</h3>
+        <p class="blog-excerpt">${post.excerpt}</p>
+      </div>
+    </a>
+  `).join('');
 }
 
 function renderBlogPostPage() {
