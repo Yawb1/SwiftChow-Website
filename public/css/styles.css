@@ -1181,10 +1181,10 @@ input, textarea, select {
 /* Homepage header — always red (no transparent mode) */
 /* body[data-page="home"] .header:not(.scrolled) rule removed — header stays red */
 
-/* Scrolled state: red background returns (base .header gradient applies) */
+/* Scrolled state: same red gradient, stronger shadow for depth */
 .header.scrolled {
     background: linear-gradient(135deg, #DC2626 0%, #C72020 40%, #B91C1C 100%);
-    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 4px 20px rgba(185, 28, 28, 0.35);
 }
 
 .nav {
@@ -10380,13 +10380,18 @@ input[type="radio"]:checked {
     }
     
     /* Increase touch target sizes */
-    button,
+    button:not(.deals-dot):not(.carousel-dot),
     input[type="button"],
-    input[type="submit"],
-    input[type="checkbox"],
-    input[type="radio"] {
+    input[type="submit"] {
         min-height: 44px;
         min-width: 44px;
+    }
+    
+    /* Checkboxes/radios: reasonable touch area without being oversized */
+    input[type="checkbox"],
+    input[type="radio"] {
+        min-height: 20px;
+        min-width: 20px;
     }
     
     /* Reduce hover animations on mobile */
@@ -12046,7 +12051,7 @@ html, body {
 /* ---------- Footer Mobile Fix (ALL PAGES) ---------- */
 @media (max-width: 768px) {
     .footer {
-        padding: 2rem 0 1rem;
+        padding: 1.5rem 0 0.75rem;
     }
     
     .footer .container {
@@ -12054,14 +12059,17 @@ html, body {
     }
     
     .footer-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 1rem 0.75rem;
-        text-align: left;
+        grid-template-columns: 1fr !important;
+        gap: 0;
+        text-align: center;
     }
     
     .footer-brand {
         grid-column: 1 / -1;
         text-align: center;
+        padding-bottom: 1rem;
+        margin-bottom: 0.75rem;
+        border-bottom: 1px solid rgba(255,255,255,0.08);
     }
     
     .footer-brand .logo {
@@ -12069,110 +12077,127 @@ html, body {
     }
     
     .footer-brand p {
-        max-width: 100%;
-        margin: 0.5rem auto;
-        font-size: 0.8rem;
+        max-width: 280px;
+        margin: 0.4rem auto 0.6rem;
+        font-size: 0.78rem;
         line-height: 1.4;
     }
     
     .footer-social {
         justify-content: center;
-        margin-top: 0.5rem;
-    }
-    
-    .footer-social a {
-        width: 34px;
-        height: 34px;
-        min-width: 34px;
-        min-height: 34px;
-        font-size: 0.85rem;
-    }
-    
-    .footer-column {
-        text-align: left;
-    }
-    
-    .footer-column h4 {
-        font-size: 0.9rem;
-        margin-bottom: 0.6rem;
-    }
-    
-    .footer-links {
-        display: flex;
-        flex-direction: column;
-        align-items: flex-start;
-        gap: 0;
-    }
-    
-    .footer-links li {
-        width: 100%;
-    }
-    
-    .footer-links a {
-        padding: 0.2rem 0;
-        min-height: 30px;
-        display: flex;
-        align-items: center;
-        justify-content: flex-start;
-        border-radius: 0.5rem;
-        font-size: 0.82rem;
-    }
-    
-    .footer-links a:hover {
-        background: rgba(220, 38, 38, 0.05);
-    }
-    
-    .footer-contact-item {
-        justify-content: flex-start;
-        text-align: left;
-        padding: 0.15rem 0;
-        font-size: 0.78rem;
-    }
-    
-    .footer-contact-item i {
-        min-width: 18px;
-        font-size: 0.75rem;
-    }
-    
-    .footer-bottom {
-        margin-top: 1.25rem;
-        padding-top: 1rem;
-        text-align: center;
-    }
-    
-    .footer-bottom p {
-        font-size: 0.75rem;
-    }
-}
-
-@media (max-width: 375px) {
-    .footer {
-        padding: 1.5rem 0 0.75rem;
-    }
-    
-    .footer-grid {
-        gap: 0.75rem;
+        gap: 0.5rem;
     }
     
     .footer-social a {
         width: 32px;
         height: 32px;
+        min-width: 32px;
+        min-height: 32px;
+        font-size: 0.8rem;
+    }
+    
+    /* Compact columns as inline flow */
+    .footer-column {
+        text-align: center;
+        padding: 0.6rem 0;
+        border-bottom: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .footer-column:last-child {
+        border-bottom: none;
     }
     
     .footer-column h4 {
         font-size: 0.85rem;
         margin-bottom: 0.4rem;
+        padding-bottom: 0.35rem;
+    }
+    
+    .footer-column h4::after {
+        left: 50%;
+        transform: translateX(-50%);
+    }
+    
+    .footer-links {
+        display: flex;
+        flex-direction: row;
+        flex-wrap: wrap;
+        justify-content: center;
+        align-items: center;
+        gap: 0;
+    }
+    
+    .footer-links li {
+        width: auto;
     }
     
     .footer-links a {
-        font-size: 0.78rem;
-        min-height: 28px;
+        padding: 0.2rem 0.5rem;
+        min-height: auto;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        border-radius: 0.5rem;
+        font-size: 0.8rem;
+        color: var(--gray-400);
+    }
+    
+    .footer-links a:hover {
+        background: rgba(220, 38, 38, 0.05);
+        padding-left: 0.5rem;
     }
     
     .footer-contact-item {
+        justify-content: center;
+        text-align: center;
+        padding: 0.1rem 0;
+        font-size: 0.78rem;
+    }
+    
+    .footer-contact-item i {
+        min-width: 16px;
+        font-size: 0.7rem;
+    }
+    
+    .footer-bottom {
+        margin-top: 0.75rem;
+        padding-top: 0.6rem;
+        text-align: center;
+    }
+    
+    .footer-bottom p {
+        font-size: 0.72rem;
+    }
+}
+
+@media (max-width: 375px) {
+    .footer {
+        padding: 1.25rem 0 0.6rem;
+    }
+    
+    .footer-brand p {
+        font-size: 0.72rem;
+    }
+    
+    .footer-social a {
+        width: 28px;
+        height: 28px;
+        min-width: 28px;
+        min-height: 28px;
+        font-size: 0.7rem;
+    }
+    
+    .footer-links a {
         font-size: 0.75rem;
-        flex-direction: column;
-        gap: 0.15rem;
+        padding: 0.15rem 0.4rem;
+    }
+    
+    .footer-contact-item {
+        font-size: 0.72rem;
+    }
+    
+    .footer-bottom p {
+        font-size: 0.68rem;
     }
 }
 
@@ -12205,14 +12230,14 @@ html, body {
     }
     
     .reviews-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.75rem !important;
+        grid-template-columns: 1fr !important;
+        gap: 1rem !important;
     }
     
     .review-card {
-        padding: 0.75rem !important;
-        font-size: 0.85rem !important;
-        border-radius: 0.75rem !important;
+        padding: 1.25rem !important;
+        font-size: 0.9rem !important;
+        border-radius: 1rem !important;
     }
     
     .review-card:hover {
@@ -12221,56 +12246,58 @@ html, body {
     }
     
     .review-avatar {
-        width: 30px !important;
-        height: 30px !important;
-        font-size: 0.65rem !important;
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 0.75rem !important;
     }
     
     .review-card .review-header {
-        gap: 0.4rem !important;
-        margin-bottom: 0.4rem !important;
+        display: flex !important;
+        align-items: center !important;
+        gap: 0.6rem !important;
+        margin-bottom: 0.6rem !important;
     }
     
     .review-card .reviewer-avatar {
-        width: 30px !important;
-        height: 30px !important;
-        font-size: 0.7rem !important;
+        width: 36px !important;
+        height: 36px !important;
+        font-size: 0.75rem !important;
     }
     
     .review-card .reviewer-name {
-        font-size: 0.78rem !important;
+        font-size: 0.9rem !important;
     }
     
     .review-card .review-date {
-        font-size: 0.6rem !important;
+        font-size: 0.7rem !important;
     }
     
     .review-card .review-text {
-        font-size: 0.75rem !important;
-        line-height: 1.35 !important;
+        font-size: 0.85rem !important;
+        line-height: 1.5 !important;
         display: -webkit-box !important;
-        -webkit-line-clamp: 3 !important;
+        -webkit-line-clamp: 4 !important;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
     }
     
     .review-card .review-rating {
-        font-size: 0.65rem !important;
+        font-size: 0.75rem !important;
     }
     
     .review-card .review-comment {
-        font-size: 0.78rem !important;
-        line-height: 1.4 !important;
+        font-size: 0.85rem !important;
+        line-height: 1.5 !important;
         display: -webkit-box !important;
-        -webkit-line-clamp: 3 !important;
+        -webkit-line-clamp: 4 !important;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
-        margin-bottom: 0.5rem !important;
+        margin-bottom: 0.6rem !important;
     }
     
     .review-card .review-footer {
-        font-size: 0.65rem !important;
-        margin-top: 0.35rem !important;
+        font-size: 0.7rem !important;
+        margin-top: 0.5rem !important;
     }
     
     .review-form-wrapper {
@@ -12296,13 +12323,7 @@ html, body {
     }
 }
 
-/* Very small screens: reviews fall to single column */
-@media (max-width: 400px) {
-    .reviews-grid {
-        grid-template-columns: 1fr !important;
-        gap: 0.75rem;
-    }
-}
+/* Reviews already single-column at 768px, no extra rule needed */
 
 /* ---------- Tracking Page Mobile Fix ---------- */
 @media (max-width: 968px) {
@@ -13156,16 +13177,20 @@ html, body {
     
     .deals-dots {
         margin-top: 14px !important;
-        gap: 6px !important;
+        gap: 8px !important;
     }
 
     .deals-dot {
         width: 6px !important;
         height: 6px !important;
+        min-width: 6px !important;
+        min-height: 6px !important;
+        padding: 0 !important;
     }
 
     .deals-dot.active {
-        width: 16px !important;
+        width: 18px !important;
+        min-width: 18px !important;
         border-radius: 3px !important;
     }
 
