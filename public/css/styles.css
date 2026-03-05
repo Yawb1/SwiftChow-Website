@@ -1178,11 +1178,8 @@ input, textarea, select {
     transition: all var(--transition-normal);
 }
 
-/* Homepage transparent header — hero bleeds behind it */
-body[data-page="home"] .header:not(.scrolled) {
-    background: transparent;
-    box-shadow: none;
-}
+/* Homepage header — always red (no transparent mode) */
+/* body[data-page="home"] .header:not(.scrolled) rule removed — header stays red */
 
 /* Scrolled state: red background returns (base .header gradient applies) */
 .header.scrolled {
@@ -12192,12 +12189,57 @@ html, body {
     }
     
     .reviews-grid {
-        grid-template-columns: 1fr !important;
-        gap: 1.25rem;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem;
     }
     
     .review-card {
-        padding: 1.25rem;
+        padding: 0.875rem;
+        font-size: 0.85rem;
+        border-radius: 0.75rem;
+    }
+    
+    .review-card:hover {
+        transform: none;
+        box-shadow: none;
+    }
+    
+    .review-avatar {
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    .review-card .review-header {
+        gap: 0.5rem;
+        margin-bottom: 0.5rem;
+    }
+    
+    .review-card .reviewer-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.75rem;
+    }
+    
+    .review-card .reviewer-name {
+        font-size: 0.8rem;
+    }
+    
+    .review-card .review-date {
+        font-size: 0.65rem;
+    }
+    
+    .review-card .review-text {
+        font-size: 0.78rem;
+        line-height: 1.4;
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .review-card .review-rating {
+        font-size: 0.7rem;
     }
     
     .review-form-wrapper {
@@ -12220,6 +12262,14 @@ html, body {
     
     .rating-showcase .overall-rating {
         font-size: 2.5rem;
+    }
+}
+
+/* Very small screens: reviews fall to single column */
+@media (max-width: 400px) {
+    .reviews-grid {
+        grid-template-columns: 1fr !important;
+        gap: 0.75rem;
     }
 }
 
@@ -12744,8 +12794,16 @@ html, body {
     }
     
     .social-btn {
-        padding: 0.75rem 1rem !important;
-        font-size: 0.9rem !important;
+        padding: 0.6rem 0.5rem !important;
+        font-size: 0.82rem !important;
+        border: 1.5px solid #D1D5DB !important;
+        border-radius: 10px !important;
+        gap: 0.5rem !important;
+    }
+    
+    .social-btn .google-icon {
+        width: 18px !important;
+        height: 18px !important;
     }
     
     .auth-footer {
@@ -13045,18 +13103,18 @@ html, body {
     }
     
     .deals-dots {
-        margin-top: 18px !important;
-        gap: 8px !important;
+        margin-top: 14px !important;
+        gap: 6px !important;
     }
 
     .deals-dot {
-        width: 6px !important;
-        height: 6px !important;
+        width: 5px !important;
+        height: 5px !important;
     }
 
     .deals-dot.active {
-        width: 18px !important;
-        border-radius: 3px !important;
+        width: 14px !important;
+        border-radius: 2.5px !important;
     }
 
     .deals-nav-btn {
