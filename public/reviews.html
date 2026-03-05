@@ -17,41 +17,41 @@
     <link rel="icon" type="image/png" href="logo.png">
     <style>
         .reviews-hero {
-            background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+            background: linear-gradient(135deg, #DC2626 0%, #C72020 40%, #B91C1C 100%);
             color: white;
-            padding: 4rem 1.5rem;
+            padding: 3rem 1.5rem 2.5rem;
             text-align: center;
             margin-top: 70px;
         }
         .reviews-hero h1 {
-            font-size: 3rem;
+            font-size: 2.5rem;
             font-weight: 800;
-            margin-bottom: 1rem;
+            margin-bottom: 0.75rem;
         }
         .reviews-hero p {
-            font-size: 1.2rem;
+            font-size: 1.1rem;
             opacity: 0.9;
-            margin-bottom: 2rem;
+            margin-bottom: 1.5rem;
         }
         .rating-showcase {
             background: rgba(255,255,255,0.1);
             backdrop-filter: blur(10px);
             border: 1px solid rgba(255,255,255,0.2);
             border-radius: 1rem;
-            padding: 2rem;
-            max-width: 400px;
+            padding: 1.5rem;
+            max-width: 360px;
             margin: 0 auto;
         }
         .rating-showcase .overall-rating {
-            font-size: 4rem;
+            font-size: 3.5rem;
             font-weight: 900;
             line-height: 1;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.35rem;
         }
         .rating-showcase .rating-stars {
-            font-size: 1.5rem;
+            font-size: 1.25rem;
             color: #fbbf24;
-            margin-bottom: 0.5rem;
+            margin-bottom: 0.35rem;
         }
         .review-card {
             background: var(--card-bg);
@@ -148,11 +148,13 @@
     <main id="main-content">
     <nav class="mobile-nav" aria-label="Mobile navigation">
         <ul class="mobile-nav-links">
-            <li><a href="index.html">Home</a></li>
-            <li><a href="menu.html">Menu</a></li>
-            <li><a href="about.html">About</a></li>
-            <li><a href="blog.html">Blog</a></li>
-            <li><a href="contact.html">Contact</a></li>
+            <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
+            <li><a href="menu.html"><i class="fas fa-utensils"></i> Menu</a></li>
+            <li><a href="about.html"><i class="fas fa-info-circle"></i> About</a></li>
+            <li><a href="blog.html"><i class="fas fa-blog"></i> Blog</a></li>
+            <li><a href="contact.html"><i class="fas fa-envelope"></i> Contact</a></li>
+            <li><a href="reviews.html" class="active"><i class="fas fa-star"></i> Reviews</a></li>
+            <li><a href="#" id="mobileLoginBtn" onclick="document.getElementById('loginModal').classList.add('active'); document.body.style.overflow = 'hidden';"><i class="fas fa-sign-in-alt"></i> Login</a></li>
         </ul>
     </nav>
     <div class="reviews-hero">

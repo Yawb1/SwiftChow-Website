@@ -1172,8 +1172,8 @@ input, textarea, select {
     top: 0;
     left: 0;
     right: 0;
-    background: linear-gradient(135deg, #DC2626 0%, #B91C1C 100%);
-    box-shadow: 0 2px 12px rgba(0, 0, 0, 0.15);
+    background: linear-gradient(135deg, #DC2626 0%, #C72020 40%, #B91C1C 100%);
+    box-shadow: 0 2px 16px rgba(185, 28, 28, 0.25);
     z-index: 10000;
     transition: all var(--transition-normal);
 }
@@ -2668,7 +2668,7 @@ input, textarea, select {
    PAGE HEADER
    ============================================ */
 .page-header {
-    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    background: linear-gradient(135deg, #DC2626 0%, #C72020 40%, #B91C1C 100%);
     padding: 4rem 0 3rem;
     margin-top: 70px;
     text-align: center;
@@ -11373,9 +11373,10 @@ button:focus-visible, a:focus-visible { box-shadow: 0 0 0 4px rgba(220, 38, 38, 
 
 /* Glass morphism navigation on scroll */
 .header.scrolled {
-    background: linear-gradient(135deg, #C42020 0%, #A31818 100%);
+    background: linear-gradient(135deg, #C42020 0%, #B01A1A 40%, #991515 100%);
     backdrop-filter: blur(20px) saturate(180%);
     -webkit-backdrop-filter: blur(20px) saturate(180%);
+    box-shadow: 0 4px 24px rgba(153, 21, 21, 0.35);
 }
 
 /* Enhanced toast notifications */

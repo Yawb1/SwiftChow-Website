@@ -3977,7 +3977,7 @@ function showEmptyState(containerId, icon = '📦', title = 'Nothing here yet', 
     initCartBadgeBump();
     initAccountWelcome();
     initProfileCompletion();
-    initRatingDistribution();
+    // initRatingDistribution() removed — HTML #ratingDistribution section already handles this via updateRatingStats()
     initAuthParticles();
     initTypingEffect();
     initSmoothAnchorScroll();
@@ -4263,56 +4263,9 @@ function showEmptyState(containerId, icon = '📦', title = 'Nothing here yet', 
   }
 
   // ---------- 12. Rating Distribution Bars (Reviews Page) ----------
-  function initRatingDistribution() {
-    if (document.body.dataset.page !== 'reviews') return;
-
-    const heroCard = document.querySelector('.reviews-hero-card') || document.querySelector('.reviews-hero');
-    if (!heroCard) return;
-
-    // Calculate from stored reviews
-    const reviews = JSON.parse(localStorage.getItem('swiftChowReviews') || '[]');
-    const dist = [0, 0, 0, 0, 0]; // 1-5 stars
-    reviews.forEach(r => {
-      const stars = r.rating || r.stars || 5;
-      if (stars >= 1 && stars <= 5) dist[stars - 1]++;
-    });
-    const total = reviews.length || 1;
-
-    // Check if distribution already exists
-    if (heroCard.querySelector('.rating-distribution')) return;
-
-    const distHTML = document.createElement('div');
-    distHTML.className = 'rating-distribution';
-    distHTML.style.maxWidth = '300px';
-    distHTML.style.margin = '1.5rem auto';
-    for (let i = 5; i >= 1; i--) {
-      const count = dist[i - 1];
-      const pct = Math.round((count / total) * 100);
-      distHTML.innerHTML += `
-        <div class="rating-bar-row">
-          <span class="stars">${i}★</span>
-          <div class="rating-bar-track">
-            <div class="rating-bar-fill" data-width="${pct}%" style="width:0%"></div>
-          </div>
-          <span class="count">${count}</span>
-        </div>
-      `;
-    }
-    heroCard.appendChild(distHTML);
-
-    // Animate bars on visibility
-    const obsRating = new IntersectionObserver((entries) => {
-      entries.forEach(entry => {
-        if (entry.isIntersecting) {
-          entry.target.querySelectorAll('.rating-bar-fill').forEach(bar => {
-            setTimeout(() => { bar.style.width = bar.dataset.width; }, 300);
-          });
-          obsRating.unobserve(entry.target);
-        }
-      });
-    }, { threshold: 0.3 });
-    obsRating.observe(distHTML);
-  }
+  // REMOVED: initRatingDistribution() — was duplicating the rating distribution
+  // already present in the HTML (#ratingDistribution section below the hero).
+  // The HTML distribution is updated via updateRatingStats() in renderReviews().
 
   // ---------- 13. Auth Page Floating Particles ----------
   function initAuthParticles() {
