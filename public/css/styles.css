@@ -13103,18 +13103,18 @@ html, body {
     }
     
     .deals-dots {
-        margin-top: 14px !important;
-        gap: 6px !important;
+        margin-top: 16px !important;
+        gap: 8px !important;
     }
 
     .deals-dot {
-        width: 5px !important;
-        height: 5px !important;
+        width: 7px !important;
+        height: 7px !important;
     }
 
     .deals-dot.active {
-        width: 14px !important;
-        border-radius: 2.5px !important;
+        width: 20px !important;
+        border-radius: 3.5px !important;
     }
 
     .deals-nav-btn {
