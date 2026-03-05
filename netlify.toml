@@ -1,7 +1,7 @@
 # Netlify configuration for SWIFT CHOW frontend
 
 [build]
-publish = "."
+publish = "public"
 command = "echo 'No build required for static site'"
 
 # Pretty URLs - redirect .html to clean URLs
