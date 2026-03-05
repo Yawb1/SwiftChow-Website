@@ -147,6 +147,10 @@ label[for],
     --border-color: #2A2A2A;
     --card-bg: #1A1A1A;
     --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.3);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.2);
+    --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.25);
+    --shadow-lg: 0 10px 25px rgba(0, 0, 0, 0.3);
+    --shadow-xl: 0 20px 40px rgba(0, 0, 0, 0.35);
 }
 
 /* ============================================
@@ -1426,7 +1430,7 @@ input, textarea, select {
     text-align: center;
 }
 
-/* Mobile Menu Button - Improved Design */
+/* Mobile Menu Button - Clean Design */
 .mobile-menu-btn {
     display: none;
     width: 44px;
@@ -1435,18 +1439,18 @@ input, textarea, select {
     align-items: center;
     justify-content: center;
     gap: 5px;
-    background: var(--primary);
+    background: var(--bg-secondary);
     border-radius: var(--radius-lg);
     cursor: pointer;
-    border: none;
-    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.25);
+    border: 1px solid var(--border-color);
+    box-shadow: none;
     transition: all var(--transition-fast);
     position: relative;
 }
 
 .mobile-menu-btn:hover {
-    background: var(--primary-dark);
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.35);
+    background: var(--bg-tertiary);
+    border-color: var(--primary);
 }
 
 .mobile-menu-btn:active {
@@ -1454,9 +1458,9 @@ input, textarea, select {
 }
 
 .mobile-menu-btn span {
-    width: 24px;
-    height: 2.5px;
-    background: white;
+    width: 20px;
+    height: 2px;
+    background: var(--text-primary);
     transition: all var(--transition-fast) cubic-bezier(0.68, -0.55, 0.265, 1.55);
     border-radius: 2px;
     display: block;
@@ -2621,9 +2625,12 @@ input, textarea, select {
    ============================================ */
 .page-header {
     background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
-    padding: 8rem 0 3rem;
+    padding: 4rem 0 3rem;
+    margin-top: 70px;
     text-align: center;
     color: white;
+    position: relative;
+    z-index: 1;
 }
 
 .page-header h1 {
@@ -4026,7 +4033,8 @@ select {
     
     .products-grid,
     .popular-items-grid {
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
     }
     
     .btn-lg {
@@ -11765,12 +11773,11 @@ body {
 
 .food-card {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
-    transform-style: preserve-3d;
 }
 
 .food-card:hover {
-    transform: translateY(-10px) rotateX(2deg) rotateY(2deg);
-    box-shadow: 0 20px 40px rgba(0, 0, 0, 0.15);
+    transform: translateY(-6px);
+    box-shadow: 0 16px 32px rgba(0, 0, 0, 0.12);
 }
 /* ============================================
    FREE DELIVERY PROGRESS BAR & CONFETTI
@@ -12048,7 +12055,7 @@ html, body {
 /* ---------- Page Header Mobile ---------- */
 @media (max-width: 768px) {
     .page-header {
-        padding: 5rem 0 2rem;
+        padding: 3rem 0 2rem;
         margin-top: 70px;
     }
     
@@ -12538,7 +12545,17 @@ html, body {
 @media (max-width: 480px) {
     .menu-grid,
     .products-grid {
-        grid-template-columns: 1fr !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+}
+
+/* Very small screens: still 2 columns but tighter */
+@media (max-width: 360px) {
+    .menu-grid,
+    .products-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.5rem !important;
     }
 }
 
@@ -13000,6 +13017,65 @@ html, body {
     }
 }
 
+/* Food Card Premium Compact - 2 column mobile */
+@media (max-width: 480px) {
+    .food-card-premium .card-image {
+        height: 120px;
+    }
+    
+    .food-card-premium .card-content {
+        padding: 0.65rem;
+    }
+    
+    .food-card-premium .card-title {
+        font-size: 0.8rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .food-card-premium .card-desc {
+        display: none;
+    }
+    
+    .food-card-premium .card-price {
+        font-size: 0.95rem;
+    }
+    
+    .food-card-premium .card-meta {
+        font-size: 0.7rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .food-card-premium .card-badges span {
+        font-size: 0.55rem;
+        padding: 0.15rem 0.4rem;
+    }
+    
+    .food-card-premium .card-overlay {
+        display: none;
+    }
+    
+    .food-card-premium .add-btn-mobile {
+        width: 100%;
+        margin-top: 0.5rem;
+        padding: 0.35rem;
+        font-size: 1rem;
+        font-weight: 700;
+        background: var(--primary);
+        color: white;
+        border: none;
+        border-radius: var(--radius-md);
+        cursor: pointer;
+        min-height: 32px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+}
+
 /* ---------- Hero Section Mobile Buttons Fix ---------- */
 @media (max-width: 768px) {
     .btn-hero-primary,
@@ -13263,5 +13339,249 @@ html, body {
 @media (max-width: 600px) {
     .modal-content div[style*="display: grid"][style*="grid-template-columns: 1fr 1fr"] {
         grid-template-columns: 1fr !important;
+    }
+}
+
+/* ============================================
+   COMPACT FOOD CARDS - MOBILE 2-COLUMN
+   Makes food cards look great at half-width
+   ============================================ */
+@media (max-width: 480px) {
+    .food-card {
+        border-radius: var(--radius-lg);
+    }
+    
+    .food-card-image {
+        height: 130px;
+    }
+    
+    .food-card-content {
+        padding: 0.75rem;
+    }
+    
+    .food-card-category {
+        font-size: 0.6rem;
+        margin-bottom: 0.25rem;
+    }
+    
+    .food-card-title {
+        font-size: 0.8rem;
+        margin-bottom: 0.25rem;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .food-card-desc {
+        display: none;
+    }
+    
+    .food-card-meta {
+        margin-bottom: 0.5rem;
+        font-size: 0.7rem;
+    }
+    
+    .food-card-rating svg {
+        width: 10px;
+        height: 10px;
+    }
+    
+    .food-card-time {
+        font-size: 0.65rem;
+    }
+    
+    .food-card-footer {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 0.5rem;
+    }
+    
+    .price-current {
+        font-size: 1rem;
+    }
+    
+    .price-old {
+        font-size: 0.7rem;
+    }
+    
+    .add-to-cart-btn {
+        width: 100%;
+        height: 36px;
+        border-radius: var(--radius-md);
+        font-size: 0.85rem;
+    }
+    
+    .food-card-badge {
+        font-size: 0.55rem;
+        padding: 0.2rem 0.5rem;
+        top: 8px;
+        left: 8px;
+    }
+    
+    .food-card-wishlist {
+        width: 30px;
+        height: 30px;
+        top: 8px;
+        right: 8px;
+    }
+    
+    .food-card-wishlist svg {
+        width: 14px;
+        height: 14px;
+    }
+    
+    /* Disable hover lift on touch devices to prevent jank */
+    .food-card:hover {
+        transform: none;
+    }
+}
+
+/* ============================================
+   COMPACT FOOD CARDS - VERY SMALL SCREENS
+   ============================================ */
+@media (max-width: 360px) {
+    .food-card-image {
+        height: 110px;
+    }
+    
+    .food-card-content {
+        padding: 0.5rem;
+    }
+    
+    .food-card-title {
+        font-size: 0.75rem;
+    }
+    
+    .price-current {
+        font-size: 0.9rem;
+    }
+    
+    .add-to-cart-btn {
+        height: 32px;
+        font-size: 0.8rem;
+    }
+}
+
+/* ============================================
+   PREMIUM UI POLISH
+   Consistent depth, spacing, and micro-interactions
+   ============================================ */
+
+/* Smooth scroll behavior */
+html {
+    scroll-behavior: smooth;
+}
+
+/* Better focus ring for accessibility */
+:focus-visible {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* Premium card borders on dark mode */
+[data-theme="dark"] .food-card,
+[data-theme="dark"] .cart-items,
+[data-theme="dark"] .cart-summary,
+[data-theme="dark"] .review-card,
+[data-theme="dark"] .testimonial-card,
+[data-theme="dark"] .blog-card {
+    border-color: rgba(255, 255, 255, 0.06);
+}
+
+/* Subtle gradient accent on active filter */
+.filter-btn.active {
+    background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+}
+
+/* Better add-to-cart button interaction */
+.add-to-cart-btn:active {
+    transform: scale(0.9);
+    transition-duration: 80ms;
+}
+
+/* Food card image loading placeholder */
+.food-card-image {
+    background: var(--bg-secondary);
+}
+
+/* Newsletter section premium look */
+.newsletter {
+    position: relative;
+    overflow: hidden;
+}
+
+/* Better mobile tap states */
+@media (hover: none) and (pointer: coarse) {
+    .food-card:hover {
+        transform: none;
+        box-shadow: var(--card-shadow);
+    }
+    
+    .food-card:active {
+        transform: scale(0.98);
+        transition-duration: 80ms;
+    }
+    
+    .btn:hover {
+        transform: none;
+    }
+    
+    .btn:active {
+        transform: scale(0.97);
+        transition-duration: 80ms;
+    }
+    
+    .nav-icon:hover {
+        transform: none;
+    }
+}
+
+/* Cart count badge animation */
+.cart-count {
+    animation: cartPop 0.3s ease;
+}
+
+@keyframes cartPop {
+    0% { transform: scale(0.5); }
+    50% { transform: scale(1.3); }
+    100% { transform: scale(1); }
+}
+
+/* Page header improved spacing on desktop */
+@media (min-width: 769px) {
+    .page-header {
+        padding: 4rem 0 3rem;
+    }
+    
+    .page-header h1 {
+        font-size: 2.5rem;
+        letter-spacing: -0.02em;
+    }
+}
+
+/* Mobile search improvement */
+@media (max-width: 480px) {
+    .menu-search {
+        gap: 0.5rem;
+    }
+    
+    .menu-search input,
+    .search-input {
+        font-size: 16px; /* Prevent iOS zoom */
+        padding: 0.75rem 1rem;
+    }
+    
+    .menu-search .btn {
+        min-width: 44px;
+        padding: 0.75rem;
+    }
+    
+    /* Compact filter buttons on small screens */
+    .filter-btn {
+        padding: 0.4rem 0.85rem;
+        font-size: 0.8rem;
     }
 }
