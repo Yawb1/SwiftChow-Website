@@ -1145,6 +1145,8 @@ function initContactForm() {
 
 function initScrollEffects() {
   const header = document.querySelector('.header');
+  const isHomepage = document.body.getAttribute('data-page') === 'home';
+  const scrollThreshold = isHomepage ? 100 : 10;
   let lastScroll = 0;
   
   window.addEventListener('scroll', () => {
@@ -1152,7 +1154,7 @@ function initScrollEffects() {
     
     // Add shadow to header on scroll
     if (header) {
-      if (currentScroll > 10) {
+      if (currentScroll > scrollThreshold) {
         header.classList.add('scrolled');
       } else {
         header.classList.remove('scrolled');
@@ -4460,12 +4462,14 @@ function showEmptyState(containerId, icon = '📦', title = 'Nothing here yet', 
   function initNavScrollEffect() {
     const header = document.querySelector('.header');
     if (!header) return;
+    const isHomepage = document.body.getAttribute('data-page') === 'home';
+    const scrollThreshold = isHomepage ? 100 : 50;
     
     let ticking = false;
     window.addEventListener('scroll', () => {
       if (!ticking) {
         requestAnimationFrame(() => {
-          if (window.scrollY > 50) {
+          if (window.scrollY > scrollThreshold) {
             header.classList.add('scrolled');
           } else {
             header.classList.remove('scrolled');
@@ -4567,7 +4571,7 @@ document.addEventListener('DOMContentLoaded', function() {
     document.querySelectorAll('input[type="password"]').forEach(function(input) {
         // Skip if a toggle button already exists next to this input
         var parent = input.parentElement;
-        if (parent.querySelector('.password-toggle-btn, .btn-icon[onclick*="togglePassword"]')) return;
+        if (parent.querySelector('.password-toggle-btn, .password-toggle, .btn-icon[onclick*="togglePassword"], button[onclick*="togglePassword"]')) return;
 
         // Make sure parent is position:relative
         parent.style.position = 'relative';
