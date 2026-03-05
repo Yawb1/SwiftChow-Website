@@ -11,7 +11,6 @@ const session = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
 const nodemailer = require('nodemailer');
-const cookieParser = require('cookie-parser');
 
 // Load environment variables
 dotenv.config();
@@ -36,17 +35,6 @@ transporter.verify((error, success) => {
     console.log('Email service ready');
   }
 });
-
-// Sanitize user input for safe HTML email embedding
-function escapeHtml(str) {
-  if (!str) return '';
-  return String(str)
-    .replace(/&/g, '&amp;')
-    .replace(/</g, '&lt;')
-    .replace(/>/g, '&gt;')
-    .replace(/"/g, '&quot;')
-    .replace(/'/g, '&#39;');
-}
 
 // Email helper function
 async function sendEmail(to, subject, html) {
@@ -86,9 +74,6 @@ app.use(cors({
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true, limit: '10mb' }));
 
-// Cookie parser middleware (required for JWT cookie extraction)
-app.use(cookieParser());
-
 // Session middleware for OAuth
 app.use(session({
   secret: process.env.SESSION_SECRET || 'your-secret-key-change-in-production',
@@ -108,8 +93,8 @@ app.use(passport.session());
 // Load Passport strategies
 require('./config/passport');
 
-// Static files (serve frontend from public/)
-app.use(express.static(path.join(__dirname, 'public'), {
+// Static files (serve frontend)
+app.use(express.static(path.join(__dirname), {
   setHeaders: (res, filePath) => {
     // Cache HTML files for 1 hour, assets for 1 day
     if (filePath.endsWith('.html')) {
@@ -181,7 +166,7 @@ app.post('/api/emails/signup-confirmation', async (req, res) => {
           <h1 style="margin: 0; font-size: 28px;">Welcome to SWIFT CHOW!</h1>
         </div>
         <div style="padding: 30px; background: #f5f5f5;">
-          <p>Hi ${escapeHtml(fullName)},</p>
+          <p>Hi ${fullName},</p>
           <p>Thank you for signing up! Your account has been created successfully.</p>
           <p style="margin-top: 20px;">You can now:</p>
           <ul style="color: #333;">
@@ -225,7 +210,7 @@ app.post('/api/emails/password-reset', async (req, res) => {
           <h1 style="margin: 0; font-size: 28px;">Password Reset Request</h1>
         </div>
         <div style="padding: 30px; background: #f5f5f5;">
-          <p>Hi ${escapeHtml(fullName)},</p>
+          <p>Hi ${fullName},</p>
           <p>You requested to reset your password. Click the button below to set a new password:</p>
           <p style="margin-top: 30px; text-align: center;">
             <a href="${resetLink || process.env.CLIENT_URL}" style="background: #FF6B35; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; display: inline-block;">Reset Password</a>
@@ -265,7 +250,7 @@ app.post('/api/emails/newsletter-confirmation', async (req, res) => {
           <h1 style="margin: 0; font-size: 28px;">Newsletter Subscription Confirmed!</h1>
         </div>
         <div style="padding: 30px; background: #f5f5f5;">
-          <p>${fullName ? `Hi ${escapeHtml(fullName)},` : 'Hello,'}</p>
+          <p>${fullName ? `Hi ${fullName},` : 'Hello,'}</p>
           <p>Thank you for subscribing to the SWIFT CHOW newsletter!</p>
           <p>You will now receive:</p>
           <ul style="color: #333;">
@@ -306,12 +291,12 @@ app.post('/api/emails/contact-response', async (req, res) => {
           <h1 style="margin: 0; font-size: 28px;">We Received Your Message</h1>
         </div>
         <div style="padding: 30px; background: #f5f5f5;">
-          <p>${fullName ? `Hi ${escapeHtml(fullName)},` : 'Hello,'}</p>
+          <p>${fullName ? `Hi ${fullName},` : 'Hello,'}</p>
           <p>Thank you for contacting SWIFT CHOW!</p>
-          <p><strong>Message Subject:</strong> ${escapeHtml(subject)}</p>
+          <p><strong>Message Subject:</strong> ${subject}</p>
           <p style="margin-top: 20px; padding: 15px; background: white; border-left: 4px solid #FF6B35; border-radius: 3px;">
             <strong>Your message:</strong><br>
-            ${escapeHtml(message)}
+            ${message}
           </p>
           <p style="margin-top: 30px;">
             Our team will review your message and get back to you as soon as possible, usually within 24 hours.
@@ -354,7 +339,7 @@ app.get('*', (req, res, next) => {
   }
   
   // Serve index.html for all other routes
-  res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
+  res.sendFile(path.join(__dirname, 'index.html'), (err) => {
     if (err) {
       res.status(404).json({ error: 'Page not found' });
     }
