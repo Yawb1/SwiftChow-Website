@@ -495,7 +495,7 @@
         
         /* Deals Section Styling */
         .deals-section-premium {
-            padding: 100px 0;
+            padding: 60px 0;
             background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
         }
         
@@ -778,7 +778,7 @@
            DEALS CAROUSEL - Premium Styling
            ============================================ */
         .deals-section-premium {
-            padding: 100px 0;
+            padding: 60px 0;
             background: linear-gradient(180deg, var(--bg-secondary) 0%, var(--bg-primary) 100%);
         }
         
@@ -823,14 +823,14 @@
         .deal-image {
             position: relative;
             width: 100%;
-            height: 250px;
+            height: 180px;
             overflow: hidden;
         }
         
         @media (min-width: 768px) {
             .deal-image {
                 width: 50%;
-                height: 400px;
+                height: 360px;
             }
         }
         
@@ -1068,8 +1068,8 @@
         }
         
         .deals-dot {
-            width: 12px;
-            height: 12px;
+            width: 8px;
+            height: 8px;
             border-radius: 50%;
             border: none;
             background: var(--border-color);
@@ -1088,8 +1088,8 @@
         }
         
         .deals-dot.active {
-            width: 40px;
-            border-radius: 6px;
+            width: 24px;
+            border-radius: 4px;
             background: #DC2626;
         }
 
@@ -1330,7 +1330,7 @@
 
     <!-- Header -->
     <a href="#main-content" class="skip-link">Skip to main content</a>
-    <header class="header" style="background: transparent; box-shadow: none;">
+    <header class="header">
         <nav class="nav" aria-label="Main navigation">
             <a href="index.html" class="logo">
                 <div class="logo-icon">
@@ -2186,15 +2186,13 @@
             // Render popular items
             renderPopularItemsPremium();
             
-            // Make header transparent on hero, solid on scroll
+            // Make header slightly darker on scroll for depth
             const header = document.querySelector('.header');
             window.addEventListener('scroll', function() {
                 if (window.scrollY > 100) {
-                    header.style.background = 'var(--bg-primary)';
-                    header.style.boxShadow = 'var(--shadow-md)';
+                    header.classList.add('scrolled');
                 } else {
-                    header.style.background = 'transparent';
-                    header.style.boxShadow = 'none';
+                    header.classList.remove('scrolled');
                 }
             });
         });
