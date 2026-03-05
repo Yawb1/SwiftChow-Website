@@ -12230,14 +12230,14 @@ html, body {
     }
     
     .reviews-grid {
-        grid-template-columns: 1fr !important;
-        gap: 1rem !important;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
     }
     
     .review-card {
-        padding: 1.25rem !important;
-        font-size: 0.9rem !important;
-        border-radius: 1rem !important;
+        padding: 1rem !important;
+        font-size: 0.85rem !important;
+        border-radius: 0.85rem !important;
     }
     
     .review-card:hover {
@@ -12246,37 +12246,37 @@ html, body {
     }
     
     .review-avatar {
-        width: 36px !important;
-        height: 36px !important;
-        font-size: 0.75rem !important;
+        width: 32px !important;
+        height: 32px !important;
+        font-size: 0.7rem !important;
     }
     
     .review-card .review-header {
         display: flex !important;
         align-items: center !important;
-        gap: 0.6rem !important;
-        margin-bottom: 0.6rem !important;
+        gap: 0.5rem !important;
+        margin-bottom: 0.5rem !important;
     }
     
     .review-card .reviewer-avatar {
-        width: 36px !important;
-        height: 36px !important;
-        font-size: 0.75rem !important;
-    }
-    
-    .review-card .reviewer-name {
-        font-size: 0.9rem !important;
-    }
-    
-    .review-card .review-date {
+        width: 32px !important;
+        height: 32px !important;
         font-size: 0.7rem !important;
     }
     
+    .review-card .reviewer-name {
+        font-size: 0.8rem !important;
+    }
+    
+    .review-card .review-date {
+        font-size: 0.65rem !important;
+    }
+    
     .review-card .review-text {
-        font-size: 0.85rem !important;
-        line-height: 1.5 !important;
+        font-size: 0.78rem !important;
+        line-height: 1.4 !important;
         display: -webkit-box !important;
-        -webkit-line-clamp: 4 !important;
+        -webkit-line-clamp: 3 !important;
         -webkit-box-orient: vertical !important;
         overflow: hidden !important;
     }
@@ -12320,6 +12320,33 @@ html, body {
     
     .rating-showcase .overall-rating {
         font-size: 2.5rem;
+    }
+    
+    /* Reviews single column on small phones */
+    .reviews-grid {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+/* ---------- Reviews Trust Indicators Mobile ---------- */
+@media (max-width: 768px) {
+    .reviews-trust-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+    
+    .reviews-trust-grid > div > div:first-child {
+        width: 44px !important;
+        height: 44px !important;
+        font-size: 1.1rem !important;
+    }
+    
+    .reviews-trust-grid > div > strong {
+        font-size: 0.82rem !important;
+    }
+    
+    .reviews-trust-grid > div > span {
+        font-size: 0.72rem !important;
     }
 }
 
@@ -12666,20 +12693,81 @@ html, body {
 /* ---------- Testimonials Mobile Fix ---------- */
 @media (max-width: 768px) {
     .testimonials-section {
-        padding: 60px 0;
+        padding: 50px 0;
+    }
+    
+    .testimonials-container {
+        padding: 0 1rem;
+    }
+    
+    .testimonials-header {
+        margin-bottom: 2rem;
     }
     
     .testimonials-header h2 {
-        font-size: 1.75rem;
+        font-size: 1.5rem;
+    }
+    
+    .testimonials-header p {
+        font-size: 0.85rem;
     }
     
     .testimonials-grid {
-        grid-template-columns: 1fr !important;
-        gap: 1.25rem;
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem;
     }
     
     .testimonial-card {
-        padding: 1.5rem;
+        padding: 1rem;
+        border-radius: 0.75rem;
+    }
+    
+    .testimonial-card::before {
+        font-size: 2.5rem;
+        top: 0.5rem;
+        left: 0.5rem;
+    }
+    
+    .testimonial-rating {
+        margin-bottom: 0.5rem;
+    }
+    
+    .testimonial-rating i {
+        font-size: 0.7rem;
+    }
+    
+    .testimonial-text {
+        font-size: 0.78rem;
+        line-height: 1.4;
+        margin-bottom: 0.75rem;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+    
+    .testimonial-avatar {
+        width: 32px;
+        height: 32px;
+        font-size: 0.7rem;
+    }
+    
+    .testimonial-author {
+        gap: 0.5rem;
+    }
+    
+    .testimonial-author-info h4 {
+        font-size: 0.8rem;
+    }
+    
+    .testimonial-author-info p {
+        font-size: 0.65rem;
+    }
+}
+
+@media (max-width: 400px) {
+    .testimonials-grid {
+        grid-template-columns: 1fr !important;
     }
 }
 
@@ -13085,25 +13173,97 @@ html, body {
 /* ---------- Why Section Mobile (Index page) ---------- */
 @media (max-width: 768px) {
     .why-section-premium {
-        padding: 60px 0 !important;
+        padding: 50px 0 !important;
+    }
+    
+    .why-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
     }
     
     .why-card {
-        padding: 20px !important;
+        padding: 16px !important;
     }
     
     .why-card .icon-wrapper {
-        width: 60px !important;
-        height: 60px !important;
-        font-size: 1.75rem !important;
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 1.5rem !important;
+        border-radius: 14px !important;
+        margin-bottom: 12px !important;
     }
     
     .why-card h3 {
-        font-size: 1.1rem;
+        font-size: 0.9rem;
+        margin-bottom: 6px;
     }
     
     .why-card p {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
+        line-height: 1.4;
+    }
+}
+
+/* ---------- Features Grid Mobile (glass cards) ---------- */
+@media (max-width: 768px) {
+    .features-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 0.75rem !important;
+    }
+    
+    .features-grid > .glass-card {
+        padding: 1.25rem !important;
+        border-radius: 1rem !important;
+    }
+    
+    .features-grid > .glass-card > div:first-child {
+        width: 50px !important;
+        height: 50px !important;
+        font-size: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        margin-bottom: 0.75rem !important;
+    }
+    
+    .features-grid > .glass-card h3 {
+        font-size: 0.95rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .features-grid > .glass-card p {
+        font-size: 0.8rem !important;
+        line-height: 1.5 !important;
+    }
+}
+
+/* ---------- How It Works Mobile ---------- */
+@media (max-width: 768px) {
+    .how-it-works-grid {
+        grid-template-columns: repeat(2, 1fr) !important;
+        gap: 1.25rem !important;
+        max-width: 100% !important;
+    }
+    
+    .how-it-works-grid > .reveal > div:first-child {
+        width: 64px !important;
+        height: 64px !important;
+        font-size: 1.5rem !important;
+        margin-bottom: 1rem !important;
+    }
+    
+    .how-it-works-grid > .reveal > div:first-child > span {
+        width: 24px !important;
+        height: 24px !important;
+        font-size: 0.7rem !important;
+    }
+    
+    .how-it-works-grid > .reveal h3 {
+        font-size: 1rem !important;
+        margin-bottom: 0.5rem !important;
+    }
+    
+    .how-it-works-grid > .reveal p {
+        font-size: 0.8rem !important;
+        line-height: 1.5 !important;
     }
 }
 
