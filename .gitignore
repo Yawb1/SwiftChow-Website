@@ -50,6 +50,10 @@ build/
 .cache/
 *.cache
 
+# Python virtual environments
+.venv/
+venv/
+
 # Temporary files
 tmp/
 temp/

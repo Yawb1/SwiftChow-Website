@@ -27,7 +27,7 @@ const app = express();
 
 // Enable CORS for frontend
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:3000',
+  origin: process.env.CLIENT_URL || 'https://swiftchow.me',
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -56,8 +56,8 @@ app.use(passport.session());
 // Load Passport strategies
 require('./config/passport');
 
-// Static files (serve frontend)
-app.use(express.static(path.join(__dirname), {
+// Static files (serve frontend from public/)
+app.use(express.static(path.join(__dirname, 'public'), {
   setHeaders: (res, filePath) => {
     // Cache HTML files for 1 hour, assets for 1 day
     if (filePath.endsWith('.html')) {
@@ -72,17 +72,19 @@ app.use(express.static(path.join(__dirname), {
 // DATABASE CONNECTION
 // ============================================
 
+let isConnected = false;
+
 const connectDB = async () => {
+  if (isConnected) return;
+
   try {
     const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/swift-chow';
-    
     await mongoose.connect(mongoUri);
-    
+    isConnected = true;
     console.log('✅ MongoDB connected successfully');
   } catch (error) {
     console.error('❌ MongoDB connection failed:', error.message);
-    // Retry after 5 seconds
-    setTimeout(connectDB, 5000);
+    throw error;
   }
 };
 
@@ -139,7 +141,7 @@ app.post('/api/emails/signup-confirmation', async (req, res) => {
             <li>Save your favorite addresses and payment methods</li>
           </ul>
           <p style="margin-top: 30px;">
-            <a href="${process.env.CLIENT_URL || 'https://swiftchow.netlify.app'}" style="background: #FF6B35; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; display: inline-block;">Start Ordering Now</a>
+            <a href="${process.env.CLIENT_URL || 'https://swiftchow.me'}" style="background: #FF6B35; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; display: inline-block;">Start Ordering Now</a>
           </p>
           <p style="margin-top: 30px; font-size: 12px; color: #666;">
             If you did not create this account, please contact us immediately.
@@ -358,7 +360,7 @@ app.get('*', (req, res, next) => {
   }
   
   // Serve index.html for all other routes
-  res.sendFile(path.join(__dirname, 'index.html'), (err) => {
+  res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
     if (err) {
       res.status(404).json({ error: 'Page not found' });
     }
@@ -381,26 +383,24 @@ app.use((err, req, res, next) => {
 });
 
 // ============================================
-// SERVER STARTUP
+// SERVER STARTUP (local dev only — skipped on Vercel)
 // ============================================
 
-const PORT = process.env.PORT || 5000;
+if (process.env.VERCEL !== '1') {
+  const PORT = process.env.PORT || 5000;
 
-app.listen(PORT, () => {
-  console.log(`
-╔════════════════════════════════════════╗
-║   SWIFT CHOW SERVER                    ║
-║   Environment: ${process.env.NODE_ENV || 'development'}                 ║
-║   Port: ${PORT}                               ║
-║   URL: http://localhost:${PORT}               ║
-╚════════════════════════════════════════╝
-  `);
-});
+  app.listen(PORT, () => {
+    console.log(`\n  SWIFT CHOW SERVER\n  Environment: ${process.env.NODE_ENV || 'development'}\n  Port: ${PORT}\n  URL: http://localhost:${PORT}\n`);
+  });
+}
 
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err);
-  process.exit(1);
+  // Don't exit on Vercel — serverless functions should survive transient errors
+  if (process.env.VERCEL !== '1') {
+    process.exit(1);
+  }
 });
 
 module.exports = app;

@@ -36,10 +36,8 @@ function sanitizeId(id) {
   return String(id).replace(/[^a-zA-Z0-9_\-]/g, '');
 }
 
-// API Base URL - hardcoded to prevent API-endpoint hijacking via localStorage
-// SECURITY FIX: Removed localStorage.getItem('apiUrl') — any XSS could redirect
-// all API calls (including credentials) to an attacker-controlled server.
-const API_BASE_URL = 'https://swift-chow-backend.onrender.com/api';
+// API Base URL — relative path since frontend and API share the same Vercel domain
+const API_BASE_URL = '/api';
 
 // Get stored JWT token
 function getAuthToken() {

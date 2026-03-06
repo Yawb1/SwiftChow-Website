@@ -127,7 +127,7 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
     { expiresIn: JWT_EXPIRES_IN }
   );
   
-  res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/menu.html?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`);
+  res.redirect(`${process.env.CLIENT_URL || 'https://swiftchow.me'}/menu.html?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`);
 });
 
 // ============================================
@@ -141,7 +141,7 @@ router.get('/facebook/callback', passport.authenticate('facebook', { failureRedi
     { expiresIn: JWT_EXPIRES_IN }
   );
   
-  res.redirect(`${process.env.CLIENT_URL || 'http://localhost:3000'}/menu.html?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`);
+  res.redirect(`${process.env.CLIENT_URL || 'https://swiftchow.me'}/menu.html?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`);
 });
 
 // ============================================
