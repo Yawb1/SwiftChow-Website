@@ -10,50 +10,13 @@ const passport = require('passport');
 const session = require('express-session');
 const dotenv = require('dotenv');
 const path = require('path');
-const nodemailer = require('nodemailer');
-
 // Load environment variables
 dotenv.config();
 
 // ============================================
-// EMAIL CONFIGURATION
+// EMAIL CONFIGURATION (SendGrid)
 // ============================================
-
-const transporter = nodemailer.createTransport({
-  service: process.env.EMAIL_SERVICE || 'gmail',
-  auth: {
-    user: process.env.EMAIL_USER || 'your-email@gmail.com',
-    pass: process.env.EMAIL_PASSWORD || 'your-app-password'
-  }
-});
-
-// Verify transporter connection
-transporter.verify((error, success) => {
-  if (error) {
-    console.warn('Email service not configured:', error.message);
-  } else {
-    console.log('Email service ready');
-  }
-});
-
-// Email helper function
-async function sendEmail(to, subject, html) {
-  try {
-    const mailOptions = {
-      from: process.env.EMAIL_FROM || 'SWIFT CHOW <noreply@swiftchow.com>',
-      to,
-      subject,
-      html
-    };
-    
-    const info = await transporter.sendMail(mailOptions);
-    console.log('Email sent:', info.response);
-    return { success: true, messageId: info.messageId };
-  } catch (error) {
-    console.error('Email sending error:', error);
-    return { success: false, error: error.message };
-  }
-}
+const sendEmail = require('./utils/sendEmail');
 
 // Initialize Express app
 const app = express();
@@ -188,7 +151,7 @@ app.post('/api/emails/signup-confirmation', async (req, res) => {
       </div>
     `;
     
-    const result = await sendEmail(email, 'Welcome to SWIFT CHOW!', html);
+    const result = await sendEmail({ to: email, subject: 'Welcome to SWIFT CHOW!', html });
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -228,7 +191,7 @@ app.post('/api/emails/password-reset', async (req, res) => {
       </div>
     `;
     
-    const result = await sendEmail(email, 'Password Reset Request - SWIFT CHOW', html);
+    const result = await sendEmail({ to: email, subject: 'Password Reset Request - SWIFT CHOW', html });
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -269,7 +232,7 @@ app.post('/api/emails/newsletter-confirmation', async (req, res) => {
       </div>
     `;
     
-    const result = await sendEmail(email, 'Newsletter Subscription Confirmed', html);
+    const result = await sendEmail({ to: email, subject: 'Newsletter Subscription Confirmed', html });
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -311,7 +274,7 @@ app.post('/api/emails/contact-response', async (req, res) => {
       </div>
     `;
     
-    const result = await sendEmail(email, `Re: ${subject}`, html);
+    const result = await sendEmail({ to: email, subject: `Re: ${subject}`, html });
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
