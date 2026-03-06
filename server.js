@@ -290,6 +290,62 @@ app.get('/api/health', (req, res) => {
   });
 });
 
+// ── Test email route ─────────────────────────────────────────────────────────
+// GET /api/test-email
+// Sends a test email to the address defined in EMAIL_FROM and returns the result.
+app.get('/api/test-email', async (req, res) => {
+  const recipient = process.env.EMAIL_FROM;
+
+  if (!recipient) {
+    return res.status(500).json({
+      success: false,
+      error: 'EMAIL_FROM is not set in the environment. Cannot determine recipient.'
+    });
+  }
+
+  const html = `
+    <div style="font-family: Arial, sans-serif; max-width: 560px; margin: 0 auto; border: 1px solid #e5e7eb; border-radius: 10px; overflow: hidden;">
+      <div style="background: #FF6B35; padding: 24px; text-align: center;">
+        <h1 style="margin: 0; color: #fff; font-size: 24px;">SWIFT CHOW — Test Email</h1>
+      </div>
+      <div style="padding: 28px; background: #f9fafb;">
+        <p style="margin: 0 0 12px; color: #111827; font-size: 16px;">
+          ✅ <strong>SendGrid is working correctly.</strong>
+        </p>
+        <p style="color: #6b7280; font-size: 14px; margin: 0 0 8px;">
+          <strong>Sent at:</strong> ${new Date().toUTCString()}
+        </p>
+        <p style="color: #6b7280; font-size: 14px; margin: 0;">
+          <strong>Environment:</strong> ${process.env.NODE_ENV || 'development'}
+        </p>
+      </div>
+      <div style="background: #1f2937; color: #9ca3af; padding: 16px; text-align: center; font-size: 12px;">
+        © 2026 SWIFT CHOW. This is an automated test message — no action required.
+      </div>
+    </div>
+  `;
+
+  const result = await sendEmail({
+    to: recipient,
+    subject: 'SWIFT CHOW — SendGrid Test Email',
+    html
+  });
+
+  if (result.success) {
+    return res.json({
+      success: true,
+      message: `Test email sent successfully to ${recipient}.`,
+      messageId: result.messageId || null
+    });
+  }
+
+  return res.status(500).json({
+    success: false,
+    message: `Failed to send test email to ${recipient}.`,
+    error: result.error
+  });
+});
+
 // ============================================
 // FRONTEND FALLBACK
 // ============================================
