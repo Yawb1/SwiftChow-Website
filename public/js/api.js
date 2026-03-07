@@ -210,6 +210,11 @@ async function apiGetOrders() {
   return apiCall('/orders');
 }
 
+// Get user's latest order
+async function apiGetLatestOrder() {
+  return apiCall('/orders/latest');
+}
+
 // Get specific order
 async function apiGetOrder(orderId) {
   // SECURITY: Sanitize orderId to prevent path traversal (e.g., ../../admin)

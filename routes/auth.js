@@ -7,6 +7,15 @@ const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/constants');
 
+// Disposable/temporary email domains to reject
+const DISPOSABLE_EMAIL_DOMAINS = [
+  'mailinator.com', '10minutemail.com', 'tempmail.com', 'guerrillamail.com',
+  'throwaway.email', 'fakeinbox.com', 'sharklasers.com', 'guerrillamailblock.com',
+  'grr.la', 'guerrillamail.info', 'guerrillamail.net', 'guerrillamail.org',
+  'guerrillamail.de', 'trashmail.com', 'yopmail.com', 'dispostable.com',
+  'maildrop.cc', 'mailnesia.com', 'tempail.com', 'tempr.email'
+];
+
 // ============================================
 // REGISTER ENDPOINT
 // ============================================
@@ -18,6 +27,18 @@ router.post('/register', async (req, res) => {
     // Validate input
     if (!firstName || !lastName || !email || !password) {
       return res.status(400).json({ error: { message: 'Missing required fields', status: 400 } });
+    }
+
+    // Validate email format
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(email)) {
+      return res.status(400).json({ error: { message: 'Please enter a valid email address.', status: 400 } });
+    }
+
+    // Reject disposable/temporary email domains
+    const emailDomain = email.split('@')[1].toLowerCase();
+    if (DISPOSABLE_EMAIL_DOMAINS.includes(emailDomain)) {
+      return res.status(400).json({ error: { message: 'Please enter a valid email address. Temporary email services are not allowed.', status: 400 } });
     }
 
     // Password strength validation
@@ -61,6 +82,29 @@ router.post('/register', async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
+    // Send welcome email (non-blocking)
+    sendEmail({
+      to: newUser.email,
+      subject: 'Welcome to SwiftChow',
+      html: `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: linear-gradient(135deg, #DC2626, #991b1b); padding: 30px 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">Welcome to SwiftChow! 🎉</h1>
+          </div>
+          <div style="padding: 30px; background: #f9fafb; border-radius: 0 0 8px 8px;">
+            <p style="font-size: 16px; color: #333;">Hi ${newUser.firstName},</p>
+            <p style="font-size: 16px; color: #333;">Welcome to SwiftChow!</p>
+            <p style="font-size: 16px; color: #333;">Your account has been successfully created. You can now order meals, track deliveries, and enjoy exclusive deals.</p>
+            <p style="margin-top: 30px; text-align: center;">
+              <a href="${process.env.CLIENT_URL || 'https://swiftchow.me'}/menu.html" style="background: #DC2626; color: white; padding: 14px 36px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600;">Browse Our Menu</a>
+            </p>
+            <p style="margin-top: 20px; font-size: 14px; color: #666;">Thank you for joining us!</p>
+            <p style="font-size: 14px; color: #666;">— The SwiftChow Team</p>
+          </div>
+        </div>
+      `
+    }).catch(err => console.warn('Welcome email failed:', err.message));
+
     return res.status(201).json({
       success: true,
       message: 'User registered successfully',
@@ -73,6 +117,7 @@ router.post('/register', async (req, res) => {
       },
       token: token
     });
+
   } catch (error) {
     console.error('Register error:', error);
     return res.status(500).json({ error: { message: 'Registration failed', status: 500 } });
@@ -114,6 +159,33 @@ router.post('/login', (req, res, next) => {
       
       console.log('Login successful for:', user.email, 'Token:', token.substring(0, 20) + '...');
       
+      // Send login notification email (non-blocking)
+      const loginTime = new Date().toLocaleString('en-US', { 
+        dateStyle: 'full', 
+        timeStyle: 'short',
+        timeZone: 'Africa/Accra'
+      });
+      sendEmail({
+        to: user.email,
+        subject: 'New Login to Your SwiftChow Account',
+        html: `
+          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+            <div style="background: linear-gradient(135deg, #DC2626, #991b1b); padding: 30px 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
+              <h1 style="margin: 0; font-size: 28px;">Login Notification</h1>
+            </div>
+            <div style="padding: 30px; background: #f9fafb; border-radius: 0 0 8px 8px;">
+              <p style="font-size: 16px; color: #333;">Hello ${user.firstName || 'there'},</p>
+              <p style="font-size: 16px; color: #333;">Your SwiftChow account was just accessed.</p>
+              <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
+                <p style="margin: 0 0 8px 0; font-size: 14px; color: #666;"><strong>Time:</strong> ${loginTime}</p>
+              </div>
+              <p style="font-size: 16px; color: #333;">If this was not you, please <a href="${process.env.CLIENT_URL || 'https://swiftchow.me'}/account.html" style="color: #DC2626; font-weight: 600;">change your password</a> immediately.</p>
+              <p style="margin-top: 20px; font-size: 14px; color: #666;">— The SwiftChow Team</p>
+            </div>
+          </div>
+        `
+      }).catch(err => console.warn('Login notification email failed:', err.message));
+
       // Return user data and token
       return res.status(200).json({
         success: true,

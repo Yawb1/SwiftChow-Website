@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -44,9 +44,9 @@
             const orderId = urlParams.get('order');
             
             if (orderId && window.loadOrder) {
-                console.log('ðŸ“¦ Auto-loading order from URL:', orderId);
+                console.log('Ã°Å¸â€œÂ¦ Auto-loading order from URL:', orderId);
                 // Log what's in storage for debugging
-                console.log('ðŸ“ Storage Debug:', {
+                console.log('Ã°Å¸â€œÂ Storage Debug:', {
                     lastOrder: !!sessionStorage.getItem('lastOrder'),
                     trackingKey: !!sessionStorage.getItem('trackingOrder_' + orderId),
                     swiftChowOrders: localStorage.getItem('swiftChowOrders') ? JSON.parse(localStorage.getItem('swiftChowOrders')).length + ' orders' : 'none'
@@ -72,7 +72,7 @@
                     e.preventDefault();
                     const input = this.querySelector('input[type="text"]');
                     if (input && input.value) {
-                        console.log('ðŸ” Searching for order:', input.value);
+                        console.log('Ã°Å¸â€Â Searching for order:', input.value);
                         if (window.loadOrder) {
                             window.loadOrder(input.value);
                         }
@@ -805,7 +805,7 @@
                                     
                                     badge.classList.remove('active');
                                     badge.classList.add('completed');
-                                    badge.textContent = 'âœ“ Completed';
+                                    badge.textContent = 'Ã¢Å“â€œ Completed';
                                 } 
                                 else if (stepNum === this.currentStep) {
                                     stepElement.classList.add('active');
@@ -847,269 +847,309 @@
                     window.updateOrderStep = (step) => tracker.setStep(step);
                     window.advanceOrderStep = () => tracker.nextStep();
 
-                    // Load and display recent orders
-                    function loadRecentOrders() {
+                    // Load and display recent orders from API
+                    async function loadRecentOrders() {
                         const recentOrdersCard = document.getElementById('recentOrdersCard');
                         const recentOrdersList = document.getElementById('recentOrdersList');
                         
-                        // Get orders from localStorage or sessionStorage
                         let orders = [];
                         try {
-                            // Try sessionStorage first (most recent order)
-                            const lastOrder = sessionStorage.getItem('lastOrder');
-                            if (lastOrder) {
-                                const order = JSON.parse(lastOrder);
-                                orders.push(order);
-                            }
-                            
-                            // Get all orders from localStorage
-                            const allOrders = localStorage.getItem('swiftChowOrders');
-                            if (allOrders) {
-                                const ordersArray = JSON.parse(allOrders);
-                                if (Array.isArray(ordersArray)) {
-                                    // Add orders that aren't already in the list
-                                    ordersArray.forEach(order => {
-                                        if (!orders.find(o => o.id === order.id)) {
-                                            orders.push(order);
-                                        }
-                                    });
+                            if (typeof isAuthenticated === 'function' && isAuthenticated() && typeof apiGetOrders === 'function') {
+                                const response = await apiGetOrders();
+                                if (response && response.success && response.orders) {
+                                    orders = response.orders.map(o => ({
+                                        id: o.orderId || o._id,
+                                        total: o.total,
+                                        date: o.createdAt,
+                                        status: o.status
+                                    }));
                                 }
                             }
                         } catch (e) {
-                            console.error('Error loading orders:', e);
+                            console.error('Error loading orders from API:', e);
+                        }
+
+                        if (orders.length === 0) {
+                            try {
+                                const allOrders = localStorage.getItem('swiftChowOrders');
+                                if (allOrders) {
+                                    const ordersArray = JSON.parse(allOrders);
+                                    if (Array.isArray(ordersArray)) {
+                                        orders = ordersArray.map(o => ({
+                                            id: o.id || o.orderId,
+                                            total: o.total,
+                                            date: o.date || o.timestamp || o.createdAt,
+                                            status: o.status
+                                        }));
+                                    }
+                                }
+                            } catch (e) {
+                                console.error('Error loading orders from localStorage:', e);
+                            }
                         }
                         
                         if (orders.length > 0) {
                             recentOrdersCard.style.display = 'block';
-                            recentOrdersList.innerHTML = orders.slice(0, 5).map((order, index) => {
-                                const orderDate = new Date(order.date || order.timestamp);
+                            const statusLabels = {
+                                'pending': 'Pending', 'confirmed': 'Confirmed', 'preparing': 'Preparing',
+                                'ready': 'Ready', 'out_for_delivery': 'Out for Delivery', 'delivered': 'Delivered',
+                                'cancelled': 'Cancelled'
+                            };
+                            recentOrdersList.innerHTML = orders.slice(0, 5).map(function(order) {
+                                const orderDate = new Date(order.date);
                                 const formattedDate = orderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                                const status = order.status || 'In Progress';
+                                const rawStatus = (order.status || 'confirmed').toLowerCase();
+                                const status = statusLabels[rawStatus] || rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
+                                const statusColor = rawStatus === 'delivered' ? '#10b981' : rawStatus === 'cancelled' ? '#ef4444' : '#f59e0b';
                                 
-                                return `
-                                    <button type="button" style="
-                                        background: var(--bg-secondary);
-                                        border: 1px solid var(--border-color);
-                                        border-radius: 0.5rem;
-                                        padding: 0.75rem 1rem;
-                                        cursor: pointer;
-                                        text-align: left;
-                                        transition: all 0.3s ease;
-                                        font-family: inherit;
-                                    " 
-                                    onmouseover="this.style.borderColor = 'var(--primary)'; this.style.background = 'rgba(220, 38, 38, 0.05)';"
-                                    onmouseout="this.style.borderColor = 'var(--border-color)'; this.style.background = 'var(--bg-secondary)';"
-                                    onclick="
-                                        document.querySelector('.track-order-form input').value = '${order.id}';
-                                        loadOrder('${order.id}');
-                                        document.querySelector('.tracking-status-header').scrollIntoView({ behavior: 'smooth', block: 'start' });
-                                    ">
-                                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.25rem;">
-                                            <strong style="font-size: 0.9rem;">${order.id}</strong>
-                                            <span style="font-size: 0.75rem; color: var(--text-secondary);">${formattedDate}</span>
-                                        </div>
-                                        <div style="display: flex; justify-content: space-between; align-items: center;">
-                                            <span style="font-size: 0.85rem; color: var(--text-secondary);">GHS ${parseFloat(order.total || 0).toFixed(2)}</span>
-                                            <span style="font-size: 0.75rem; color: #10b981; font-weight: 500;">${status}</span>
-                                        </div>
-                                    </button>
-                                `;
+                                return '<button type="button" style="' +
+                                    'background: var(--bg-secondary);' +
+                                    'border: 1px solid var(--border-color);' +
+                                    'border-radius: 0.5rem;' +
+                                    'padding: 0.75rem 1rem;' +
+                                    'cursor: pointer;' +
+                                    'text-align: left;' +
+                                    'transition: all 0.3s ease;' +
+                                    'font-family: inherit;' +
+                                    'width: 100%;' +
+                                    '" ' +
+                                    'onmouseover="this.style.borderColor=\'var(--primary)\';this.style.background=\'rgba(220,38,38,0.05)\'" ' +
+                                    'onmouseout="this.style.borderColor=\'var(--border-color)\';this.style.background=\'var(--bg-secondary)\'" ' +
+                                    'onclick="document.querySelector(\'.track-order-form input\').value=\'' + order.id + '\';loadOrder(\'' + order.id + '\');document.querySelector(\'.tracking-status-header\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">' +
+                                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">' +
+                                    '<strong style="font-size:0.9rem">' + order.id + '</strong>' +
+                                    '<span style="font-size:0.75rem;color:var(--text-secondary)">' + formattedDate + '</span>' +
+                                    '</div>' +
+                                    '<div style="display:flex;justify-content:space-between;align-items:center">' +
+                                    '<span style="font-size:0.85rem;color:var(--text-secondary)">GHS ' + parseFloat(order.total || 0).toFixed(2) + '</span>' +
+                                    '<span style="font-size:0.75rem;color:' + statusColor + ';font-weight:500">' + status + '</span>' +
+                                    '</div></button>';
                             }).join('');
                         }
                     }
                     
-                    // Load orders on page load
-                    loadRecentOrders();
-                    
-                    // Function to load and display a specific order
-                    window.loadOrder = function(orderId) {
-                        let order = null;
-                        console.log('ðŸ” loadOrder called with ID:', orderId);
-                        
+                    // Wait for scripts to load then fetch orders
+                    function waitAndLoadOrders() {
+                        if (typeof isAuthenticated === 'function') {
+                            loadRecentOrders();
+                            var urlParams = new URLSearchParams(window.location.search);
+                            if (!urlParams.get('order')) {
+                                autoLoadLatestOrder();
+                            }
+                        } else {
+                            setTimeout(waitAndLoadOrders, 200);
+                        }
+                    }
+                    setTimeout(waitAndLoadOrders, 500);
+
+                    // Auto-load latest order from API
+                    async function autoLoadLatestOrder() {
                         try {
-                            // FIRST: Check for specific tracking order key (most direct match)
-                            const trackingKey = 'trackingOrder_' + orderId;
-                            const trackingOrderData = sessionStorage.getItem(trackingKey);
-                            if (trackingOrderData) {
-                                order = JSON.parse(trackingOrderData);
-                                console.log('âœ… Order found in sessionStorage with tracking key:', trackingKey);
-                            }
-                            
-                            // SECOND: Check lastOrder in sessionStorage
-                            if (!order) {
-                                const lastOrder = sessionStorage.getItem('lastOrder');
-                                console.log('sessionStorage lastOrder exists:', !!lastOrder);
-                                if (lastOrder) {
-                                    const parsed = JSON.parse(lastOrder);
-                                    console.log('sessionStorage order ID:', parsed.id, '| orderId param:', orderId, '| Match:', parsed.id === orderId);
-                                    if (parsed.id === orderId || parsed.orderId === orderId || parsed._id === orderId) {
-                                        order = parsed;
-                                        console.log('âœ… Order found in sessionStorage lastOrder');
-                                    }
-                                }
-                            }
-                            
-                            // THIRD: Check localStorage
-                            if (!order) {
-                                const allOrders = localStorage.getItem('swiftChowOrders');
-                                console.log('localStorage swiftChowOrders exists:', !!allOrders);
-                                if (allOrders) {
-                                    const ordersArray = JSON.parse(allOrders);
-                                    console.log('Orders in localStorage:', ordersArray.length);
-                                    console.log('Looking for order ID:', orderId);
-                                    ordersArray.forEach(o => console.log('- Order in storage:', o.id, '|', o.orderId, '|', o._id));
-                                    order = ordersArray.find(o => o.id === orderId || o.orderId === orderId || o._id === orderId);
-                                    if (order) console.log('âœ… Order found in localStorage');
-                                    else console.log('âŒ No matching order found in localStorage');
+                            if (typeof apiGetLatestOrder === 'function') {
+                                var response = await apiGetLatestOrder();
+                                if (response && response.success && response.order) {
+                                    displayAPIOrder(response.order);
                                 }
                             }
                         } catch (e) {
-                            console.error('Error loading order:', e);
+                            console.log('No recent orders to auto-load');
                         }
-                        
-                        if (order) {
-                            // Display order in tracking system
-                            document.getElementById('trackingContainer').style.display = 'block';
-                            document.getElementById('statusBadge').style.display = 'block';
-                            document.getElementById('orderRefDisplay').textContent = 'Order ' + order.id + ' | ' + new Date(order.date).toLocaleDateString();
+                    }
+
+                    // Map backend status to tracking step number
+                    function statusToStep(status) {
+                        var map = {
+                            'pending': 1, 'confirmed': 1,
+                            'preparing': 2, 'ready': 2,
+                            'out_for_delivery': 3,
+                            'delivered': 4
+                        };
+                        return map[status] || 1;
+                    }
+
+                    // Display order fetched from API
+                    function displayAPIOrder(order) {
+                        document.getElementById('trackingContainer').style.display = 'block';
+                        document.getElementById('statusBadge').style.display = 'block';
+
+                        var orderId = order.orderId || order._id;
+                        var orderDate = new Date(order.createdAt);
+                        document.getElementById('orderRefDisplay').textContent = 'Order ' + orderId + ' | ' + orderDate.toLocaleDateString();
+
+                        var statusLabels = {
+                            'pending': 'Pending', 'confirmed': 'Confirmed', 'preparing': 'Preparing',
+                            'ready': 'Ready', 'out_for_delivery': 'Out for Delivery', 'delivered': 'Delivered',
+                            'cancelled': 'Cancelled'
+                        };
+                        var statusLabel = statusLabels[order.status] || order.status;
+                        var badge = document.getElementById('statusBadge');
+                        badge.innerHTML = '<i class="fas fa-' + (order.status === 'delivered' ? 'check-circle' : 'spinner') + '"></i> ' + statusLabel;
+
+                        // Build items list
+                        var itemsList = (order.items || []).map(function(i) {
+                            return '<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-color)">' +
+                            '<span style="font-size:0.9rem;color:var(--text-primary)">' + (i.name || 'Item') + ' x' + (i.quantity || 1) + '</span>' +
+                            '<span style="font-size:0.9rem;font-weight:600;color:var(--text-primary)">GHS ' + ((i.price || 0) * (i.quantity || 1)).toFixed(2) + '</span></div>';
+                        }).join('');
+
+                        var estimatedMins = order.estimatedDeliveryTime || 30;
+                        var estDelivery = new Date(orderDate.getTime() + estimatedMins * 60000);
+
+                        // Update order summary sidebar
+                        var orderSummary = document.getElementById('orderSummary');
+                        orderSummary.innerHTML = 
+                            '<div style="text-align:left;padding:0.5rem 0">' +
+                              '<div style="margin-bottom:1rem">' +
+                                '<span style="font-weight:700;display:block;color:var(--text-primary);margin-bottom:0.5rem;font-size:1.05rem">Order #' + orderId + '</span>' +
+                                '<span style="font-size:0.85rem;color:var(--text-secondary)"><i class="fas fa-clock" style="margin-right:0.25rem"></i>Placed: ' + orderDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</span>' +
+                              '</div>' +
+                              '<div style="margin-bottom:1rem;padding:0.75rem;background:rgba(220,38,38,0.05);border-radius:0.5rem;border-left:3px solid var(--primary)">' +
+                                '<span style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:0.25rem">Total</span>' +
+                                '<span style="font-size:1.3rem;font-weight:800;color:var(--primary)">GHS ' + parseFloat(order.total || 0).toFixed(2) + '</span>' +
+                              '</div>' +
+                              '<div style="margin-bottom:1rem">' +
+                                '<span style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:0.5rem"><i class="fas fa-shopping-bag" style="margin-right:0.25rem"></i>Items</span>' +
+                                itemsList +
+                              '</div>' +
+                              '<div style="margin-bottom:0.75rem">' +
+                                '<span style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:0.25rem"><i class="fas fa-truck" style="margin-right:0.25rem"></i>Est. Delivery</span>' +
+                                '<span style="font-size:0.9rem;color:var(--text-primary)">' + estDelivery.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</span>' +
+                              '</div>' +
+                              (order.deliveryAddress ? 
+                                '<div>' +
+                                  '<span style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:0.25rem"><i class="fas fa-map-marker-alt" style="margin-right:0.25rem"></i>Delivery To</span>' +
+                                  '<span style="font-size:0.9rem;color:var(--text-primary)">' + (order.deliveryAddress.street || '') + (order.deliveryAddress.city ? ', ' + order.deliveryAddress.city : '') + '</span>' +
+                                '</div>' : '') +
+                            '</div>';
+
+                        // Set tracker step based on order status
+                        var step = statusToStep(order.status);
+                        tracker.setStep(step);
+
+                        // Update step times from statusHistory
+                        if (order.statusHistory && order.statusHistory.length > 0) {
+                            var stepStatusMap = {
+                                1: ['pending', 'confirmed'],
+                                2: ['preparing', 'ready'],
+                                3: ['out_for_delivery'],
+                                4: ['delivered']
+                            };
                             
-                            // Update order summary - handle both customer formats
-                            const customer = order.customer || { firstName: order.firstName || 'N/A', lastName: order.lastName || 'N/A' };
-                            const firstName = customer.firstName || order.firstName || 'N/A';
-                            const lastName = customer.lastName || order.lastName || 'N/A';
-                            
-                            const orderSummary = document.getElementById('orderSummary');
-                            orderSummary.innerHTML = `
-                                <div style="text-align: left; padding: 1rem 0;">
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <span style="font-weight: 600; display: block; color: var(--text-primary); margin-bottom: 0.25rem;">Delivery To:</span>
-                                        <span style="font-size: 0.9rem; color: var(--text-secondary);">${firstName} ${lastName}</span>
-                                    </div>
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <span style="font-weight: 600; display: block; color: var(--text-primary); margin-bottom: 0.25rem;">Total:</span>
-                                        <span style="font-size: 1.1rem; font-weight: 700; color: var(--primary);">GHS ${parseFloat(order.total || 0).toFixed(2)}</span>
-                                    </div>
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <span style="font-weight: 600; display: block; color: var(--text-primary); margin-bottom: 0.25rem;">Items:</span>
-                                        <span style="font-size: 0.9rem; color: var(--text-secondary);">${order.items ? order.items.length : 0} item${order.items && order.items.length !== 1 ? 's' : ''}</span>
-                                    </div>
-                                    <div style="margin-bottom: 0.75rem;">
-                                        <span style="font-weight: 600; display: block; color: var(--text-primary); margin-bottom: 0.25rem;">Time Ordered:</span>
-                                        <span style="font-size: 0.9rem; color: var(--text-secondary);" id="trackedOrderTime"></span>
-                                    </div>
-                                    <div>
-                                        <span style="font-weight: 600; display: block; color: var(--text-primary); margin-bottom: 0.25rem;">Est. Delivery:</span>
-                                        <span style="font-size: 0.9rem; color: var(--text-secondary);" id="trackedDeliveryTime"></span>
-                                    </div>
-                                </div>
-                            `;
-                            
-                            // Set order time display
-                            const orderTime = order.orderTime ? new Date(order.orderTime) : new Date(order.timestamp);
-                            const orderTimeEl = document.getElementById('trackedOrderTime');
-                            if (orderTimeEl) {
-                                orderTimeEl.textContent = orderTime.toLocaleTimeString('en-US', {
-                                    hour: '2-digit',
-                                    minute: '2-digit',
-                                    hour12: true
-                                });
+                            for (var s = 1; s <= 4; s++) {
+                                var stepEl = document.querySelector('.tracking-step[data-step="' + s + '"]');
+                                if (!stepEl) continue;
+                                var timeEl = stepEl.querySelector('.tracking-step-time');
+                                if (!timeEl) continue;
+                                
+                                var relevantStatuses = stepStatusMap[s];
+                                var historyEntry = order.statusHistory.find(function(h) { return relevantStatuses.indexOf(h.status) !== -1; });
+                                if (historyEntry) {
+                                    var time = new Date(historyEntry.timestamp);
+                                    timeEl.textContent = time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                                }
                             }
-                            
-                            // Animate progress based on real order time
-                            animateOrderProgress(order, orderTime);
+                        }
+
+                        // Show order details card with items
+                        var detailsContainer = document.getElementById('orderDetailsContainer');
+                        if (detailsContainer) {
+                            detailsContainer.innerHTML = 
+                                '<div style="background:var(--card-bg);border:1px solid var(--border-color);border-radius:1rem;padding:1.5rem;margin-top:1.5rem">' +
+                                  '<h3 style="margin:0 0 1rem;font-size:1.1rem;color:var(--text-primary)"><i class="fas fa-receipt" style="color:var(--primary);margin-right:0.5rem"></i>Order Items</h3>' +
+                                  (order.items || []).map(function(item) {
+                                    return '<div style="display:flex;align-items:center;gap:1rem;padding:0.75rem;background:var(--bg-secondary);border-radius:0.75rem;margin-bottom:0.5rem">' +
+                                      (item.image ? '<img src="' + item.image + '" alt="' + (item.name || '') + '" style="width:50px;height:50px;border-radius:0.5rem;object-fit:cover" loading="lazy">' : '<div style="width:50px;height:50px;border-radius:0.5rem;background:rgba(220,38,38,0.1);display:flex;align-items:center;justify-content:center"><i class="fas fa-utensils" style="color:var(--primary)"></i></div>') +
+                                      '<div style="flex:1">' +
+                                        '<div style="font-weight:600;font-size:0.95rem;color:var(--text-primary)">' + (item.name || 'Item') + '</div>' +
+                                        '<div style="font-size:0.85rem;color:var(--text-secondary)">Qty: ' + (item.quantity || 1) + '</div>' +
+                                      '</div>' +
+                                      '<div style="font-weight:700;color:var(--primary)">GHS ' + ((item.price || 0) * (item.quantity || 1)).toFixed(2) + '</div>' +
+                                    '</div>';
+                                  }).join('') +
+                                  '<div style="margin-top:1rem;padding-top:1rem;border-top:2px solid var(--border-color)">' +
+                                    '<div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;font-size:0.9rem;color:var(--text-secondary)"><span>Subtotal</span><span>GHS ' + parseFloat(order.subtotal || 0).toFixed(2) + '</span></div>' +
+                                    '<div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;font-size:0.9rem;color:var(--text-secondary)"><span>Delivery Fee</span><span>GHS ' + parseFloat(order.deliveryFee || 0).toFixed(2) + '</span></div>' +
+                                    (order.tax ? '<div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;font-size:0.9rem;color:var(--text-secondary)"><span>Tax</span><span>GHS ' + parseFloat(order.tax || 0).toFixed(2) + '</span></div>' : '') +
+                                    '<div style="display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;color:var(--primary);margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--border-color)"><span>Total</span><span>GHS ' + parseFloat(order.total || 0).toFixed(2) + '</span></div>' +
+                                  '</div>' +
+                                '</div>';
+                        }
+                    }
+                    
+                    // Function to load and display a specific order (synced with API)
+                    window.loadOrder = async function(orderId) {
+                        console.log('Loading order:', orderId);
+                        
+                        // Try API first
+                        try {
+                            if (typeof isAuthenticated === 'function' && isAuthenticated() && typeof apiGetOrder === 'function') {
+                                var response = await apiGetOrder(orderId);
+                                if (response && response.success && response.order) {
+                                    displayAPIOrder(response.order);
+                                    return;
+                                }
+                            }
+                        } catch (apiError) {
+                            console.warn('API fetch failed, trying local storage:', apiError.message);
+                        }
+
+                        // Fallback: try localStorage/sessionStorage
+                        var order = null;
+                        try {
+                            var trackingKey = 'trackingOrder_' + orderId;
+                            var trackingData = sessionStorage.getItem(trackingKey);
+                            if (trackingData) order = JSON.parse(trackingData);
+
+                            if (!order) {
+                                var lastOrder = sessionStorage.getItem('lastOrder');
+                                if (lastOrder) {
+                                    var parsed = JSON.parse(lastOrder);
+                                    if (parsed.id === orderId || parsed.orderId === orderId) order = parsed;
+                                }
+                            }
+
+                            if (!order) {
+                                var allOrders = localStorage.getItem('swiftChowOrders');
+                                if (allOrders) {
+                                    var arr = JSON.parse(allOrders);
+                                    order = arr.find(function(o) { return o.id === orderId || o.orderId === orderId; });
+                                }
+                            }
+                        } catch (e) {
+                            console.error('Error loading order from storage:', e);
+                        }
+
+                        if (order) {
+                            // Convert local order to API-like format
+                            var apiLikeOrder = {
+                                orderId: order.id || order.orderId,
+                                items: order.items || [],
+                                subtotal: order.subtotal || 0,
+                                deliveryFee: order.deliveryFee || 0,
+                                tax: order.tax || 0,
+                                total: order.total || 0,
+                                status: order.status || 'confirmed',
+                                createdAt: order.timestamp || order.createdAt || order.date,
+                                estimatedDeliveryTime: 30,
+                                deliveryAddress: order.customer ? {
+                                    street: order.customer.address,
+                                    city: order.customer.city || order.city
+                                } : { street: '', city: order.city || '' },
+                                statusHistory: []
+                            };
+                            displayAPIOrder(apiLikeOrder);
                         } else {
-                            // Order not found - show error message
-                            console.error('âŒ Order not found with ID:', orderId);
-                            const orderSummary = document.getElementById('orderSummary');
+                            var orderSummary = document.getElementById('orderSummary');
                             if (orderSummary) {
-                                orderSummary.innerHTML = `
-                                    <div style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                                        <i class="fas fa-exclamation-circle" style="font-size: 3rem; color: var(--primary); margin-bottom: 1rem; display: block;"></i>
-                                        <h4 style="color: var(--text-primary); margin-bottom: 0.5rem;">Order Not Found</h4>
-                                        <p>Could not find order: <strong>${orderId}</strong></p>
-                                        <p style="font-size: 0.85rem; margin-top: 1rem;">Please note the order ID and contact support if this persists.</p>
-                                        <button onclick="document.querySelector('.track-order-form input').focus()" style="
-                                            background: var(--primary);
-                                            color: white;
-                                            border: none;
-                                            padding: 0.75rem 1.5rem;
-                                            border-radius: 0.5rem;
-                                            cursor: pointer;
-                                            margin-top: 1rem;
-                                            font-weight: 600;
-                                        ">Try Another Order ID</button>
-                                    </div>
-                                `;
+                                orderSummary.innerHTML = 
+                                    '<div style="text-align:center;padding:2rem;color:var(--text-secondary)">' +
+                                    '<i class="fas fa-exclamation-circle" style="font-size:3rem;color:var(--primary);margin-bottom:1rem;display:block"></i>' +
+                                    '<h4 style="color:var(--text-primary);margin-bottom:0.5rem">Order Not Found</h4>' +
+                                    '<p>Could not find order: <strong>' + orderId + '</strong></p>' +
+                                    '<p style="font-size:0.85rem;margin-top:1rem">Please check the order ID and try again.</p></div>';
                             }
                         }
                     };
-                    
-                    // Function to animate progress bar based on real order time
-                    function animateOrderProgress(order, orderTime) {
-                        const deliveryTimes = {
-                            'Accra': { prep: 15, delivery: 20, total: 35 },
-                            'Kumasi': { prep: 20, delivery: 25, total: 45 },
-                            'Tema': { prep: 15, delivery: 18, total: 33 },
-                            'Sekondi-Takoradi': { prep: 20, delivery: 30, total: 50 },
-                            'Cape Coast': { prep: 20, delivery: 35, total: 55 },
-                            'Tamale': { prep: 25, delivery: 40, total: 65 },
-                            'Warri': { prep: 20, delivery: 30, total: 50 }
-                        };
-                        
-                        const city = order.city || 'Accra';
-                        const times = deliveryTimes[city] || { prep: 20, delivery: 25, total: 45 };
-                        const totalMinutes = times.total;
-                        
-                        // Calculate elapsed time since order
-                        const now = new Date();
-                        const elapsedMinutes = (now - orderTime) / (1000 * 60);
-                        const progress = Math.min((elapsedMinutes / totalMinutes) * 100, 100);
-                        
-                        // Calculate which step the order is at
-                        const prepEndTime = times.prep;
-                        const deliveryEndTime = times.prep + times.delivery;
-                        
-                        let currentStep = 1;
-                        if (elapsedMinutes >= deliveryEndTime) currentStep = 4;
-                        else if (elapsedMinutes >= prepEndTime + times.delivery * 0.5) currentStep = 3;
-                        else if (elapsedMinutes >= prepEndTime) currentStep = 2;
-                        
-                        // Update tracker
-                        tracker.setStep(currentStep);
-                        
-                        // Update delivery time display
-                        const deliveryTime = new Date(orderTime.getTime() + totalMinutes * 60000);
-                        const deliveryTimeEl = document.getElementById('trackedDeliveryTime');
-                        if (deliveryTimeEl) {
-                            deliveryTimeEl.textContent = deliveryTime.toLocaleTimeString('en-US', {
-                                hour: '2-digit',
-                                minute: '2-digit',
-                                hour12: true
-                            });
-                        }
-                        
-                        // Continue updating progress in real-time
-                        const progressInterval = setInterval(() => {
-                            const currentTime = new Date();
-                            const newElapsedMinutes = (currentTime - orderTime) / (1000 * 60);
-                            const newProgress = Math.min((newElapsedMinutes / totalMinutes) * 100, 100);
-                            
-                            if (newElapsedMinutes >= deliveryEndTime) {
-                                tracker.setStep(4);
-                                clearInterval(progressInterval);
-                            } else if (newElapsedMinutes >= prepEndTime + times.delivery * 0.5) {
-                                tracker.setStep(3);
-                            } else if (newElapsedMinutes >= prepEndTime) {
-                                tracker.setStep(2);
-                            }
-                            
-                            // Update progress bar smoothly
-                            const progressFill = document.getElementById('trackingProgressFill');
-                            if (progressFill) {
-                                progressFill.style.width = newProgress + '%';
-                            }
-                        }, 1000); // Update every second for smooth animation
-                    }
                 </script>
                 
                 <!-- Order Details - Will be populated by JavaScript -->

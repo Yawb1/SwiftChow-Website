@@ -99,6 +99,28 @@ router.get('/', requireAuth, async (req, res) => {
 });
 
 // ============================================
+// GET LATEST ORDER
+// ============================================
+
+router.get('/latest', requireAuth, async (req, res) => {
+  try {
+    const order = await Order.findOne({ userId: req.user._id })
+      .sort({ createdAt: -1 });
+    
+    if (!order) {
+      return res.status(404).json({ success: false, error: 'No orders found' });
+    }
+    
+    res.json({
+      success: true,
+      order
+    });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
 // GET ORDER BY ID
 // ============================================
 
