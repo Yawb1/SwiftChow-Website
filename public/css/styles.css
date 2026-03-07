@@ -11911,32 +11911,6 @@ body.loaded #global-loader {
     opacity: 0;
     visibility: hidden;
 }
-/* ============================================
-   MAGIC CURSOR (DESKTOP ONLY)
-   ============================================ */
-@media (pointer: fine) {
-    body {
-        /* Optional: cursor: none; */
-    }
-    .magic-cursor {
-        position: fixed;
-        top: 0; left: 0;
-        width: 20px; height: 20px;
-        border: 2px solid var(--primary);
-        border-radius: 50%;
-        pointer-events: none;
-        z-index: 9999;
-        transform: translate(-50%, -50%);
-        transition: width 0.2s, height 0.2s, background-color 0.2s;
-        mix-blend-mode: difference;
-    }
-    .magic-cursor.hovering {
-        width: 50px;
-        height: 50px;
-        background-color: var(--primary-glow);
-        border-color: transparent;
-    }
-}
 
 /* ============================================
    COMPREHENSIVE MOBILE RESPONSIVENESS FIX
@@ -12907,6 +12881,54 @@ html, body {
     }
 }
 
+/* ---------- Modal Password Toggle Fix ---------- */
+.modal-body input[type="password"],
+.modal-body input[type="text"] {
+    padding-right: 2.75rem;
+}
+
+/* ---------- Modal Google Sign-In Button ---------- */
+.modal-body .google-signin-modal-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    width: 100%;
+    padding: 0.7rem 1rem;
+    border: 1px solid #ddd;
+    border-radius: 0.5rem;
+    background: #fff;
+    color: #333;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: background 0.2s, border-color 0.2s, box-shadow 0.2s;
+}
+
+.modal-body .google-signin-modal-btn:hover {
+    background: #f8f8f8;
+    border-color: #bbb;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.modal-body .google-signin-modal-btn svg {
+    width: 18px;
+    height: 18px;
+    flex-shrink: 0;
+}
+
+/* Dark mode support */
+[data-theme="dark"] .modal-body .google-signin-modal-btn {
+    background: var(--bg-secondary);
+    border-color: var(--border-color);
+    color: var(--text-primary);
+}
+
+[data-theme="dark"] .modal-body .google-signin-modal-btn:hover {
+    background: var(--bg-primary);
+    border-color: var(--text-secondary);
+}
+
 /* ---------- Cart Modal Slide Panel Mobile ---------- */
 @media (max-width: 480px) {
     #cartModal .modal-content {
@@ -13491,20 +13513,12 @@ html, body {
     }
 }
 
-/* ---------- Magic Cursor Hidden on Touch ---------- */
-@media (hover: none) and (pointer: coarse) {
-    .magic-cursor {
-        display: none !important;
-    }
-}
-
-/* ---------- Print & Reduced Motion ---------- */
+/* ---------- Print ---------- */
 @media print {
     .floating-cart-btn,
     .back-to-top,
     #back-to-top,
-    .toast-container,
-    .magic-cursor {
+    .toast-container {
         display: none !important;
     }
 }

@@ -44,9 +44,9 @@
             const orderId = urlParams.get('order');
             
             if (orderId && window.loadOrder) {
-                console.log('📦 Auto-loading order from URL:', orderId);
+                console.log('ðŸ“¦ Auto-loading order from URL:', orderId);
                 // Log what's in storage for debugging
-                console.log('📝 Storage Debug:', {
+                console.log('ðŸ“ Storage Debug:', {
                     lastOrder: !!sessionStorage.getItem('lastOrder'),
                     trackingKey: !!sessionStorage.getItem('trackingOrder_' + orderId),
                     swiftChowOrders: localStorage.getItem('swiftChowOrders') ? JSON.parse(localStorage.getItem('swiftChowOrders')).length + ' orders' : 'none'
@@ -72,7 +72,7 @@
                     e.preventDefault();
                     const input = this.querySelector('input[type="text"]');
                     if (input && input.value) {
-                        console.log('🔍 Searching for order:', input.value);
+                        console.log('ðŸ” Searching for order:', input.value);
                         if (window.loadOrder) {
                             window.loadOrder(input.value);
                         }
@@ -805,7 +805,7 @@
                                     
                                     badge.classList.remove('active');
                                     badge.classList.add('completed');
-                                    badge.textContent = '✓ Completed';
+                                    badge.textContent = 'âœ“ Completed';
                                 } 
                                 else if (stepNum === this.currentStep) {
                                     stepElement.classList.add('active');
@@ -924,7 +924,7 @@
                     // Function to load and display a specific order
                     window.loadOrder = function(orderId) {
                         let order = null;
-                        console.log('🔍 loadOrder called with ID:', orderId);
+                        console.log('ðŸ” loadOrder called with ID:', orderId);
                         
                         try {
                             // FIRST: Check for specific tracking order key (most direct match)
@@ -932,7 +932,7 @@
                             const trackingOrderData = sessionStorage.getItem(trackingKey);
                             if (trackingOrderData) {
                                 order = JSON.parse(trackingOrderData);
-                                console.log('✅ Order found in sessionStorage with tracking key:', trackingKey);
+                                console.log('âœ… Order found in sessionStorage with tracking key:', trackingKey);
                             }
                             
                             // SECOND: Check lastOrder in sessionStorage
@@ -944,7 +944,7 @@
                                     console.log('sessionStorage order ID:', parsed.id, '| orderId param:', orderId, '| Match:', parsed.id === orderId);
                                     if (parsed.id === orderId || parsed.orderId === orderId || parsed._id === orderId) {
                                         order = parsed;
-                                        console.log('✅ Order found in sessionStorage lastOrder');
+                                        console.log('âœ… Order found in sessionStorage lastOrder');
                                     }
                                 }
                             }
@@ -959,8 +959,8 @@
                                     console.log('Looking for order ID:', orderId);
                                     ordersArray.forEach(o => console.log('- Order in storage:', o.id, '|', o.orderId, '|', o._id));
                                     order = ordersArray.find(o => o.id === orderId || o.orderId === orderId || o._id === orderId);
-                                    if (order) console.log('✅ Order found in localStorage');
-                                    else console.log('❌ No matching order found in localStorage');
+                                    if (order) console.log('âœ… Order found in localStorage');
+                                    else console.log('âŒ No matching order found in localStorage');
                                 }
                             }
                         } catch (e) {
@@ -1019,7 +1019,7 @@
                             animateOrderProgress(order, orderTime);
                         } else {
                             // Order not found - show error message
-                            console.error('❌ Order not found with ID:', orderId);
+                            console.error('âŒ Order not found with ID:', orderId);
                             const orderSummary = document.getElementById('orderSummary');
                             if (orderSummary) {
                                 orderSummary.innerHTML = `
@@ -1171,7 +1171,7 @@
                     </div>
                     <div class="footer-contact-item">
                         <i class="fas fa-phone"></i>
-                        <span>+233 24 123 4567</span>
+                        <span>+233 50 507 0941</span>
                     </div>
                     <div class="footer-contact-item">
                         <i class="fas fa-envelope"></i>

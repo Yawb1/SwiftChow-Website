@@ -4739,22 +4739,3 @@ document.body.style.transition = 'opacity 0.6s ease-in-out';
 window.addEventListener('load', function() {
     document.body.style.opacity = '1';
 });
-
-// 14. Magic Cursor (desktop only)
-if (window.matchMedia && window.matchMedia("(pointer: fine)").matches) {
-    document.addEventListener('DOMContentLoaded', function() {
-        var cursor = document.createElement('div');
-        cursor.className = 'magic-cursor';
-        document.body.appendChild(cursor);
-
-        document.addEventListener('mousemove', function(e) {
-            cursor.style.left = e.clientX + 'px';
-            cursor.style.top = e.clientY + 'px';
-        });
-
-        document.querySelectorAll('a, button, input, .food-card, .btn').forEach(function(el) {
-            el.addEventListener('mouseenter', function() { cursor.classList.add('hovering'); });
-            el.addEventListener('mouseleave', function() { cursor.classList.remove('hovering'); });
-        });
-    });
-}

@@ -142,6 +142,8 @@ async function register(fullName = '', email = '', phone = '', password = '', co
       
       return { success: true, message: 'Registration successful!', user: response.user };
     }
+    
+    return { success: false, message: 'Registration failed: No user data returned' };
   } catch (error) {
     console.error('Auth: Register error:', error);
     return { success: false, message: error.message || 'Registration failed' };

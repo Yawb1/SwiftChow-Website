@@ -13,6 +13,22 @@ const path = require('path');
 // Load environment variables
 dotenv.config();
 
+// Validate required environment variables
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'SESSION_SECRET'];
+const optionalEnvVars = ['SENDGRID_API_KEY', 'EMAIL_FROM', 'CLIENT_URL', 'GOOGLE_CLIENT_ID', 'GOOGLE_CLIENT_SECRET'];
+
+requiredEnvVars.forEach(varName => {
+  if (!process.env[varName]) {
+    console.error(`❌ Missing required environment variable: ${varName}`);
+  }
+});
+
+optionalEnvVars.forEach(varName => {
+  if (!process.env[varName]) {
+    console.warn(`⚠️  Optional environment variable not set: ${varName}`);
+  }
+});
+
 // ============================================
 // EMAIL CONFIGURATION (SendGrid)
 // ============================================
@@ -76,7 +92,7 @@ app.use(express.static(path.join(__dirname, 'public'), {
 let isConnected = false;
 
 const connectDB = async () => {
-  if (isConnected) return;
+  if (isConnected && mongoose.connection.readyState === 1) return;
 
   try {
     const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/swift-chow';
@@ -84,12 +100,22 @@ const connectDB = async () => {
     isConnected = true;
     console.log('✅ MongoDB connected successfully');
   } catch (error) {
+    isConnected = false;
     console.error('❌ MongoDB connection failed:', error.message);
     throw error;
   }
 };
 
-connectDB();
+// Ensure DB is connected before any API route (critical for Vercel serverless cold starts)
+app.use('/api', async (req, res, next) => {
+  try {
+    await connectDB();
+    next();
+  } catch (error) {
+    console.error('DB middleware error:', error.message);
+    res.status(503).json({ error: { message: 'Service temporarily unavailable', status: 503 } });
+  }
+});
 
 // ============================================
 // ROUTES

@@ -83,8 +83,8 @@ async function apiCall(endpoint, options = {}) {
     const data = await response.json();
     
     if (!response.ok) {
-      // Handle 401 - token expired or invalid
-      if (response.status === 401) {
+      // Handle 401 - token expired or invalid (skip for auth endpoints to show proper errors)
+      if (response.status === 401 && !endpoint.startsWith('/auth/')) {
         clearAuth();
         window.location.href = '/login.html';
         throw new Error('Session expired. Please login again.');
