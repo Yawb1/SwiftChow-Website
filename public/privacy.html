@@ -219,8 +219,8 @@
                 <h2>13. Contact Us</h2>
                 <p>If you have any questions about this Privacy Policy, your personal information, or our privacy practices, please contact us:</p>
                 <ul>
-                    <li><strong>Email:</strong> orders@swiftchow.com</li>
-                    <li><strong>Phone:</strong> +233 50 507 0941</li>
+                    <li><strong>Email:</strong> orders@swiftchow.me</li>
+                    <li><strong>Phone:</strong> +233 24 123 4567</li>
                     <li><strong>Address:</strong> 25 Independence Ave, Osu, Accra, Ghana</li>
                 </ul>
                 
@@ -285,11 +285,11 @@
                     </div>
                     <div class="footer-contact-item">
                         <i class="fas fa-phone"></i>
-                        <span>+233 50 507 0941</span>
+                        <span>+233 24 123 4567</span>
                     </div>
                     <div class="footer-contact-item">
                         <i class="fas fa-envelope"></i>
-                        <span>orders@swiftchow.com</span>
+                        <span>orders@swiftchow.me</span>
                     </div>
                     <div class="footer-contact-item">
                         <i class="fas fa-clock"></i>
@@ -309,142 +309,8 @@
     <script src="js/api.js" defer></script>
     <script src="js/cart.js" defer></script>
     <script src="js/auth.js" defer></script>
+    <script src="js/modals.js" defer></script>
     <script src="js/main.js" defer></script>
-
-    <!-- LOGIN MODAL -->
-    <div id="loginModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Sign in">
-        <div class="modal-content">
-            <button class="modal-close" aria-label="Close modal"><i class="fas fa-times"></i></button>
-            
-            <div class="modal-header">
-                <a href="#" class="logo">
-                    <div class="logo-icon"><img loading="lazy" src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
-                    <div class="logo-text">SWIFT <span>CHOW</span></div>
-                </a>
-                <h2>Welcome Back!</h2>
-                <p>Log in to your account to continue</p>
-            </div>
-
-            <div class="modal-body">
-                <form id="loginModalForm" class="form">
-                    <div class="form-group">
-                        <label for="login-email">Email Address</label>
-                        <input type="email" id="login-email" name="email" placeholder="your@email.com" required maxlength="254">
-                        <div class="form-feedback error" style="display: none;"></div>
-                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Email verified</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="login-password">Password</label>
-                        <input type="password" id="login-password" name="password" placeholder="Enter your password" required minlength="6">
-                        <div class="form-feedback error" style="display: none;"></div>
-                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Password valid</div>
-                    </div>
-
-                    <div style="display: flex; justify-content: space-between; align-items: center; margin: 1rem 0;">
-                        <label style="display: flex; align-items: center; gap: 0.5rem; cursor: pointer;">
-                            <input type="checkbox" name="remember">
-                            <span>Remember me</span>
-                        </label>
-                        <a href="forgot-password.html" style="color: var(--primary); text-decoration: none; font-size: 0.9rem;">Forgot password?</a>
-                    </div>
-
-                    <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Sign In</button>
-                </form>
-
-                <div style="margin: 2rem 0; position: relative;">
-                    <div style="border-top: 1px solid var(--border-color);"></div>
-                    <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--bg-primary); padding: 0 1rem; color: var(--text-secondary); font-size: 0.85rem;">or continue with</span>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <button type="button" class="btn btn-outline" onclick="googleSignIn()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i class="fab fa-google"></i> Google</button>
-                    <button type="button" class="btn btn-outline" onclick="facebookSignIn()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i class="fab fa-facebook"></i> Facebook</button>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                Don't have an account? <a href="#" data-action="switch-to-signup">Sign up</a>
-            </div>
-        </div>
-    </div>
-
-    <!-- SIGNUP MODAL -->
-    <div id="signupModal" class="modal-overlay" role="dialog" aria-modal="true" aria-label="Create account">
-        <div class="modal-content">
-            <button class="modal-close" aria-label="Close modal"><i class="fas fa-times"></i></button>
-            
-            <div class="modal-header">
-                <a href="#" class="logo">
-                    <div class="logo-icon"><img loading="lazy" src="logo.png" alt="Swift Chow" style="height: 40px; width: auto;"></div>
-                    <div class="logo-text">SWIFT <span>CHOW</span></div>
-                </a>
-                <h2>Join Us!</h2>
-                <p>Create your account to start ordering</p>
-            </div>
-
-            <div class="modal-body">
-                <form id="signupModalForm" class="form">
-                    <div class="form-group">
-                        <label for="signup-fullname">Full Name</label>
-                        <input type="text" id="signup-fullname" name="fullName" placeholder="Your full name" required minlength="2" maxlength="100">
-                        <div class="form-feedback error" style="display: none;"></div>
-                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Name valid</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="signup-email">Email Address</label>
-                        <input type="email" id="signup-email" name="email" placeholder="your@email.com" required maxlength="254">
-                        <div class="form-feedback error" style="display: none;"></div>
-                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Email verified</div>
-                    </div>
-
-                    <div class="form-group">
-                        <label for="signup-phone">Phone Number</label>
-                        <input type="tel" id="signup-phone" name="phone" placeholder="+233 50 507 0941" required maxlength="20">
-                        <div class="form-feedback error" style="display: none;"></div>
-                        <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Phone valid</div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <label for="signup-password">Password</label>
-                            <input type="password" id="signup-password" name="password" placeholder="At least 6 characters" required minlength="6">
-                            <div class="form-feedback error" style="display: none;"></div>
-                            <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Password valid</div>
-                        </div>
-                        <div class="form-group">
-                            <label for="signup-confirm">Confirm Password</label>
-                            <input type="password" id="signup-confirm" name="confirmPassword" placeholder="Confirm password" required minlength="6">
-                            <div class="form-feedback error" style="display: none;"></div>
-                            <div class="form-feedback success" style="display: none;"><i class="fas fa-check"></i> Passwords match</div>
-                        </div>
-                    </div>
-
-                    <label style="display: flex; align-items: flex-start; gap: 0.5rem; margin: 1rem 0; cursor: pointer;">
-                        <input type="checkbox" name="terms" required style="margin-top: 0.3rem;">
-                        <span style="font-size: 0.9rem;">I agree to the <a href="terms.html" style="color: var(--primary);">Terms & Conditions</a></span>
-                    </label>
-
-                    <button type="submit" class="btn btn-primary btn-block" style="margin-top: 1.5rem;">Create Account</button>
-                </form>
-
-                <div style="margin: 2rem 0; position: relative;">
-                    <div style="border-top: 1px solid var(--border-color);"></div>
-                    <span style="position: absolute; top: -12px; left: 50%; transform: translateX(-50%); background: var(--bg-primary); padding: 0 1rem; color: var(--text-secondary); font-size: 0.85rem;">or sign up with</span>
-                </div>
-
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
-                    <button type="button" class="btn btn-outline" onclick="googleSignIn()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i class="fab fa-google"></i> Google</button>
-                    <button type="button" class="btn btn-outline" onclick="facebookSignIn()" style="display: flex; align-items: center; justify-content: center; gap: 0.5rem;"><i class="fab fa-facebook"></i> Facebook</button>
-                </div>
-            </div>
-
-            <div class="modal-footer">
-                Already have an account? <a href="#" data-action="switch-to-login">Sign in</a>
-            </div>
-        </div>
-    </div>
 </body>
 </html>
 

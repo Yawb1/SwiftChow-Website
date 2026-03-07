@@ -3462,25 +3462,9 @@ async function googleLogin() {
   }
 }
 
-async function facebookLogin() {
-  showAdvancedToast('Facebook login demo - using demo credentials', 'info');
-  const email = 'demo.facebook@swift.com';
-  const password = 'demo1234';
-  if (await login(email, password)) {
-    const loginModal = document.getElementById('loginModal');
-    closeModal(loginModal);
-    setTimeout(() => updateAuthUI(), 100);
-  }
-}
-
 function googleSignup() {
   // Use real Google OAuth flow for signup (same as login)
   googleSignIn();
-}
-
-function facebookSignup() {
-  // Use real Facebook OAuth flow for signup (same as login)
-  facebookSignIn();
 }
 
 function generateUserColor(email) {

@@ -14039,3 +14039,52 @@ html {
         font-size: 0.8rem;
     }
 }
+
+/* ===== AUTH MODAL & AUTH PAGE MOBILE FIXES ===== */
+@media (max-width: 480px) {
+    .modal-content {
+        padding: 1.25rem !important;
+        border-radius: 0.75rem !important;
+        max-height: 92vh;
+    }
+    
+    .modal-content .form-row,
+    .modal-content [style*="grid-template-columns: 1fr 1fr"] {
+        grid-template-columns: 1fr !important;
+    }
+    
+    .auth-card {
+        padding: 1.5rem;
+        margin: 1rem;
+    }
+    
+    .auth-form .form-row,
+    .auth-card [style*="grid-template-columns: 1fr 1fr"] {
+        display: flex !important;
+        flex-direction: column;
+    }
+    
+    .auth-container {
+        padding: 1rem;
+    }
+    
+    .social-auth {
+        grid-template-columns: 1fr !important;
+    }
+}
+
+@media (max-width: 360px) {
+    .modal-content {
+        padding: 1rem !important;
+        margin: 0.5rem;
+    }
+    
+    .modal-header h2 {
+        font-size: 1.1rem;
+    }
+    
+    .auth-card {
+        padding: 1rem;
+        margin: 0.5rem;
+    }
+}

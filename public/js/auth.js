@@ -30,8 +30,8 @@ async function login(email, password, remember = false) {
     return { success: false, message: 'Please enter a valid email address' };
   }
   
-  if (!password || password.length < 6) {
-    return { success: false, message: 'Password must be at least 6 characters' };
+  if (!password || password.length < 8) {
+    return { success: false, message: 'Password must be at least 8 characters' };
   }
   
   try {
@@ -76,9 +76,18 @@ async function register(fullName = '', email = '', phone = '', password = '', co
     return { success: false, message: 'Please enter a valid email address' };
   }
   
-  if (!password || password.length < 6) {
+  if (!password || password.length < 8) {
     console.error('register: Invalid password length:', password?.length);
-    return { success: false, message: 'Password must be at least 6 characters' };
+    return { success: false, message: 'Password must be at least 8 characters' };
+  }
+  if (!/[a-zA-Z]/.test(password)) {
+    return { success: false, message: 'Password must contain at least one letter' };
+  }
+  if (!/[0-9]/.test(password)) {
+    return { success: false, message: 'Password must contain at least one number' };
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) {
+    return { success: false, message: 'Password must contain at least one symbol (!@#$%^&* etc.)' };
   }
   
   if (password !== confirmPassword) {
@@ -207,11 +216,7 @@ function googleSignIn() {
   window.location.href = redirectUrl;
 }
 
-// Facebook Sign In
-function facebookSignIn() {
-  // Redirect to Facebook OAuth endpoint
-  window.location.href = `${API_BASE_URL}/auth/facebook`;
-}
+// Facebook Sign In removed - only Google OAuth + Email login supported
 
 // Signup with API
 async function signup(userData) {
@@ -230,8 +235,17 @@ async function signup(userData) {
     return { success: false, message: 'Please enter a valid phone number' };
   }
   
-  if (!password || password.length < 6) {
-    return { success: false, message: 'Password must be at least 6 characters' };
+  if (!password || password.length < 8) {
+    return { success: false, message: 'Password must be at least 8 characters' };
+  }
+  if (!/[a-zA-Z]/.test(password)) {
+    return { success: false, message: 'Password must contain at least one letter' };
+  }
+  if (!/[0-9]/.test(password)) {
+    return { success: false, message: 'Password must contain at least one number' };
+  }
+  if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(password)) {
+    return { success: false, message: 'Password must contain at least one symbol (!@#$%^&* etc.)' };
   }
   
   if (password !== confirmPassword) {
@@ -263,23 +277,27 @@ function checkPageProtection() {
 }
 
 // Request password reset
-function requestPasswordReset(email) {
+async function requestPasswordReset(email) {
   if (!email || !validateEmail(email)) {
     return { success: false, message: 'Please enter a valid email address' };
   }
-  
-  // Check if user exists
-  const users = JSON.parse(localStorage.getItem('swiftChowUsers')) || [];
-  const user = users.find(u => u.email === email);
-  
-  if (!user) {
-    // For security, don't reveal if email exists
-    return { success: true, message: 'If an account with this email exists, you will receive a password reset link.' };
+
+  try {
+    const response = await fetch('/api/auth/forgot-password', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email })
+    });
+    const data = await response.json();
+
+    if (data.success) {
+      return { success: true, message: data.message || 'If an account with this email exists, a reset link has been sent.' };
+    }
+    return { success: false, message: data.error?.message || 'Failed to send reset email' };
+  } catch (error) {
+    console.error('Password reset request error:', error);
+    return { success: true, message: 'If an account with this email exists, a reset link has been sent.' };
   }
-  
-  // In a real app, send email
-  // For demo, we'll just show success message
-  return { success: true, message: 'Password reset link sent to your email!' };
 }
 
 // ============================================
@@ -489,11 +507,11 @@ function initForgotPasswordForm() {
   const form = document.querySelector('.forgot-form');
   if (!form) return;
   
-  form.addEventListener('submit', (e) => {
+  form.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const email = form.querySelector('input[name="email"]').value;
-    const result = requestPasswordReset(email);
+    const result = await requestPasswordReset(email);
     
     showToast(result.message, result.success ? 'success' : 'error');
     

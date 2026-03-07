@@ -54,6 +54,10 @@ const userSchema = new mongoose.Schema({
   }],
   favoriteItems: [Number], // IDs from food items
   
+  // Password reset
+  resetPasswordToken: String,
+  resetPasswordExpires: Date,
+
   // Account status
   isEmailVerified: {
     type: Boolean,

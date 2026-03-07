@@ -17,6 +17,7 @@ dotenv.config();
 // EMAIL CONFIGURATION (SendGrid)
 // ============================================
 const sendEmail = require('./utils/sendEmail');
+const NewsletterSubscriber = require('./models/NewsletterSubscriber');
 
 // Initialize Express app
 const app = express();
@@ -271,7 +272,7 @@ app.post('/api/emails/contact-response', async (req, res) => {
           </p>
         </div>
         <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
-          <p>© 2026 SWIFT CHOW. All rights reserved. | contact@swiftchow.com | +233 50 507 0941</p>
+          <p>© 2026 SWIFT CHOW. All rights reserved. | orders@swiftchow.me</p>
         </div>
       </div>
     `;
@@ -280,6 +281,57 @@ app.post('/api/emails/contact-response', async (req, res) => {
     res.json(result);
   } catch (error) {
     res.status(500).json({ error: error.message });
+  }
+});
+
+// Subscribe to newsletter (saves to MongoDB + sends confirmation email)
+app.post('/api/newsletter/subscribe', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: 'Email is required' });
+    }
+
+    // Check if already subscribed
+    const existing = await NewsletterSubscriber.findOne({ email });
+    if (existing) {
+      return res.json({ success: true, message: 'You are already subscribed!' });
+    }
+
+    // Save to MongoDB
+    await new NewsletterSubscriber({ email }).save();
+
+    // Send confirmation email
+    const html = `
+      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+        <div style="background: #DC2626; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
+          <h1 style="margin: 0; font-size: 28px;">Welcome to SwiftChow Newsletter</h1>
+        </div>
+        <div style="padding: 30px; background: #f5f5f5;">
+          <p>Thank you for subscribing to the SwiftChow newsletter.</p>
+          <p>You will now receive:</p>
+          <ul style="color: #333; line-height: 1.8;">
+            <li>Exclusive deals</li>
+            <li>New menu updates</li>
+            <li>Special promotions</li>
+          </ul>
+          <p style="margin-top: 30px; font-size: 12px; color: #666;">
+            If this wasn't you, simply ignore this email.
+          </p>
+        </div>
+        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
+          <p>&copy; 2026 SWIFT CHOW. All rights reserved. | orders@swiftchow.me</p>
+        </div>
+      </div>
+    `;
+
+    await sendEmail({ to: email, subject: 'Welcome to SwiftChow Newsletter', html });
+
+    res.json({ success: true, message: 'Thanks for subscribing! Check your inbox for a welcome email.' });
+  } catch (error) {
+    console.error('Newsletter subscription error:', error);
+    res.status(500).json({ error: 'Failed to subscribe. Please try again.' });
   }
 });
 
