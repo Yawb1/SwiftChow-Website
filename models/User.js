@@ -23,6 +23,15 @@ const userSchema = new mongoose.Schema({
     type: String,
     trim: true
   },
+  dob: {
+    type: String,
+    trim: true
+  },
+  gender: {
+    type: String,
+    trim: true,
+    enum: ['', 'male', 'female', 'other']
+  },
   
   // Local authentication
   password: {

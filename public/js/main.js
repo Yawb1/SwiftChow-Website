@@ -981,22 +981,25 @@ function initReviewForm() {
       reviews.unshift(newReview); // Add to beginning
       localStorage.setItem('swiftChowReviews', JSON.stringify(reviews));
       
-      // Send confirmation email
+      // Submit review to backend and send confirmation email
       try {
-        await fetch('/api/send-review-confirmation', {
+        const response = await fetch('/api/reviews/submit', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
             name,
             email,
             rating,
-            comment,
-            date: newReview.date
+            comment
           })
         });
+        const data = await response.json();
+        if (!data.success) {
+          console.warn('Review API error:', data.message);
+        }
       } catch (emailError) {
-        console.warn('Could not send confirmation email:', emailError);
-        // Don't block the submission if email fails
+        console.warn('Could not submit review to server:', emailError);
+        // Don't block the submission if API fails - review is saved locally
       }
       
       console.log('Review submitted:', newReview);
@@ -4191,9 +4194,9 @@ function showEmptyState(containerId, icon = '📦', title = 'Nothing here yet', 
 
     const hour = new Date().getHours();
     let greeting, emoji;
-    if (hour < 12) { greeting = 'Good morning'; emoji = '☀️'; }
-    else if (hour < 17) { greeting = 'Good afternoon'; emoji = '🌤️'; }
-    else { greeting = 'Good evening'; emoji = '🌙'; }
+    if (hour >= 5 && hour < 12) { greeting = 'Good Morning'; emoji = '☀️'; }
+    else if (hour >= 12 && hour < 18) { greeting = 'Good Afternoon'; emoji = '🌤️'; }
+    else { greeting = 'Good Evening'; emoji = '🌙'; }
 
     const banner = document.createElement('div');
     banner.className = 'welcome-banner reveal';
@@ -4218,16 +4221,10 @@ function showEmptyState(containerId, icon = '📦', title = 'Nothing here yet', 
     if (!sidebar) return;
 
     const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
-    let completedFields = 0;
-    const totalFields = 6;
-    if (user.fullName || user.name) completedFields++;
-    if (user.email) completedFields++;
-    if (user.phone) completedFields++;
-    if (user.dob) completedFields++;
-    if (user.gender) completedFields++;
-    if (user.avatar || user.profilePic) completedFields++;
-
-    const percent = Math.round((completedFields / totalFields) * 100);
+    let percent = 0;
+    if (user.phone) percent += 33;
+    if (user.dob) percent += 33;
+    if (user.gender) percent += 34;
 
     const barHTML = document.createElement('div');
     barHTML.style.margin = '1rem 0 0.5rem';

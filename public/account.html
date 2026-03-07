@@ -383,7 +383,7 @@
                                 <i class="fas fa-clock"></i>
                             </div>
                             <h4>What are your delivery hours?</h4>
-                            <p>We deliver from 10 AM to 11 PM daily. Orders must be placed 30 minutes before close.</p>
+                            <p>We deliver from 8 AM to 10 PM daily. Orders must be placed 30 minutes before close.</p>
                         </div>
                         
                         <div class="faq-card">
@@ -399,7 +399,7 @@
                                 <i class="fas fa-phone"></i>
                             </div>
                             <h4>Contact Support</h4>
-                            <p>Need help? Call us at <strong>+233 24 123 4567</strong> or email orders@swiftchow.me</p>
+                            <p>Need help? Call us at <strong>+233 50 507 0941</strong> or email orders@swiftchow.me</p>
                         </div>
                     </div>
                 </div>
@@ -514,17 +514,20 @@
         
         // Populate profile form with user data
         const profileForm = document.querySelector('.profile-form');
-        if (profileForm && user.fullName) {
-            const nameParts = user.fullName.split(' ');
-            const firstNameInput = profileForm.querySelector('input[placeholder="John"]');
-            const lastNameInput = profileForm.querySelector('input[placeholder="Doe"]');
-            const emailInput = profileForm.querySelector('input[type="email"]');
-            const phoneInput = profileForm.querySelector('input[type="tel"]');
+        if (profileForm) {
+            const firstNameInput = profileForm.querySelector('input[name="firstName"]');
+            const lastNameInput = profileForm.querySelector('input[name="lastName"]');
+            const emailInput = profileForm.querySelector('input[name="email"]');
+            const phoneInput = profileForm.querySelector('input[name="phone"]');
+            const dobInput = profileForm.querySelector('input[name="dob"]');
+            const genderSelect = profileForm.querySelector('select[name="gender"]');
             
-            if (firstNameInput) firstNameInput.value = nameParts[0] || '';
-            if (lastNameInput) lastNameInput.value = nameParts.slice(1).join(' ') || '';
+            if (firstNameInput) firstNameInput.value = user.firstName || (user.fullName ? user.fullName.split(' ')[0] : '') || '';
+            if (lastNameInput) lastNameInput.value = user.lastName || (user.fullName ? user.fullName.split(' ').slice(1).join(' ') : '') || '';
             if (emailInput) emailInput.value = user.email || '';
             if (phoneInput) phoneInput.value = user.phone || '';
+            if (dobInput) dobInput.value = user.dob || '';
+            if (genderSelect) genderSelect.value = user.gender || '';
         }
         
         // Load and display saved payment methods
@@ -591,35 +594,7 @@
             });
         });
         
-        // Profile form save
-        if (profileForm) {
-            profileForm.addEventListener('submit', (e) => {
-                e.preventDefault();
-                
-                const firstNameInput = profileForm.querySelector('input[placeholder="John"]');
-                const lastNameInput = profileForm.querySelector('input[placeholder="Doe"]');
-                const phoneInput = profileForm.querySelector('input[type="tel"]');
-                
-                const updatedUser = {
-                    ...user,
-                    fullName: `${firstNameInput.value} ${lastNameInput.value}`.trim(),
-                    phone: phoneInput.value
-                };
-                
-                localStorage.setItem('currentUser', JSON.stringify(updatedUser));
-                
-                // Show success message
-                showAdvancedToast('Profile updated successfully!', 'success');
-                
-                // Update sidebar
-                if (userNameEl) userNameEl.textContent = updatedUser.fullName;
-                if (userAvatarEl) {
-                    const names = updatedUser.fullName.split(' ');
-                    const initials = (names[0].charAt(0) + (names[1]?.charAt(0) || '')).toUpperCase();
-                    userAvatarEl.textContent = initials;
-                }
-            });
-        }
+        // Profile form save is handled by the second script block at bottom of page
         
         // Change password handler
         const changePasswordBtns = document.querySelectorAll('[data-action="change-password"]');
@@ -761,13 +736,28 @@
             // Get current user
             const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
             
-            // For now, we'll just update locally since backend might not have password verification
-            // In a real app, you'd call an API to verify the current password and change it
-            user.password = newPassword;
-            localStorage.setItem('currentUser', JSON.stringify(user));
-            
-            showAdvancedToast('Password changed successfully!', 'success');
-            document.getElementById('changePasswordModal').remove();
+            // Disable submit button
+            const submitBtn = form.querySelector('button[type="submit"]');
+            if (submitBtn) { submitBtn.disabled = true; submitBtn.textContent = 'Updating...'; }
+
+            try {
+                const response = await apiCall('/users/change-password', {
+                    method: 'PUT',
+                    body: JSON.stringify({ currentPassword, newPassword })
+                });
+
+                if (response.success) {
+                    showAdvancedToast('Password changed successfully!', 'success');
+                    document.getElementById('changePasswordModal').remove();
+                } else {
+                    showAdvancedToast(response.error || response.message || 'Failed to change password', 'error');
+                }
+            } catch (err) {
+                console.error('Change password error:', err);
+                showAdvancedToast(err.message || 'Failed to change password. Please try again.', 'error');
+            } finally {
+                if (submitBtn) { submitBtn.disabled = false; submitBtn.textContent = 'Update Password'; }
+            }
         });
         
         modal.addEventListener('click', (e) => {
@@ -1043,26 +1033,38 @@
             
             console.log('Profile: Loading user data:', user.email);
             
-            // Get form inputs
-            const firstNameInput = document.querySelector('input[placeholder="John"]');
-            const lastNameInput = document.querySelector('input[placeholder="Doe"]');
-            const emailInput = document.querySelector('input[type="email"]');
-            const phoneInput = document.querySelector('input[type="tel"]');
+            // Get form inputs by name attribute
+            const form = document.getElementById('profileForm');
+            if (!form) return;
             
-            if (firstNameInput) {
-                firstNameInput.value = user.firstName || '';
-            }
-            if (lastNameInput) {
-                lastNameInput.value = user.lastName || '';
-            }
-            if (emailInput) {
-                emailInput.value = user.email || '';
-            }
-            if (phoneInput) {
-                phoneInput.value = user.phone || '';
-            }
+            const firstNameInput = form.querySelector('input[name="firstName"]');
+            const lastNameInput = form.querySelector('input[name="lastName"]');
+            const emailInput = form.querySelector('input[name="email"]');
+            const phoneInput = form.querySelector('input[name="phone"]');
+            const dobInput = form.querySelector('input[name="dob"]');
+            const genderSelect = form.querySelector('select[name="gender"]');
+            
+            if (firstNameInput) firstNameInput.value = user.firstName || '';
+            if (lastNameInput) lastNameInput.value = user.lastName || '';
+            if (emailInput) emailInput.value = user.email || '';
+            if (phoneInput) phoneInput.value = user.phone || '';
+            if (dobInput) dobInput.value = user.dob || '';
+            if (genderSelect) genderSelect.value = user.gender || '';
             
             console.log('Profile: User data loaded into form');
+        }
+
+        // Refresh the profile completion bar after saving
+        function refreshProfileCompletion() {
+            // Remove existing bar
+            const existingBar = document.querySelector('.completion-bar-track');
+            if (existingBar && existingBar.parentElement) {
+                existingBar.parentElement.parentElement.remove();
+            }
+            // Re-init from main.js
+            if (typeof initProfileCompletion === 'function') {
+                initProfileCompletion();
+            }
         }
         
         // Save profile changes
@@ -1071,38 +1073,52 @@
             setTimeout(loadProfileData, 100);
             
             // Handle profile form submission
-            const profileForm = document.querySelector('.profile-form');
+            const profileForm = document.getElementById('profileForm');
             if (profileForm) {
                 profileForm.addEventListener('submit', async (e) => {
                     e.preventDefault();
                     
-                    const firstName = document.querySelector('input[placeholder="John"]').value;
-                    const lastName = document.querySelector('input[placeholder="Doe"]').value;
-                    const phone = document.querySelector('input[type="tel"]').value;
+                    const firstName = profileForm.querySelector('input[name="firstName"]').value;
+                    const lastName = profileForm.querySelector('input[name="lastName"]').value;
+                    const phone = profileForm.querySelector('input[name="phone"]').value;
+                    const dob = profileForm.querySelector('input[name="dob"]').value;
+                    const gender = profileForm.querySelector('select[name="gender"]').value;
                     
-                    console.log('Profile: Saving changes...', { firstName, lastName, phone });
+                    console.log('Profile: Saving changes...', { firstName, lastName, phone, dob, gender });
                     
                     try {
                         const response = await apiCall('/users/profile', {
                             method: 'PUT',
-                            body: JSON.stringify({
-                                firstName,
-                                lastName,
-                                phone
-                            })
+                            body: JSON.stringify({ firstName, lastName, phone, dob, gender })
                         });
                         
                         if (response.success) {
-                            // Update currentUser
-                            currentUser = {
-                                ...currentUser,
-                                firstName,
-                                lastName,
-                                phone
-                            };
-                            localStorage.setItem('swiftChowUser', JSON.stringify(currentUser));
+                            // Update local user state
+                            const updatedUser = { ...getCurrentUser(), firstName, lastName, phone, dob, gender };
+                            updatedUser.fullName = (firstName + ' ' + lastName).trim();
+                            localStorage.setItem('swiftChowUser', JSON.stringify(updatedUser));
+                            if (typeof currentUser !== 'undefined') {
+                                currentUser = updatedUser;
+                            }
                             
-                            alert('Profile updated successfully!');
+                            if (typeof showAdvancedToast === 'function') {
+                                showAdvancedToast('Profile updated successfully!', 'success');
+                            } else {
+                                alert('Profile updated successfully!');
+                            }
+
+                            // Update sidebar name and avatar
+                            const userNameEl = document.querySelector('.user-name');
+                            const userAvatarEl = document.querySelector('.user-avatar-large span');
+                            if (userNameEl) userNameEl.textContent = updatedUser.fullName;
+                            if (userAvatarEl) {
+                                const names = updatedUser.fullName.split(' ');
+                                userAvatarEl.textContent = (names[0].charAt(0) + (names[1]?.charAt(0) || '')).toUpperCase();
+                            }
+
+                            // Refresh profile completion bar
+                            refreshProfileCompletion();
+
                             console.log('Profile: Saved successfully');
                         } else {
                             alert('Error saving profile: ' + (response.message || 'Unknown error'));
@@ -1117,6 +1133,3 @@
     </script>
 </body>
 </html>
-
-
-

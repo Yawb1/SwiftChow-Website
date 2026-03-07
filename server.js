@@ -427,6 +427,69 @@ app.get('/api/test-email', async (req, res) => {
 });
 
 // ============================================
+// REVIEW SUBMISSION + EMAIL CONFIRMATION
+// ============================================
+const Review = require('./models/Review');
+
+app.post('/api/reviews/submit', async (req, res) => {
+  try {
+    const { name, email, rating, comment } = req.body;
+
+    if (!name || !email || !rating || !comment) {
+      return res.status(400).json({ error: 'All fields are required' });
+    }
+
+    if (rating < 1 || rating > 5) {
+      return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+    }
+
+    const review = new Review({ name, email, rating: Number(rating), comment });
+    await review.save();
+
+    // Send confirmation email
+    try {
+      const html = `
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
+          <div style="background: #DC2626; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
+            <h1 style="margin: 0; font-size: 28px;">Thank You for Your Review!</h1>
+          </div>
+          <div style="padding: 30px; background: #f5f5f5;">
+            <p>Hi ${name},</p>
+            <p>Thank you for sharing your experience with SwiftChow.</p>
+            <p>We appreciate your feedback and it helps us improve our service.</p>
+            <p style="margin-top: 20px;"><strong>Your rating:</strong> ${'&#9733;'.repeat(Number(rating))}${'&#9734;'.repeat(5 - Number(rating))}</p>
+            <p style="margin-top: 30px; font-size: 12px; color: #666;">
+              If you have any further questions, feel free to reach out to us at orders@swiftchow.me
+            </p>
+          </div>
+          <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
+            <p>&copy; 2026 SWIFT CHOW. All rights reserved.</p>
+          </div>
+        </div>
+      `;
+      await sendEmail({ to: email, subject: 'Thank you for your review - SWIFT CHOW', html });
+    } catch (emailErr) {
+      console.warn('Could not send review confirmation email:', emailErr.message);
+    }
+
+    res.json({ success: true, message: 'Review submitted successfully', review });
+  } catch (error) {
+    console.error('Review submission error:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// Get all reviews
+app.get('/api/reviews', async (req, res) => {
+  try {
+    const reviews = await Review.find().sort({ createdAt: -1 }).limit(50);
+    res.json({ success: true, reviews });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+});
+
+// ============================================
 // FRONTEND FALLBACK
 // ============================================
 
