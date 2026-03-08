@@ -47,11 +47,13 @@ router.post('/create', requireAuth, async (req, res) => {
       total,
       specialInstructions,
       estimatedDeliveryTime: 30, // 30 minutes estimate
+      confirmedAt: new Date(),
       statusHistory: [{
-        status: 'pending',
+        status: 'confirmed',
         timestamp: new Date(),
         note: 'Order placed'
-      }]
+      }],
+      status: 'confirmed'
     });
     
     console.log('Order to save:', order);
@@ -183,8 +185,15 @@ router.put('/:orderId/status', requireAuth, async (req, res) => {
       note: note || ''
     });
     
+    // Set stage timestamps
+    const now = new Date();
+    if (status === 'confirmed' && !order.confirmedAt) order.confirmedAt = now;
+    if (status === 'preparing' && !order.preparingAt) order.preparingAt = now;
+    if (status === 'ready' && !order.readyAt) order.readyAt = now;
+    if (status === 'out_for_delivery' && !order.outForDeliveryAt) order.outForDeliveryAt = now;
     if (status === 'delivered') {
-      order.actualDeliveryTime = new Date();
+      if (!order.deliveredAt) order.deliveredAt = now;
+      order.actualDeliveryTime = now;
     }
     
     await order.save();

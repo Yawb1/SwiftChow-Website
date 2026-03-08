@@ -69,6 +69,13 @@ const orderSchema = new mongoose.Schema({
   estimatedDeliveryTime: Number,
   actualDeliveryTime: Date,
   
+  // Delivery stage timestamps
+  confirmedAt: Date,
+  preparingAt: Date,
+  readyAt: Date,
+  outForDeliveryAt: Date,
+  deliveredAt: Date,
+  
   // Special instructions
   specialInstructions: String,
   

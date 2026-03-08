@@ -1,70 +1,105 @@
 /* ============================================
-   SWIFT CHOW - AI Chatbot Widget
-   Smart food ordering assistant with menu knowledge
+   SWIFT CHOW - AI Chatbot Widget (v2)
+   Professional food ordering assistant
    ============================================ */
 
 (function() {
   'use strict';
 
   // ============================================
-  // CHATBOT KNOWLEDGE BASE
+  // CHATBOT CONFIGURATION
   // ============================================
 
   const CHATBOT_CONFIG = {
     botName: 'ChowBot',
-    greeting: "Hi there! 👋 I'm ChowBot, your SWIFT CHOW assistant. I can help you with:\n\n🍔 Menu & food recommendations\n📦 Order tracking\n🕐 Opening hours & delivery info\n💬 General questions\n\nWhat can I help you with?",
-    typingDelay: 600
+    tagline: 'SWIFT CHOW AI Assistant',
+    typingDelay: 500,
+    maxHistory: 20
   };
 
-  // FAQ knowledge base
+  // Conversation memory
+  const conversationCtx = {
+    history: [],
+    userName: null,
+    lastTopic: null,
+    messageCount: 0
+  };
+
+  function getTimeGreeting() {
+    const h = new Date().getHours();
+    if (h < 12) return 'Good morning';
+    if (h < 17) return 'Good afternoon';
+    return 'Good evening';
+  }
+
+  function getGreeting() {
+    const name = conversationCtx.userName;
+    const greet = getTimeGreeting();
+    const nameStr = name ? `, ${name}` : '';
+    return `${greet}${nameStr}! 👋 I'm **ChowBot**, your SWIFT CHOW assistant.\n\nI can help you with:\n🍔 Menu browsing & recommendations\n📦 Order tracking & status\n🕐 Delivery info & hours\n💳 Payment options\n🎉 Deals & promotions\n\nHow can I help you today?`;
+  }
+
+  // FAQ knowledge base (with topics for context)
   const FAQ_DATABASE = [
     {
       keywords: ['hour', 'open', 'close', 'time', 'when', 'schedule'],
-      answer: "🕐 We're open daily from **8:00 AM to 11:00 PM** (GMT). Orders placed after 10:30 PM may be delivered the next day."
+      topic: 'hours',
+      answer: "🕐 **Operating Hours**\nWe're open daily from **8:00 AM – 11:00 PM** (GMT).\n\nOrders placed after 10:30 PM may be scheduled for next-day delivery."
     },
     {
       keywords: ['deliver', 'delivery', 'how long', 'wait', 'eta', 'time to deliver'],
-      answer: "🚗 Delivery typically takes **25-45 minutes** depending on your location in Accra. You can track your order in real-time on the tracking page!"
+      topic: 'delivery',
+      answer: "🚗 **Delivery Times**\nStandard delivery takes **25–45 minutes** depending on your location in Accra.\n\nTrack your order in real-time on the [Tracking page](tracking.html)!"
     },
     {
       keywords: ['delivery fee', 'delivery cost', 'shipping', 'delivery charge'],
-      answer: "💰 Our standard delivery fee is **GHS 15.00** within Accra. Free delivery on orders above GHS 200!"
+      topic: 'delivery',
+      answer: "💰 **Delivery Fees**\n• Standard: **GHS 15.00** within Accra\n• **FREE** on orders above GHS 200\n\nGreat savings on bigger orders!"
     },
     {
       keywords: ['pay', 'payment', 'momo', 'mobile money', 'card', 'cash', 'method'],
-      answer: "💳 We accept:\n• **Mobile Money** (MTN, Vodafone, AirtelTigo)\n• **Credit/Debit Cards** (Visa, Mastercard)\n• **Cash on Delivery**\n\nAll online payments are secure and encrypted."
+      topic: 'payment',
+      answer: "💳 **Payment Methods**\n\n• 📱 **Mobile Money** — MTN, Vodafone, AirtelTigo\n• 💳 **Cards** — Visa & Mastercard\n• 💵 **Cash on Delivery**\n\nAll online payments are securely encrypted."
     },
     {
       keywords: ['location', 'where', 'area', 'city', 'deliver to', 'address', 'coverage'],
-      answer: "📍 We currently deliver across **Accra**, including East Legon, Cantonments, Osu, Airport Residential, Labone, Dansoman, Tema, and more. We're expanding to other cities soon!"
+      topic: 'location',
+      answer: "📍 **Delivery Coverage**\nWe deliver across **Accra** including:\nEast Legon, Cantonments, Osu, Airport Residential, Labone, Dansoman, Tema & more.\n\nExpanding to other cities soon!"
     },
     {
       keywords: ['cancel', 'refund', 'return'],
-      answer: "❌ You can cancel an order within **5 minutes** of placing it. After that, if your order is already being prepared, we can't cancel it. For refunds, please contact us at **orders@swiftchow.me**."
+      topic: 'orders',
+      answer: "❌ **Cancellations & Refunds**\n\n• Cancel within **5 minutes** of placing your order\n• After preparation begins, cancellation isn't possible\n• Refund requests: **orders@swiftchow.me**"
     },
     {
       keywords: ['contact', 'support', 'help', 'email', 'phone', 'call'],
-      answer: "📧 You can reach us at:\n• **Email:** orders@swiftchow.me\n• **Phone:** +233 30 000 0000\n• Or use our **Contact page** for a quick message!\n\nWe respond within 24 hours."
+      topic: 'support',
+      answer: "📧 **Contact Us**\n\n• **Email:** orders@swiftchow.me\n• **Phone:** +233 30 000 0000\n• **Live Chat:** You're using it right now! 😊\n• **Contact Page:** [Get in touch](contact.html)\n\nWe respond within 24 hours."
     },
     {
       keywords: ['account', 'sign up', 'register', 'login', 'password'],
-      answer: "👤 You can create a free account to:\n• Save delivery addresses\n• Track orders easily\n• Get personalized recommendations\n• Access exclusive deals\n\nHead to the **Sign Up** page to get started!"
+      topic: 'account',
+      answer: "👤 **Your Account**\n\nCreate a free account to:\n• Save delivery addresses\n• Track orders in real-time\n• Get personalized recommendations\n• Access exclusive deals\n\n[Sign Up Now](signup.html) — it takes 30 seconds!"
     },
     {
       keywords: ['track', 'tracking', 'order status', 'where is my order'],
-      answer: "📦 To track your order:\n1. Go to the **Tracking** page\n2. Enter your Order ID (starts with 'SC')\n3. See real-time status updates!\n\nYou'll also receive email updates at each step."
+      topic: 'tracking',
+      answer: "📦 **Track Your Order**\n\n1. Go to the [Tracking page](tracking.html)\n2. Select your order from the list\n3. See live status, bike animation & ETA!\n\nYou'll also get email updates at each delivery stage."
     },
     {
       keywords: ['allergen', 'allergy', 'gluten', 'nut', 'vegan', 'vegetarian', 'dietary'],
-      answer: "🥗 We take dietary needs seriously! While our current menu focuses on standard items, please mention any allergies in the **Special Instructions** during checkout and our kitchen will accommodate you. Contact us for specific ingredient details."
+      topic: 'dietary',
+      answer: "🥗 **Dietary & Allergen Info**\n\nWe take dietary needs seriously! Add any allergies or preferences in the **Special Instructions** at checkout.\n\nFor specific ingredient details, email us at **orders@swiftchow.me**."
     },
     {
       keywords: ['deal', 'offer', 'discount', 'promo', 'coupon', 'save'],
-      answer: "🎉 Check out our **Deals section** on the homepage for amazing combo offers! We regularly update with new promotions. Subscribe to our newsletter for exclusive deals delivered to your inbox."
+      topic: 'deals',
+      answer: "🎉 **Deals & Offers**\n\n• Check our **Deals section** on the homepage\n• Free delivery on orders above GHS 200\n• Subscribe to our newsletter for exclusive promos!\n\nNew deals added weekly!"
     },
     {
       keywords: ['minimum', 'min order'],
-      answer: "📋 There's no minimum order amount! Order as much or as little as you'd like. However, orders above **GHS 200** get **free delivery**!"
+      topic: 'orders',
+      answer: "📋 **No Minimum Order!**\n\nOrder as much or as little as you'd like. Orders above **GHS 200** get **free delivery**!"
     }
   ];
 
@@ -191,50 +226,84 @@
   }
 
   // ============================================
-  // RESPONSE ENGINE
+  // RESPONSE ENGINE (Enhanced)
   // ============================================
 
   function getResponse(userMessage) {
     const msg = userMessage.toLowerCase().trim();
+    conversationCtx.messageCount++;
 
-    // Greetings
+    // Check for name introduction
+    const nameMatch = msg.match(/(?:i'm|i am|my name is|call me|this is)\s+([a-z]+)/i);
+    if (nameMatch) {
+      conversationCtx.userName = nameMatch[1].charAt(0).toUpperCase() + nameMatch[1].slice(1);
+      return `Nice to meet you, **${escapeHTML(conversationCtx.userName)}**! 😊 How can I help you today?`;
+    }
+
+    // Greetings (context-aware)
     if (/^(hi|hello|hey|yo|sup|greetings|good morning|good afternoon|good evening|howdy)\b/.test(msg)) {
+      conversationCtx.lastTopic = 'greeting';
+      if (conversationCtx.messageCount > 1) {
+        return `Welcome back! 😊 What else can I help with?`;
+      }
       const greetings = [
-        "Hey there! 😊 How can I help you today? Looking for something delicious?",
-        "Hello! 🍔 Welcome to SWIFT CHOW! What are you craving today?",
-        "Hi! 👋 I'm here to help. Want to explore our menu or need help with an order?"
+        `${getTimeGreeting()}! 😊 What can I help you find today?`,
+        `Hello! 🍔 Hungry? Let me help you find something delicious!`,
+        `Hey there! 👋 Browse our menu, track an order, or ask me anything!`
       ];
       return greetings[Math.floor(Math.random() * greetings.length)];
     }
 
-    // Thanks
+    // Thanks (varied)
     if (/^(thanks|thank you|thx|ty|cheers|appreciated)\b/.test(msg)) {
-      return "You're welcome! 😊 Let me know if there's anything else I can help with. Enjoy your meal! 🍽️";
+      conversationCtx.lastTopic = null;
+      const thanks = [
+        "You're welcome! 😊 Anything else I can help with?",
+        "Happy to help! 🌟 Let me know if you need anything else.",
+        "Anytime! 😄 Enjoy your meal!"
+      ];
+      return thanks[Math.floor(Math.random() * thanks.length)];
     }
 
     // Bye
     if (/^(bye|goodbye|see you|later|cya|gotta go)\b/.test(msg)) {
-      return "Goodbye! 👋 Enjoy your food and come back anytime. Have a great day! 🌟";
+      conversationCtx.lastTopic = null;
+      return "Goodbye! 👋 Thanks for chatting with ChowBot. Enjoy your food! 🌟";
     }
 
     // Menu-related queries
     const menuMatch = findMenuMatch(msg);
     const menuResponse = formatMenuResponse(menuMatch);
-    if (menuResponse) return menuResponse;
-
-    // FAQ matching
-    for (const faq of FAQ_DATABASE) {
-      const matchScore = faq.keywords.filter(kw => msg.includes(kw)).length;
-      if (matchScore >= 1) {
-        return faq.answer;
-      }
+    if (menuResponse) {
+      conversationCtx.lastTopic = 'menu';
+      return menuResponse;
     }
 
-    // Fallback
+    // FAQ matching (score-weighted)
+    let bestFaq = null;
+    let bestScore = 0;
+    for (const faq of FAQ_DATABASE) {
+      const matchScore = faq.keywords.filter(kw => msg.includes(kw)).length;
+      if (matchScore > bestScore) {
+        bestScore = matchScore;
+        bestFaq = faq;
+      }
+    }
+    if (bestFaq && bestScore >= 1) {
+      conversationCtx.lastTopic = bestFaq.topic || 'faq';
+      return bestFaq.answer;
+    }
+
+    // Follow-up context
+    if (conversationCtx.lastTopic === 'menu' && /^(yes|yeah|sure|ok|yep|show me|more)/i.test(msg)) {
+      return "Great! Head to our [Menu page](menu.html) to browse everything and add items to your cart. 🛒";
+    }
+
+    // Fallback (professional)
     const fallbacks = [
-      "I'm not sure I understand that. Could you try asking about:\n• Our **menu** items and prices\n• **Delivery** info and tracking\n• **Payment** methods\n• **Deals** and offers\n\nOr contact us at **orders@swiftchow.me** for detailed help!",
-      "Hmm, I don't have info on that yet. But I can help with menu recommendations, order tracking, delivery info, and more! What would you like to know?",
-      "I'm still learning! 🤖 Try asking me about our food menu, delivery areas, payment options, or current deals."
+      "I'm not sure I have that info yet. Here's what I can help with:\n\n• 🍔 **Menu** — browse items & prices\n• 📦 **Tracking** — check order status\n• 🚗 **Delivery** — times & areas\n• 💳 **Payments** — accepted methods\n• 🎉 **Deals** — current offers\n\nOr email us at **orders@swiftchow.me**!",
+      "I don't have info on that, but I can help with menu recommendations, order tracking, delivery info, and more! Try asking about one of those. 😊",
+      "Hmm, that's outside my expertise. 🤖 Try asking about our **menu**, **delivery areas**, **payment options**, or **current deals**!"
     ];
     return fallbacks[Math.floor(Math.random() * fallbacks.length)];
   }
@@ -251,7 +320,7 @@
   }
 
   // ============================================
-  // CHATBOT UI
+  // CHATBOT UI (Professional v2)
   // ============================================
 
   let chatOpen = false;
@@ -261,11 +330,17 @@
     if (chatInitialized) return;
     chatInitialized = true;
 
-    // Floating button
+    // Try to get user name from localStorage
+    try {
+      const u = JSON.parse(localStorage.getItem('user') || '{}');
+      if (u.name) conversationCtx.userName = u.name.split(' ')[0];
+    } catch(e) {}
+
+    // FAB
     const fab = document.createElement('button');
     fab.id = 'chatbot-fab';
     fab.setAttribute('aria-label', 'Open chat assistant');
-    fab.innerHTML = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`;
+    fab.innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="chatbot-fab-badge" id="chatbot-badge" style="display:none">1</span>`;
 
     // Chat window
     const chatWindow = document.createElement('div');
@@ -273,25 +348,26 @@
     chatWindow.innerHTML = `
       <div class="chatbot-header">
         <div class="chatbot-header-info">
-          <div class="chatbot-avatar">🤖</div>
+          <div class="chatbot-avatar"><i class="fas fa-headset"></i></div>
           <div>
             <div class="chatbot-name">${CHATBOT_CONFIG.botName}</div>
-            <div class="chatbot-status">Online</div>
+            <div class="chatbot-status"><span class="chatbot-status-dot"></span> Online — typically replies instantly</div>
           </div>
         </div>
         <button class="chatbot-close" aria-label="Close chat">&times;</button>
       </div>
       <div class="chatbot-messages" id="chatbot-messages"></div>
       <div class="chatbot-quick-actions" id="chatbot-quick-actions">
-        <button class="chatbot-quick-btn" data-msg="What's popular?">🔥 Popular</button>
-        <button class="chatbot-quick-btn" data-msg="Show me deals">🎉 Deals</button>
-        <button class="chatbot-quick-btn" data-msg="Delivery info">🚗 Delivery</button>
-        <button class="chatbot-quick-btn" data-msg="Track my order">📦 Track Order</button>
+        <button class="chatbot-quick-btn" data-msg="What's popular?"><i class="fas fa-fire"></i> Popular</button>
+        <button class="chatbot-quick-btn" data-msg="Show me deals"><i class="fas fa-tags"></i> Deals</button>
+        <button class="chatbot-quick-btn" data-msg="Delivery info"><i class="fas fa-truck"></i> Delivery</button>
+        <button class="chatbot-quick-btn" data-msg="Track my order"><i class="fas fa-box"></i> Track Order</button>
+        <button class="chatbot-quick-btn" data-msg="Payment methods"><i class="fas fa-credit-card"></i> Payments</button>
       </div>
       <form class="chatbot-input-area" id="chatbot-form">
-        <input type="text" id="chatbot-input" placeholder="Type a message..." autocomplete="off" maxlength="500">
+        <input type="text" id="chatbot-input" placeholder="Ask me anything..." autocomplete="off" maxlength="500">
         <button type="submit" class="chatbot-send" aria-label="Send message">
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
         </button>
       </form>
     `;
@@ -299,7 +375,7 @@
     document.body.appendChild(fab);
     document.body.appendChild(chatWindow);
 
-    // Event listeners
+    // Events
     fab.addEventListener('click', toggleChat);
     chatWindow.querySelector('.chatbot-close').addEventListener('click', toggleChat);
 
@@ -312,36 +388,43 @@
       handleUserMessage(msg);
     });
 
-    // Quick action buttons
     chatWindow.querySelectorAll('.chatbot-quick-btn').forEach(btn => {
       btn.addEventListener('click', function() {
         const msg = this.getAttribute('data-msg');
         handleUserMessage(msg);
-        // Hide quick actions after first use
-        document.getElementById('chatbot-quick-actions').style.display = 'none';
       });
     });
+
+    // Show notification badge after 5s if chat hasn't been opened
+    setTimeout(() => {
+      if (!chatOpen) {
+        const badge = document.getElementById('chatbot-badge');
+        if (badge) badge.style.display = 'flex';
+      }
+    }, 5000);
   }
 
   function toggleChat() {
     chatOpen = !chatOpen;
     const fab = document.getElementById('chatbot-fab');
     const win = document.getElementById('chatbot-window');
+    const badge = document.getElementById('chatbot-badge');
 
     if (chatOpen) {
       win.classList.add('open');
       fab.classList.add('active');
-      fab.innerHTML = `<svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
-      // Show greeting on first open
+      if (badge) badge.style.display = 'none';
+      fab.innerHTML = `<svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>`;
+      // Greeting on first open
       const msgContainer = document.getElementById('chatbot-messages');
       if (msgContainer && !msgContainer.children.length) {
-        addBotMessage(CHATBOT_CONFIG.greeting);
+        addBotMessage(getGreeting());
       }
       document.getElementById('chatbot-input').focus();
     } else {
       win.classList.remove('open');
       fab.classList.remove('active');
-      fab.innerHTML = `<svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>`;
+      fab.innerHTML = `<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg><span class="chatbot-fab-badge" id="chatbot-badge" style="display:none">1</span>`;
     }
   }
 
@@ -349,18 +432,23 @@
     addUserMessage(text);
     showTyping();
 
+    const delay = CHATBOT_CONFIG.typingDelay + Math.random() * 400;
     setTimeout(() => {
       hideTyping();
       const response = getResponse(text);
       addBotMessage(response);
-    }, CHATBOT_CONFIG.typingDelay + Math.random() * 400);
+    }, delay);
+  }
+
+  function getTimeStamp() {
+    return new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
   }
 
   function addUserMessage(text) {
     const container = document.getElementById('chatbot-messages');
     const div = document.createElement('div');
     div.className = 'chatbot-msg user';
-    div.innerHTML = `<div class="chatbot-bubble user">${escapeHTML(text)}</div>`;
+    div.innerHTML = `<div class="chatbot-bubble user">${escapeHTML(text)}<span class="chatbot-time">${getTimeStamp()}</span></div>`;
     container.appendChild(div);
     scrollToBottom();
   }
@@ -369,7 +457,7 @@
     const container = document.getElementById('chatbot-messages');
     const div = document.createElement('div');
     div.className = 'chatbot-msg bot';
-    div.innerHTML = `<div class="chatbot-bubble bot">${renderMarkdown(text)}</div>`;
+    div.innerHTML = `<div class="chatbot-msg-avatar"><i class="fas fa-headset"></i></div><div class="chatbot-bubble bot">${renderMarkdown(text)}<span class="chatbot-time">${getTimeStamp()}</span></div>`;
     container.appendChild(div);
     scrollToBottom();
   }

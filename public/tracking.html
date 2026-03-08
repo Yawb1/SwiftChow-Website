@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Track Order - SWIFT CHOW</title>
     <meta name="description" content="Track your SWIFT CHOW order in real-time.">
-    <!-- Performance: DNS prefetch + preconnect for external resources -->
     <link rel="dns-prefetch" href="https://fonts.googleapis.com">
     <link rel="dns-prefetch" href="https://fonts.gstatic.com">
     <link rel="dns-prefetch" href="https://cdnjs.cloudflare.com">
@@ -15,7 +14,6 @@
     <link rel="stylesheet" href="css/styles.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="icon" type="image/png" href="logo.png">
-    <!-- Sentry Error Tracking -->
     <script src="https://browser.sentry-cdn.com/8.0.0/bundle.min.js" integrity="sha384-d0ZNzUzLzLz60wBkWLaVW47BuKp4s7qX8OXcxKLLG9WFbI9+B0L7lPj7p1pVe2WED" crossorigin="anonymous"></script>
     <script>
         Sentry.init({
@@ -27,70 +25,14 @@
 </head>
 <body data-page="tracking">
     <script>
-        // Protect this page - check token in localStorage
         (function() {
-            // Function to check if user is authenticated
-            function checkAuth() {
-                const token = localStorage.getItem('authToken');
-                const hasToken = !!token && token.length > 0;
-                console.log('Tracking page: Token check -', hasToken ? 'Authenticated' : 'Not authenticated');
-                
-                if (!hasToken) {
-                    console.log('Not authenticated, redirecting to login');
-                    window.location.href = 'login.html?return=' + encodeURIComponent(window.location.pathname);
-                }
+            var token = localStorage.getItem('authToken');
+            if (!token) {
+                window.location.href = 'login.html?return=' + encodeURIComponent(window.location.pathname + window.location.search);
             }
-            
-            // Check immediately and after scripts load
-            checkAuth();
-            setTimeout(checkAuth, 500);
         })();
-        
-        // Auto-load order from URL parameter if present
-        let autoLoadAttempts = 0;
-        function checkAndAutoLoadOrder() {
-            const urlParams = new URLSearchParams(window.location.search);
-            const orderId = urlParams.get('order');
-            
-            if (orderId && window.loadOrder) {
-                console.log('ðŸ“¦ Auto-loading order from URL:', orderId);
-                // Log what's in storage for debugging
-                console.log('ðŸ“ Storage Debug:', {
-                    lastOrder: !!sessionStorage.getItem('lastOrder'),
-                    trackingKey: !!sessionStorage.getItem('trackingOrder_' + orderId),
-                    swiftChowOrders: localStorage.getItem('swiftChowOrders') ? JSON.parse(localStorage.getItem('swiftChowOrders')).length + ' orders' : 'none'
-                });
-                window.loadOrder(orderId);
-                return true;
-            } else if (orderId && autoLoadAttempts < 20) {
-                autoLoadAttempts++;
-                setTimeout(checkAndAutoLoadOrder, 200);
-                return false;
-            }
-            return false;
-        }
-        
-        // Start checking for auto-load
-        setTimeout(checkAndAutoLoadOrder, 300);
-        
-        document.addEventListener('DOMContentLoaded', function() {
-            // Also handle form submission manually
-            const form = document.querySelector('.track-order-form');
-            if (form) {
-                form.addEventListener('submit', function(e) {
-                    e.preventDefault();
-                    const input = this.querySelector('input[type="text"]');
-                    if (input && input.value) {
-                        console.log('ðŸ” Searching for order:', input.value);
-                        if (window.loadOrder) {
-                            window.loadOrder(input.value);
-                        }
-                    }
-                });
-            }
-        });
     </script>
-    <!-- Header -->
+
     <a href="#main-content" class="skip-link">Skip to main content</a>
     <header class="header">
         <nav class="nav" aria-label="Main navigation">
@@ -100,7 +42,6 @@
                 </div>
                 <span class="logo-text">SWIFT <span>CHOW</span></span>
             </a>
-            
             <ul class="nav-links">
                 <li><a href="index.html">Home</a></li>
                 <li><a href="menu.html">Menu</a></li>
@@ -109,7 +50,6 @@
                 <li><a href="reviews.html">Reviews</a></li>
                 <li><a href="contact.html">Contact</a></li>
             </ul>
-            
             <div class="nav-actions">
                 <button class="nav-icon dark-mode-toggle" onclick="toggleDarkMode()" aria-label="Toggle dark mode">
                     <i class="fas fa-moon"></i>
@@ -122,15 +62,12 @@
                     <i class="fas fa-user"></i> Login
                 </button>
                 <button class="mobile-menu-btn" aria-label="Toggle menu">
-                    <span></span>
-                    <span></span>
-                    <span></span>
+                    <span></span><span></span><span></span>
                 </button>
             </div>
         </nav>
     </header>
-    
-    <!-- Mobile Navigation -->
+
     <nav class="mobile-nav" aria-label="Mobile navigation">
         <ul class="mobile-nav-links">
             <li><a href="index.html"><i class="fas fa-home"></i> Home</a></li>
@@ -142,8 +79,7 @@
             <li><a href="login.html"><i class="fas fa-sign-in-alt"></i> Login</a></li>
         </ul>
     </nav>
-    
-    <!-- Page Header -->
+
     <div class="page-header">
         <div class="container">
             <h1>Track Your Order</h1>
@@ -155,1021 +91,567 @@
             </div>
         </div>
     </div>
-    
-    <!-- Premium Tracking Section -->
-    <section class="premium-tracking-section">
-        <div class="premium-tracking-container">
-            <!-- Left Sidebar Panel -->
-            <aside class="tracking-sidebar">
-                <div class="tracking-search-card">
-                    <h3>Find Your Order</h3>
-                    <form class="track-order-form">
-                        <div class="form-group">
-                            <label>Order ID</label>
-                            <input type="text" placeholder="e.g., SWIFT-ABC123" required>
-                        </div>
-                        <button type="submit" class="btn btn-primary btn-full">
-                            <i class="fas fa-search"></i> Search
-                        </button>
-                    </form>
-                </div>
 
-                <!-- Recent Orders Section -->
-                <div class="tracking-search-card" id="recentOrdersCard" style="display: none;">
-                    <h3><i class="fas fa-history"></i> Recent Orders</h3>
-                    <div id="recentOrdersList" style="display: flex; flex-direction: column; gap: 0.75rem;">
-                        <!-- Recent orders will be populated here -->
-                    </div>
-                </div>
-                
-                <div class="tracking-info-card">
-                    <h4><i class="fas fa-info-circle"></i> Order Summary</h4>
-                    <div id="orderSummary" style="text-align: center; padding: 2rem; color: var(--text-secondary);">
-                        <p>Enter an order ID and search to view details</p>
-                    </div>
-                </div>
-                
-                <div class="tracking-contact-card">
-                    <h4><i class="fas fa-headset"></i> Need Help?</h4>
-                    <p>Contact our support team anytime</p>
-                    <a href="tel:+233505070941" class="btn btn-outline btn-full">
-                        <i class="fas fa-phone"></i> +233 50 507 0941
-                    </a>
-                    <a href="mailto:orders@swiftchow.me" class="btn btn-outline btn-full" style="margin-top: 0.5rem;">
-                        <i class="fas fa-envelope"></i> Email Support
-                    </a>
-                </div>
-            </aside>
-            
-            <!-- Main Content Area -->
-            <main id="main-content" class="tracking-content-area">
-                
-                <!-- Order Status Header -->
-                <div class="tracking-status-header">
-                    <div>
-                        <h2>Track Your Order</h2>
-                        <p class="order-reference" id="orderRefDisplay">Enter an order ID to start tracking</p>
-                    </div>
-                    <div class="status-badge in-progress" id="statusBadge" style="display: none;">
-                        <i class="fas fa-spinner"></i> In Progress
-                    </div>
-                </div>
-                
-                <!-- Enhanced Tracking Progress Bar Component -->
-                <style>
-                    .swift-tracking-container {
-                        background: linear-gradient(135deg, 
-                            #ffffff 0%, 
-                            #f9f9f9 100%);
-                        border-radius: 2.5rem;
-                        padding: 3rem 2rem;
-                        margin: 2rem 0;
-                        position: relative;
-                        border: 1.5px solid rgba(220, 38, 38, 0.2);
-                        box-shadow: 0 8px 32px rgba(31, 38, 135, 0.1),
-                                    0 25px 60px rgba(220, 38, 38, 0.08);
-                        overflow: hidden;
-                    }
+    <!-- TRACKING MAIN CONTENT -->
+    <section id="main-content" class="tracking-page-section">
+        <div class="container">
+            <!-- Order Tabs -->
+            <div class="tracking-tabs" id="trackingTabs">
+                <button class="tracking-tab active" data-filter="all">
+                    <i class="fas fa-list"></i> All Orders
+                </button>
+                <button class="tracking-tab" data-filter="active">
+                    <i class="fas fa-spinner"></i> Active
+                </button>
+                <button class="tracking-tab" data-filter="delivered">
+                    <i class="fas fa-check-circle"></i> Delivered
+                </button>
+            </div>
 
-                    [data-theme="dark"] .swift-tracking-container {
-                        background: linear-gradient(135deg, 
-                            #1a1a1a 0%, 
-                            #242424 100%);
-                        border-color: rgba(220, 38, 38, 0.4);
-                        box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4),
-                                    0 25px 60px rgba(220, 38, 38, 0.15);
-                    }
-
-                    .swift-tracking-container::before {
-                        content: '';
-                        position: absolute;
-                        top: -50%;
-                        right: -50%;
-                        width: 200%;
-                        height: 200%;
-                        background: radial-gradient(circle, rgba(220, 38, 38, 0.05) 0%, transparent 70%);
-                        animation: tracking-float 20s ease-in-out infinite;
-                        z-index: 0;
-                    }
-
-                    @keyframes tracking-float {
-                        0%, 100% { transform: translate(0, 0); }
-                        50% { transform: translate(20px, 20px); }
-                    }
-
-                    @media (min-width: 768px) {
-                        .swift-tracking-container {
-                            padding: 4rem 3rem;
-                        }
-                    }
-
-                    .tracking-progress-track {
-                        position: absolute;
-                        top: 2.5rem;
-                        left: 3rem;
-                        right: 3rem;
-                        height: 4px;
-                        background: linear-gradient(90deg, 
-                            rgba(220, 38, 38, 0.1) 0%, 
-                            rgba(220, 38, 38, 0.05) 100%);
-                        border-radius: 10px;
-                        z-index: 1;
-                        overflow: hidden;
-                        box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.05);
-                    }
-
-                    @media (min-width: 768px) {
-                        .tracking-progress-track {
-                            top: 2rem;
-                            left: 5rem;
-                            right: 5rem;
-                            height: 5px;
-                        }
-                    }
-
-                    .tracking-progress-fill {
-                        height: 100%;
-                        background: linear-gradient(90deg, 
-                            #dc2626 0%, 
-                            #ef4444 50%,
-                            #dc2626 100%);
-                        background-size: 200% 100%;
-                        border-radius: 10px;
-                        width: 0%;
-                        transition: width 1s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-                        box-shadow: 0 0 30px rgba(220, 38, 38, 0.6),
-                                    0 0 60px rgba(220, 38, 38, 0.3),
-                                    inset 0 1px 0 rgba(255, 255, 255, 0.3);
-                        animation: tracking-shimmer 2s ease-in-out infinite;
-                    }
-
-                    @keyframes tracking-shimmer {
-                        0%, 100% { background-position: 0% center; }
-                        50% { background-position: 100% center; }
-                    }
-
-                    /* Motorcycle Delivery Icon */
-                    .tracking-motorcycle {
-                        position: absolute;
-                        top: 1.8rem;
-                        left: 3rem;
-                        font-size: 1.8rem;
-                        z-index: 4;
-                        filter: drop-shadow(0 4px 12px rgba(220, 38, 38, 0.5));
-                        transition: left 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-                        animation: rider-bounce 0.5s ease-in-out infinite;
-                    }
-
-                    @media (min-width: 768px) {
-                        .tracking-motorcycle {
-                            top: 1.4rem;
-                            font-size: 2rem;
-                        }
-                    }
-
-                    @keyframes rider-bounce {
-                        0%, 100% { transform: translateY(0px); }
-                        50% { transform: translateY(-6px); }
-                    }
-
-                    .tracking-steps {
-                        display: flex;
-                        justify-content: space-between;
-                        align-items: flex-start;
-                        position: relative;
-                        z-index: 2;
-                    }
-
-                    .tracking-step {
-                        display: flex;
-                        flex-direction: column;
-                        align-items: center;
-                        flex: 1;
-                        opacity: 0.5;
-                        transition: opacity 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                    }
-
-                    .tracking-step.active,
-                    .tracking-step.completed {
-                        opacity: 1;
-                    }
-
-                    .tracking-step-circle {
-                        width: 3rem;
-                        height: 3rem;
-                        border-radius: 50%;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        margin-bottom: 1.2rem;
-                        position: relative;
-                        z-index: 3;
-                        border: 2.5px solid rgba(220, 38, 38, 0.25);
-                        background: linear-gradient(135deg, #fafafa 0%, #f5f5f5 100%);
-                        color: rgba(220, 38, 38, 0.5);
-                        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.08),
-                                    inset 0 1px 0 rgba(255, 255, 255, 0.5),
-                                    inset 0 -2px 4px rgba(0, 0, 0, 0.05);
-                    }
-
-                    [data-theme="dark"] .tracking-step-circle {
-                        background: linear-gradient(135deg, #2a2a2a 0%, #333333 100%);
-                        border-color: rgba(220, 38, 38, 0.4);
-                        color: rgba(220, 38, 38, 0.7);
-                        box-shadow: 0 8px 24px rgba(0, 0, 0, 0.3),
-                                    inset 0 1px 0 rgba(255, 255, 255, 0.1),
-                                    inset 0 -2px 4px rgba(0, 0, 0, 0.3);
-                    }
-
-                    .tracking-step-circle i {
-                        font-size: 1.3rem;
-                        display: flex;
-                        align-items: center;
-                        justify-content: center;
-                        line-height: 1;
-                        height: 1.3rem;
-                        width: 1.3rem;
-                    }
-
-                    @media (min-width: 768px) {
-                        .tracking-step-circle {
-                            width: 3.5rem;
-                            height: 3.5rem;
-                            margin-bottom: 1.5rem;
-                        }
-
-                        .tracking-step-circle i {
-                            font-size: 1.5rem;
-                            height: 1.5rem;
-                            width: 1.5rem;
-                        }
-                    }
-
-                    /* Completed Step Circle */
-                    .tracking-step.completed .tracking-step-circle {
-                        background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
-                        border-color: #7f1d1d;
-                        color: white;
-                        box-shadow: 0 12px 32px rgba(220, 38, 38, 0.6),
-                                    0 0 20px rgba(220, 38, 38, 0.5),
-                                    inset 0 1px 0 rgba(255, 255, 255, 0.3),
-                                    inset 0 -2px 4px rgba(0, 0, 0, 0.2);
-                        transform: scale(1);
-                    }
-
-                    /* Active Step Circle - Premium Pulse */
-                    .tracking-step.active .tracking-step-circle {
-                        background: linear-gradient(135deg, white, #f0f0f0);
-                        border-color: #dc2626;
-                        border-width: 3px;
-                        color: #dc2626;
-                        box-shadow: 0 0 0 8px rgba(220, 38, 38, 0.12),
-                                    0 12px 32px rgba(220, 38, 38, 0.4),
-                                    inset 0 2px 8px rgba(255, 255, 255, 0.9),
-                                    inset 0 -2px 4px rgba(0, 0, 0, 0.08);
-                        animation: tracking-pulse-premium 2s ease-in-out infinite;
-                    }
-
-                    @keyframes tracking-pulse-premium {
-                        0%, 100% {
-                            box-shadow: 0 0 0 6px rgba(220, 38, 38, 0.15),
-                                        0 12px 32px rgba(220, 38, 38, 0.35),
-                                        inset 0 2px 8px rgba(255, 255, 255, 0.8);
-                            transform: scale(1);
-                        }
-                        50% {
-                            box-shadow: 0 0 0 12px rgba(220, 38, 38, 0.08),
-                                        0 16px 40px rgba(220, 38, 38, 0.45),
-                                        inset 0 2px 8px rgba(255, 255, 255, 0.8);
-                            transform: scale(1.08);
-                        }
-                    }
-
-                    /* Checkmark Animation */
-                    .tracking-checkmark {
-                        opacity: 0;
-                        transform: scale(0);
-                        animation: tracking-checkmark-pop-premium 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
-                    }
-
-                    @keyframes tracking-checkmark-pop-premium {
-                        0% {
-                            opacity: 0;
-                            transform: scale(0) rotate(-180deg);
-                        }
-                        70% {
-                            transform: scale(1.3) rotate(15deg);
-                        }
-                        100% {
-                            opacity: 1;
-                            transform: scale(1) rotate(0);
-                        }
-                    }
-
-                    /* Step Label */
-                    .tracking-step-label {
-                        text-align: center;
-                        width: 100%;
-                    }
-
-                    .tracking-step-title {
-                        font-size: 0.9rem;
-                        font-weight: 700;
-                        color: rgba(0, 0, 0, 0.45);
-                        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                        line-height: 1.4;
-                        margin-bottom: 0.4rem;
-                        letter-spacing: 0.3px;
-                    }
-
-                    [data-theme="dark"] .tracking-step-title {
-                        color: rgba(255, 255, 255, 0.6);
-                    }
-
-                    @media (min-width: 768px) {
-                        .tracking-step-title {
-                            font-size: 1rem;
-                        }
-                    }
-
-                    .tracking-step.active .tracking-step-title,
-                    .tracking-step.completed .tracking-step-title {
-                        color: #dc2626;
-                        font-weight: 800;
-                        transform: translateY(-2px);
-                    }
-
-                    .tracking-step-time {
-                        font-size: 0.8rem;
-                        color: rgba(0, 0, 0, 0.5);
-                        opacity: 0.6;
-                        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                        font-weight: 500;
-                    }
-
-                    [data-theme="dark"] .tracking-step-time {
-                        color: rgba(255, 255, 255, 0.5);
-                    }
-
-                    @media (min-width: 768px) {
-                        .tracking-step-time {
-                            font-size: 0.85rem;
-                        }
-                    }
-
-                    .tracking-step.active .tracking-step-time,
-                    .tracking-step.completed .tracking-step-time {
-                        opacity: 1;
-                        color: #dc2626;
-                        font-weight: 600;
-                    }
-
-                    /* Status Badge */
-                    .tracking-status-badge {
-                        display: inline-block;
-                        background: linear-gradient(135deg, rgba(220, 38, 38, 0.08), rgba(220, 38, 38, 0.04));
-                        color: #dc2626;
-                        padding: 0.55rem 1.2rem;
-                        border-radius: 20px;
-                        font-size: 0.75rem;
-                        font-weight: 700;
-                        margin-top: 1.2rem;
-                        border: 1.5px solid rgba(220, 38, 38, 0.25);
-                        transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
-                        letter-spacing: 0.4px;
-                        box-shadow: 0 4px 12px rgba(220, 38, 38, 0.08);
-                    }
-
-                    @media (min-width: 768px) {
-                        .tracking-status-badge {
-                            font-size: 0.8rem;
-                            padding: 0.6rem 1.4rem;
-                        }
-                    }
-
-                    .tracking-status-badge.active {
-                        background: linear-gradient(135deg, #dc2626, #991b1b);
-                        color: white;
-                        border-color: #dc2626;
-                        box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4),
-                                    0 0 20px rgba(220, 38, 38, 0.3);
-                        animation: tracking-badge-pulse-premium 2s ease-in-out infinite;
-                        transform: scale(1.05);
-                    }
-
-                    @keyframes tracking-badge-pulse-premium {
-                        0%, 100% { 
-                            box-shadow: 0 8px 24px rgba(220, 38, 38, 0.4),
-                                        0 0 20px rgba(220, 38, 38, 0.3);
-                        }
-                        50% { 
-                            box-shadow: 0 12px 32px rgba(220, 38, 38, 0.5),
-                                        0 0 30px rgba(220, 38, 38, 0.4);
-                        }
-                    }
-
-                    .tracking-status-badge.completed {
-                        background: linear-gradient(135deg, rgba(16, 185, 129, 0.12), rgba(16, 185, 129, 0.06));
-                        color: #10b981;
-                        border-color: rgba(16, 185, 129, 0.4);
-                        box-shadow: 0 4px 12px rgba(16, 185, 129, 0.12);
-                    }
-
-                    /* Helper text */
-                    .tracking-helper-text {
-                        font-size: 1.15rem;
-                        color: rgba(0, 0, 0, 0.75);
-                        margin-top: 2.5rem;
-                        text-align: center;
-                        font-weight: 600;
-                        letter-spacing: 0.3px;
-                        line-height: 1.6;
-                    }
-
-                    [data-theme="dark"] .tracking-helper-text {
-                        color: rgba(255, 255, 255, 0.85);
-                    }
-
-                    @media (min-width: 768px) {
-                        .tracking-helper-text {
-                            font-size: 1.3rem;
-                            margin-top: 3rem;
-                            font-weight: 700;
-                        }
-                    }
-
-                    @media (max-width: 640px) {
-                        .tracking-step-title {
-                            max-width: none;
-                            overflow: visible;
-                            text-overflow: clip;
-                            white-space: normal;
-                            font-size: 0.7rem;
-                            line-height: 1.3;
-                        }
-                        
-                        .swift-tracking-container {
-                            padding: 2rem 1rem;
-                        }
-                        
-                        .tracking-progress-track {
-                            left: 1.5rem;
-                            right: 1.5rem;
-                        }
-                        
-                        .tracking-motorcycle {
-                            font-size: 1.2rem;
-                        }
-                        
-                        .tracking-step-circle {
-                            width: 2.25rem;
-                            height: 2.25rem;
-                            margin-bottom: 0.8rem;
-                        }
-                        
-                        .tracking-step-circle i {
-                            font-size: 0.9rem;
-                        }
-                        
-                        .tracking-status-badge {
-                            font-size: 0.6rem;
-                            padding: 0.35rem 0.6rem;
-                            margin-top: 0.6rem;
-                        }
-                        
-                        .tracking-helper-text {
-                            font-size: 0.95rem;
-                            margin-top: 1.5rem;
-                        }
-                    }
-                    
-                    @media (max-width: 400px) {
-                        .tracking-step-title {
-                            font-size: 0.6rem;
-                        }
-                        
-                        .tracking-step-circle {
-                            width: 2rem;
-                            height: 2rem;
-                        }
-                        
-                        .tracking-step-circle i {
-                            font-size: 0.75rem;
-                        }
-                        
-                        .tracking-status-badge {
-                            display: none;
-                        }
-                    }
-                </style>
-
-                <div class="swift-tracking-container" id="trackingContainer" style="display: none;">
-                    <div class="tracking-motorcycle" id="trackingMotorcycle">
-                        <i class="fas fa-person-biking" style="color: #dc2626;"></i>
-                    </div>
-                    
-                    <div class="tracking-progress-track">
-                        <div class="tracking-progress-fill" id="trackingProgressFill"></div>
-                    </div>
-
-                    <div class="tracking-steps" id="trackingSteps">
-                        <div class="tracking-step" data-step="1">
-                            <div class="tracking-step-circle">
-                                <i class="fas fa-check" style="opacity: 0;"></i>
-                                <i class="fas fa-clipboard-check"></i>
+            <div class="tracking-layout">
+                <!-- Orders List -->
+                <div class="tracking-orders-panel" id="ordersPanel">
+                    <div class="tracking-search-box">
+                        <form id="trackSearchForm">
+                            <div class="tracking-search-input-wrap">
+                                <i class="fas fa-search"></i>
+                                <input type="text" id="trackSearchInput" placeholder="Search by order ID..." maxlength="50">
                             </div>
-                            <div class="tracking-step-label">
-                                <div class="tracking-step-title">Order Confirmed</div>
-                                <div class="tracking-step-time" data-time="--:--">--:--</div>
-                                <div class="tracking-status-badge">Confirmed</div>
+                        </form>
+                    </div>
+                    <div class="tracking-orders-list" id="trackingOrdersList">
+                        <div class="tracking-loading">
+                            <div class="tracking-spinner"></div>
+                            <p>Loading your orders...</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tracking Detail -->
+                <div class="tracking-detail-panel" id="detailPanel">
+                    <div class="tracking-empty-state" id="trackingEmptyState">
+                        <div class="tracking-empty-icon">
+                            <i class="fas fa-map-marked-alt"></i>
+                        </div>
+                        <h3>Select an Order to Track</h3>
+                        <p>Choose an order from the list or search by order ID to see delivery progress</p>
+                    </div>
+
+                    <div class="tracking-detail-content" id="trackingDetailContent" style="display:none;">
+                        <!-- Order Header -->
+                        <div class="td-header">
+                            <div class="td-header-left">
+                                <div class="td-restaurant-logo">
+                                    <img src="logo.png" alt="SWIFT CHOW" width="48" height="48">
+                                </div>
+                                <div>
+                                    <h2 class="td-order-id" id="tdOrderId">--</h2>
+                                    <p class="td-order-date" id="tdOrderDate">--</p>
+                                </div>
+                            </div>
+                            <div class="td-status-pill" id="tdStatusPill">
+                                <i class="fas fa-spinner"></i> <span>--</span>
                             </div>
                         </div>
 
-                        <div class="tracking-step" data-step="2">
-                            <div class="tracking-step-circle">
-                                <i class="fas fa-check" style="opacity: 0;"></i>
-                                <i class="fas fa-utensils"></i>
-                            </div>
-                            <div class="tracking-step-label">
-                                <div class="tracking-step-title">Being Prepared</div>
-                                <div class="tracking-step-time" data-time="--:--">--:--</div>
-                                <div class="tracking-status-badge">Preparing</div>
+                        <!-- ETA Card -->
+                        <div class="td-eta-card" id="tdEtaCard">
+                            <div class="td-eta-icon"><i class="fas fa-clock"></i></div>
+                            <div class="td-eta-info">
+                                <span class="td-eta-label" id="tdEtaLabel">Estimated Delivery</span>
+                                <span class="td-eta-value" id="tdEtaValue">--</span>
                             </div>
                         </div>
 
-                        <div class="tracking-step" data-step="3">
-                            <div class="tracking-step-circle">
-                                <i class="fas fa-check" style="opacity: 0;"></i>
-                                <i class="fas fa-person-biking"></i>
+                        <!-- Delivery Road + Bike -->
+                        <div class="td-delivery-track">
+                            <div class="td-track-endpoints">
+                                <div class="td-endpoint td-restaurant">
+                                    <div class="td-endpoint-icon"><i class="fas fa-store"></i></div>
+                                    <span>Restaurant</span>
+                                </div>
+                                <div class="td-endpoint td-destination">
+                                    <div class="td-endpoint-icon"><i class="fas fa-home"></i></div>
+                                    <span>Your Location</span>
+                                </div>
                             </div>
-                            <div class="tracking-step-label">
-                                <div class="tracking-step-title">Out for Delivery</div>
-                                <div class="tracking-step-time" data-time="--:--">--:--</div>
-                                <div class="tracking-status-badge">En Route</div>
+                            <div class="td-progress-road">
+                                <div class="td-road-track"></div>
+                                <div class="td-road-fill" id="tdRoadFill"></div>
+                                <div class="td-bike" id="tdBike">
+                                    <i class="fas fa-motorcycle"></i>
+                                </div>
+                                <div class="td-road-dashes">
+                                    <span></span><span></span><span></span><span></span><span></span>
+                                    <span></span><span></span><span></span><span></span><span></span>
+                                </div>
                             </div>
                         </div>
 
-                        <div class="tracking-step" data-step="4">
-                            <div class="tracking-step-circle">
-                                <i class="fas fa-check" style="opacity: 0;"></i>
-                                <i class="fas fa-door-open"></i>
+                        <!-- 4-Step Timeline -->
+                        <div class="td-timeline">
+                            <div class="td-timeline-step" data-step="1" id="tdStep1">
+                                <div class="td-step-marker">
+                                    <div class="td-step-circle"><i class="fas fa-clipboard-check"></i></div>
+                                    <div class="td-step-line"></div>
+                                </div>
+                                <div class="td-step-info">
+                                    <h4>Order Received</h4>
+                                    <p class="td-step-time">--</p>
+                                    <p class="td-step-desc">Your order has been confirmed</p>
+                                </div>
                             </div>
-                            <div class="tracking-step-label">
-                                <div class="tracking-step-title">Delivered</div>
-                                <div class="tracking-step-time" data-time="--:--">--:--</div>
-                                <div class="tracking-status-badge">Delivered</div>
+                            <div class="td-timeline-step" data-step="2" id="tdStep2">
+                                <div class="td-step-marker">
+                                    <div class="td-step-circle"><i class="fas fa-fire-burner"></i></div>
+                                    <div class="td-step-line"></div>
+                                </div>
+                                <div class="td-step-info">
+                                    <h4>Preparing</h4>
+                                    <p class="td-step-time">--</p>
+                                    <p class="td-step-desc">Your food is being cooked fresh</p>
+                                </div>
+                            </div>
+                            <div class="td-timeline-step" data-step="3" id="tdStep3">
+                                <div class="td-step-marker">
+                                    <div class="td-step-circle"><i class="fas fa-motorcycle"></i></div>
+                                    <div class="td-step-line"></div>
+                                </div>
+                                <div class="td-step-info">
+                                    <h4>Out for Delivery</h4>
+                                    <p class="td-step-time">--</p>
+                                    <p class="td-step-desc">Your rider is on the way</p>
+                                </div>
+                            </div>
+                            <div class="td-timeline-step" data-step="4" id="tdStep4">
+                                <div class="td-step-marker">
+                                    <div class="td-step-circle"><i class="fas fa-circle-check"></i></div>
+                                </div>
+                                <div class="td-step-info">
+                                    <h4>Delivered</h4>
+                                    <p class="td-step-time">--</p>
+                                    <p class="td-step-desc">Enjoy your meal!</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Order Items -->
+                        <div class="td-items-card" id="tdItemsCard">
+                            <h3><i class="fas fa-receipt"></i> Order Summary</h3>
+                            <div class="td-items-list" id="tdItemsList"></div>
+                            <div class="td-items-totals" id="tdItemsTotals"></div>
+                        </div>
+
+                        <!-- Delivery Address -->
+                        <div class="td-address-card" id="tdAddressCard" style="display:none;">
+                            <h3><i class="fas fa-map-marker-alt"></i> Delivery Address</h3>
+                            <p id="tdAddress">--</p>
+                        </div>
+
+                        <!-- Need Help -->
+                        <div class="td-help-card">
+                            <h3><i class="fas fa-headset"></i> Need Help?</h3>
+                            <p>Having trouble with your order? Contact our support team.</p>
+                            <div class="td-help-actions">
+                                <a href="tel:+233505070941" class="btn btn-outline btn-sm"><i class="fas fa-phone"></i> Call Us</a>
+                                <a href="mailto:orders@swiftchow.me" class="btn btn-outline btn-sm"><i class="fas fa-envelope"></i> Email</a>
+                                <a href="contact.html" class="btn btn-primary btn-sm"><i class="fas fa-comment"></i> Contact</a>
                             </div>
                         </div>
                     </div>
-
-                    <div class="tracking-helper-text">
-                        <span id="trackingCurrentStatus">Order confirmed! Your food is being prepared.</span>
-                    </div>
                 </div>
-
-                <script>
-                    class OrderTracker {
-                        constructor() {
-                            this.currentStep = 2;
-                            this.totalSteps = 4;
-                            this.steps = document.querySelectorAll('.tracking-step');
-                            this.progressFill = document.getElementById('trackingProgressFill');
-                            this.statusText = document.getElementById('trackingCurrentStatus');
-                            
-                            this.stepInfo = [
-                                { title: "Order Confirmed", messages: ["Order confirmed! Your food is being prepared.", "We've received your order and sent it to the kitchen."] },
-                                { title: "Being Prepared", messages: ["Your food is being prepared with care.", "Our chefs are preparing your delicious order."] },
-                                { title: "Out for Delivery", messages: ["Your order is out for delivery!", "Your driver is on the way with your order."] },
-                                { title: "Delivered", messages: ["Your order has been delivered!", "Thank you for ordering with SWIFT CHOW!"] }
-                            ];
-                            
-                            this.init();
-                        }
-
-                        init() {
-                            this.updateUI();
-                        }
-
-                        setStep(step) {
-                            if (step >= 1 && step <= this.totalSteps) {
-                                this.currentStep = step;
-                                this.updateUI();
-                            }
-                        }
-
-                        nextStep() {
-                            if (this.currentStep < this.totalSteps) {
-                                this.currentStep++;
-                                this.updateUI();
-                            }
-                        }
-
-                        updateUI() {
-                            const progress = ((this.currentStep - 1) / (this.totalSteps - 1)) * 100;
-                            this.progressFill.style.width = `${progress}%`;
-
-                            // Update delivery rider position to follow the progress bar
-                            const motorcycle = document.getElementById('trackingMotorcycle');
-                            if (motorcycle) {
-                                const progressTrack = document.querySelector('.tracking-progress-track');
-                                const container = document.querySelector('.swift-tracking-container');
-                                
-                                // Get computed positions
-                                const trackStyle = window.getComputedStyle(progressTrack);
-                                const containerRect = container.getBoundingClientRect();
-                                const trackRect = progressTrack.getBoundingClientRect();
-                                
-                                // Calculate rider position relative to container
-                                const trackLeftPixels = trackRect.left - containerRect.left;
-                                const trackWidthPixels = trackRect.width;
-                                const riderPos = trackLeftPixels + (trackWidthPixels * progress / 100);
-                                
-                                // Adjust for icon centering (subtract half the icon width)
-                                motorcycle.style.left = (riderPos - 12) + 'px';
-                            }
-
-                            this.steps.forEach((stepElement, index) => {
-                                const stepNum = parseInt(stepElement.dataset.step);
-                                const circle = stepElement.querySelector('.tracking-step-circle');
-                                const timeEl = stepElement.querySelector('.tracking-step-time');
-                                const badge = stepElement.querySelector('.tracking-status-badge');
-                                const checkIcon = stepElement.querySelector('.fa-check');
-                                const otherIcon = circle.querySelector('i:not(.fa-check)');
-
-                                stepElement.classList.remove('active', 'completed');
-
-                                if (stepNum < this.currentStep) {
-                                    stepElement.classList.add('completed');
-                                    
-                                    if (checkIcon && checkIcon.style.opacity !== '1') {
-                                        checkIcon.style.opacity = '1';
-                                        checkIcon.classList.add('tracking-checkmark');
-                                        otherIcon.style.display = 'none';
-                                    }
-                                    
-                                    const completedTime = this.generateTime(stepNum);
-                                    timeEl.textContent = completedTime;
-                                    timeEl.dataset.time = completedTime;
-                                    
-                                    badge.classList.remove('active');
-                                    badge.classList.add('completed');
-                                    badge.textContent = 'âœ“ Completed';
-                                } 
-                                else if (stepNum === this.currentStep) {
-                                    stepElement.classList.add('active');
-                                    
-                                    if (checkIcon) checkIcon.style.opacity = '0';
-                                    otherIcon.style.display = 'inline-block';
-                                    
-                                    timeEl.textContent = 'In Progress';
-                                    
-                                    badge.classList.remove('completed');
-                                    badge.classList.add('active');
-                                } 
-                                else {
-                                    if (checkIcon) checkIcon.style.opacity = '0';
-                                    otherIcon.style.display = 'inline-block';
-                                    timeEl.textContent = '--:--';
-                                    badge.classList.remove('active', 'completed');
-                                }
-                            });
-
-                            this.updateStatusMessage();
-                        }
-
-                        generateTime(step) {
-                            const baseTime = new Date('2026-02-09T12:10:00');
-                            const offsets = [0, 5, 25, 40];
-                            const time = new Date(baseTime.getTime() + offsets[step - 1] * 60000);
-                            return time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                        }
-
-                        updateStatusMessage() {
-                            const messages = this.stepInfo[this.currentStep - 1].messages;
-                            const randomMessage = messages[Math.floor(Math.random() * messages.length)];
-                            this.statusText.textContent = randomMessage;
-                        }
-                    }
-
-                    const tracker = new OrderTracker();
-                    window.updateOrderStep = (step) => tracker.setStep(step);
-                    window.advanceOrderStep = () => tracker.nextStep();
-
-                    // Load and display recent orders from API
-                    async function loadRecentOrders() {
-                        const recentOrdersCard = document.getElementById('recentOrdersCard');
-                        const recentOrdersList = document.getElementById('recentOrdersList');
-                        
-                        let orders = [];
-                        try {
-                            if (typeof isAuthenticated === 'function' && isAuthenticated() && typeof apiGetOrders === 'function') {
-                                const response = await apiGetOrders();
-                                if (response && response.success && response.orders) {
-                                    orders = response.orders.map(o => ({
-                                        id: o.orderId || o._id,
-                                        total: o.total,
-                                        date: o.createdAt,
-                                        status: o.status
-                                    }));
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Error loading orders from API:', e);
-                        }
-
-                        if (orders.length === 0) {
-                            try {
-                                const allOrders = localStorage.getItem('swiftChowOrders');
-                                if (allOrders) {
-                                    const ordersArray = JSON.parse(allOrders);
-                                    if (Array.isArray(ordersArray)) {
-                                        orders = ordersArray.map(o => ({
-                                            id: o.id || o.orderId,
-                                            total: o.total,
-                                            date: o.date || o.timestamp || o.createdAt,
-                                            status: o.status
-                                        }));
-                                    }
-                                }
-                            } catch (e) {
-                                console.error('Error loading orders from localStorage:', e);
-                            }
-                        }
-                        
-                        if (orders.length > 0) {
-                            recentOrdersCard.style.display = 'block';
-                            const statusLabels = {
-                                'pending': 'Pending', 'confirmed': 'Confirmed', 'preparing': 'Preparing',
-                                'ready': 'Ready', 'out_for_delivery': 'Out for Delivery', 'delivered': 'Delivered',
-                                'cancelled': 'Cancelled'
-                            };
-                            recentOrdersList.innerHTML = orders.slice(0, 5).map(function(order) {
-                                const orderDate = new Date(order.date);
-                                const formattedDate = orderDate.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
-                                const rawStatus = (order.status || 'confirmed').toLowerCase();
-                                const status = statusLabels[rawStatus] || rawStatus.charAt(0).toUpperCase() + rawStatus.slice(1);
-                                const statusColor = rawStatus === 'delivered' ? '#10b981' : rawStatus === 'cancelled' ? '#ef4444' : '#f59e0b';
-                                
-                                return '<button type="button" style="' +
-                                    'background: var(--bg-secondary);' +
-                                    'border: 1px solid var(--border-color);' +
-                                    'border-radius: 0.5rem;' +
-                                    'padding: 0.75rem 1rem;' +
-                                    'cursor: pointer;' +
-                                    'text-align: left;' +
-                                    'transition: all 0.3s ease;' +
-                                    'font-family: inherit;' +
-                                    'width: 100%;' +
-                                    '" ' +
-                                    'onmouseover="this.style.borderColor=\'var(--primary)\';this.style.background=\'rgba(220,38,38,0.05)\'" ' +
-                                    'onmouseout="this.style.borderColor=\'var(--border-color)\';this.style.background=\'var(--bg-secondary)\'" ' +
-                                    'onclick="document.querySelector(\'.track-order-form input\').value=\'' + order.id + '\';loadOrder(\'' + order.id + '\');document.querySelector(\'.tracking-status-header\').scrollIntoView({behavior:\'smooth\',block:\'start\'})">' +
-                                    '<div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:0.25rem;">' +
-                                    '<strong style="font-size:0.9rem">' + order.id + '</strong>' +
-                                    '<span style="font-size:0.75rem;color:var(--text-secondary)">' + formattedDate + '</span>' +
-                                    '</div>' +
-                                    '<div style="display:flex;justify-content:space-between;align-items:center">' +
-                                    '<span style="font-size:0.85rem;color:var(--text-secondary)">GHS ' + parseFloat(order.total || 0).toFixed(2) + '</span>' +
-                                    '<span style="font-size:0.75rem;color:' + statusColor + ';font-weight:500">' + status + '</span>' +
-                                    '</div></button>';
-                            }).join('');
-                        }
-                    }
-                    
-                    // Wait for scripts to load then fetch orders
-                    function waitAndLoadOrders() {
-                        if (typeof isAuthenticated === 'function') {
-                            loadRecentOrders();
-                            var urlParams = new URLSearchParams(window.location.search);
-                            if (!urlParams.get('order')) {
-                                autoLoadLatestOrder();
-                            }
-                        } else {
-                            setTimeout(waitAndLoadOrders, 200);
-                        }
-                    }
-                    setTimeout(waitAndLoadOrders, 500);
-
-                    // Auto-load latest order from API
-                    async function autoLoadLatestOrder() {
-                        try {
-                            if (typeof apiGetLatestOrder === 'function') {
-                                var response = await apiGetLatestOrder();
-                                if (response && response.success && response.order) {
-                                    displayAPIOrder(response.order);
-                                }
-                            }
-                        } catch (e) {
-                            console.log('No recent orders to auto-load');
-                        }
-                    }
-
-                    // Map backend status to tracking step number
-                    function statusToStep(status) {
-                        var map = {
-                            'pending': 1, 'confirmed': 1,
-                            'preparing': 2, 'ready': 2,
-                            'out_for_delivery': 3,
-                            'delivered': 4
-                        };
-                        return map[status] || 1;
-                    }
-
-                    // Display order fetched from API
-                    function displayAPIOrder(order) {
-                        document.getElementById('trackingContainer').style.display = 'block';
-                        document.getElementById('statusBadge').style.display = 'block';
-
-                        var orderId = order.orderId || order._id;
-                        var orderDate = new Date(order.createdAt);
-                        document.getElementById('orderRefDisplay').textContent = 'Order ' + orderId + ' | ' + orderDate.toLocaleDateString();
-
-                        var statusLabels = {
-                            'pending': 'Pending', 'confirmed': 'Confirmed', 'preparing': 'Preparing',
-                            'ready': 'Ready', 'out_for_delivery': 'Out for Delivery', 'delivered': 'Delivered',
-                            'cancelled': 'Cancelled'
-                        };
-                        var statusLabel = statusLabels[order.status] || order.status;
-                        var badge = document.getElementById('statusBadge');
-                        badge.innerHTML = '<i class="fas fa-' + (order.status === 'delivered' ? 'check-circle' : 'spinner') + '"></i> ' + statusLabel;
-
-                        // Build items list
-                        var itemsList = (order.items || []).map(function(i) {
-                            return '<div style="display:flex;justify-content:space-between;padding:0.4rem 0;border-bottom:1px solid var(--border-color)">' +
-                            '<span style="font-size:0.9rem;color:var(--text-primary)">' + (i.name || 'Item') + ' x' + (i.quantity || 1) + '</span>' +
-                            '<span style="font-size:0.9rem;font-weight:600;color:var(--text-primary)">GHS ' + ((i.price || 0) * (i.quantity || 1)).toFixed(2) + '</span></div>';
-                        }).join('');
-
-                        var estimatedMins = order.estimatedDeliveryTime || 30;
-                        var estDelivery = new Date(orderDate.getTime() + estimatedMins * 60000);
-
-                        // Update order summary sidebar
-                        var orderSummary = document.getElementById('orderSummary');
-                        orderSummary.innerHTML = 
-                            '<div style="text-align:left;padding:0.5rem 0">' +
-                              '<div style="margin-bottom:1rem">' +
-                                '<span style="font-weight:700;display:block;color:var(--text-primary);margin-bottom:0.5rem;font-size:1.05rem">Order #' + orderId + '</span>' +
-                                '<span style="font-size:0.85rem;color:var(--text-secondary)"><i class="fas fa-clock" style="margin-right:0.25rem"></i>Placed: ' + orderDate.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</span>' +
-                              '</div>' +
-                              '<div style="margin-bottom:1rem;padding:0.75rem;background:rgba(220,38,38,0.05);border-radius:0.5rem;border-left:3px solid var(--primary)">' +
-                                '<span style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:0.25rem">Total</span>' +
-                                '<span style="font-size:1.3rem;font-weight:800;color:var(--primary)">GHS ' + parseFloat(order.total || 0).toFixed(2) + '</span>' +
-                              '</div>' +
-                              '<div style="margin-bottom:1rem">' +
-                                '<span style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:0.5rem"><i class="fas fa-shopping-bag" style="margin-right:0.25rem"></i>Items</span>' +
-                                itemsList +
-                              '</div>' +
-                              '<div style="margin-bottom:0.75rem">' +
-                                '<span style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:0.25rem"><i class="fas fa-truck" style="margin-right:0.25rem"></i>Est. Delivery</span>' +
-                                '<span style="font-size:0.9rem;color:var(--text-primary)">' + estDelivery.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' }) + '</span>' +
-                              '</div>' +
-                              (order.deliveryAddress ? 
-                                '<div>' +
-                                  '<span style="font-weight:600;font-size:0.85rem;color:var(--text-secondary);display:block;margin-bottom:0.25rem"><i class="fas fa-map-marker-alt" style="margin-right:0.25rem"></i>Delivery To</span>' +
-                                  '<span style="font-size:0.9rem;color:var(--text-primary)">' + (order.deliveryAddress.street || '') + (order.deliveryAddress.city ? ', ' + order.deliveryAddress.city : '') + '</span>' +
-                                '</div>' : '') +
-                            '</div>';
-
-                        // Set tracker step based on order status
-                        var step = statusToStep(order.status);
-                        tracker.setStep(step);
-
-                        // Update step times from statusHistory
-                        if (order.statusHistory && order.statusHistory.length > 0) {
-                            var stepStatusMap = {
-                                1: ['pending', 'confirmed'],
-                                2: ['preparing', 'ready'],
-                                3: ['out_for_delivery'],
-                                4: ['delivered']
-                            };
-                            
-                            for (var s = 1; s <= 4; s++) {
-                                var stepEl = document.querySelector('.tracking-step[data-step="' + s + '"]');
-                                if (!stepEl) continue;
-                                var timeEl = stepEl.querySelector('.tracking-step-time');
-                                if (!timeEl) continue;
-                                
-                                var relevantStatuses = stepStatusMap[s];
-                                var historyEntry = order.statusHistory.find(function(h) { return relevantStatuses.indexOf(h.status) !== -1; });
-                                if (historyEntry) {
-                                    var time = new Date(historyEntry.timestamp);
-                                    timeEl.textContent = time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-                                }
-                            }
-                        }
-
-                        // Show order details card with items
-                        var detailsContainer = document.getElementById('orderDetailsContainer');
-                        if (detailsContainer) {
-                            detailsContainer.innerHTML = 
-                                '<div style="background:var(--card-bg);border:1px solid var(--border-color);border-radius:1rem;padding:1.5rem;margin-top:1.5rem">' +
-                                  '<h3 style="margin:0 0 1rem;font-size:1.1rem;color:var(--text-primary)"><i class="fas fa-receipt" style="color:var(--primary);margin-right:0.5rem"></i>Order Items</h3>' +
-                                  (order.items || []).map(function(item) {
-                                    return '<div style="display:flex;align-items:center;gap:1rem;padding:0.75rem;background:var(--bg-secondary);border-radius:0.75rem;margin-bottom:0.5rem">' +
-                                      (item.image ? '<img src="' + item.image + '" alt="' + (item.name || '') + '" style="width:50px;height:50px;border-radius:0.5rem;object-fit:cover" loading="lazy">' : '<div style="width:50px;height:50px;border-radius:0.5rem;background:rgba(220,38,38,0.1);display:flex;align-items:center;justify-content:center"><i class="fas fa-utensils" style="color:var(--primary)"></i></div>') +
-                                      '<div style="flex:1">' +
-                                        '<div style="font-weight:600;font-size:0.95rem;color:var(--text-primary)">' + (item.name || 'Item') + '</div>' +
-                                        '<div style="font-size:0.85rem;color:var(--text-secondary)">Qty: ' + (item.quantity || 1) + '</div>' +
-                                      '</div>' +
-                                      '<div style="font-weight:700;color:var(--primary)">GHS ' + ((item.price || 0) * (item.quantity || 1)).toFixed(2) + '</div>' +
-                                    '</div>';
-                                  }).join('') +
-                                  '<div style="margin-top:1rem;padding-top:1rem;border-top:2px solid var(--border-color)">' +
-                                    '<div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;font-size:0.9rem;color:var(--text-secondary)"><span>Subtotal</span><span>GHS ' + parseFloat(order.subtotal || 0).toFixed(2) + '</span></div>' +
-                                    '<div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;font-size:0.9rem;color:var(--text-secondary)"><span>Delivery Fee</span><span>GHS ' + parseFloat(order.deliveryFee || 0).toFixed(2) + '</span></div>' +
-                                    (order.tax ? '<div style="display:flex;justify-content:space-between;margin-bottom:0.35rem;font-size:0.9rem;color:var(--text-secondary)"><span>Tax</span><span>GHS ' + parseFloat(order.tax || 0).toFixed(2) + '</span></div>' : '') +
-                                    '<div style="display:flex;justify-content:space-between;font-size:1.1rem;font-weight:700;color:var(--primary);margin-top:0.5rem;padding-top:0.5rem;border-top:1px solid var(--border-color)"><span>Total</span><span>GHS ' + parseFloat(order.total || 0).toFixed(2) + '</span></div>' +
-                                  '</div>' +
-                                '</div>';
-                        }
-                    }
-                    
-                    // Function to load and display a specific order (synced with API)
-                    window.loadOrder = async function(orderId) {
-                        console.log('Loading order:', orderId);
-                        
-                        // Try API first
-                        try {
-                            if (typeof isAuthenticated === 'function' && isAuthenticated() && typeof apiGetOrder === 'function') {
-                                var response = await apiGetOrder(orderId);
-                                if (response && response.success && response.order) {
-                                    displayAPIOrder(response.order);
-                                    return;
-                                }
-                            }
-                        } catch (apiError) {
-                            console.warn('API fetch failed, trying local storage:', apiError.message);
-                        }
-
-                        // Fallback: try localStorage/sessionStorage
-                        var order = null;
-                        try {
-                            var trackingKey = 'trackingOrder_' + orderId;
-                            var trackingData = sessionStorage.getItem(trackingKey);
-                            if (trackingData) order = JSON.parse(trackingData);
-
-                            if (!order) {
-                                var lastOrder = sessionStorage.getItem('lastOrder');
-                                if (lastOrder) {
-                                    var parsed = JSON.parse(lastOrder);
-                                    if (parsed.id === orderId || parsed.orderId === orderId) order = parsed;
-                                }
-                            }
-
-                            if (!order) {
-                                var allOrders = localStorage.getItem('swiftChowOrders');
-                                if (allOrders) {
-                                    var arr = JSON.parse(allOrders);
-                                    order = arr.find(function(o) { return o.id === orderId || o.orderId === orderId; });
-                                }
-                            }
-                        } catch (e) {
-                            console.error('Error loading order from storage:', e);
-                        }
-
-                        if (order) {
-                            // Convert local order to API-like format
-                            var apiLikeOrder = {
-                                orderId: order.id || order.orderId,
-                                items: order.items || [],
-                                subtotal: order.subtotal || 0,
-                                deliveryFee: order.deliveryFee || 0,
-                                tax: order.tax || 0,
-                                total: order.total || 0,
-                                status: order.status || 'confirmed',
-                                createdAt: order.timestamp || order.createdAt || order.date,
-                                estimatedDeliveryTime: 30,
-                                deliveryAddress: order.customer ? {
-                                    street: order.customer.address,
-                                    city: order.customer.city || order.city
-                                } : { street: '', city: order.city || '' },
-                                statusHistory: []
-                            };
-                            displayAPIOrder(apiLikeOrder);
-                        } else {
-                            var orderSummary = document.getElementById('orderSummary');
-                            if (orderSummary) {
-                                orderSummary.innerHTML = 
-                                    '<div style="text-align:center;padding:2rem;color:var(--text-secondary)">' +
-                                    '<i class="fas fa-exclamation-circle" style="font-size:3rem;color:var(--primary);margin-bottom:1rem;display:block"></i>' +
-                                    '<h4 style="color:var(--text-primary);margin-bottom:0.5rem">Order Not Found</h4>' +
-                                    '<p>Could not find order: <strong>' + orderId + '</strong></p>' +
-                                    '<p style="font-size:0.85rem;margin-top:1rem">Please check the order ID and try again.</p></div>';
-                            }
-                        }
-                    };
-                </script>
-                
-                <!-- Order Details - Will be populated by JavaScript -->
-                <div id="orderDetailsContainer" class="order-details-card">
-                    <!-- Dynamic order details will be rendered here -->
-                </div>
-                
-            </main>
+            </div>
         </div>
     </section>
-    
+
+    <script>
+    (function() {
+        'use strict';
+
+        var allOrders = [];
+        var currentFilter = 'all';
+        var selectedOrderId = null;
+        var countdownInterval = null;
+
+        function statusToStep(status) {
+            var map = {
+                'pending': 1, 'confirmed': 1,
+                'preparing': 2, 'ready': 2,
+                'out_for_delivery': 3,
+                'delivered': 4
+            };
+            return map[status] || 1;
+        }
+
+        function statusLabel(s) {
+            var labels = {
+                'pending': 'Pending', 'confirmed': 'Confirmed', 'preparing': 'Preparing',
+                'ready': 'Ready', 'out_for_delivery': 'Out for Delivery',
+                'delivered': 'Delivered', 'cancelled': 'Cancelled'
+            };
+            return labels[s] || s;
+        }
+
+        function statusColor(s) {
+            var colors = {
+                'pending': '#f59e0b', 'confirmed': '#3b82f6', 'preparing': '#f59e0b',
+                'ready': '#8b5cf6', 'out_for_delivery': '#8b5cf6',
+                'delivered': '#10b981', 'cancelled': '#ef4444'
+            };
+            return colors[s] || '#f59e0b';
+        }
+
+        function formatTime(date) {
+            if (!date) return '--';
+            return new Date(date).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function formatDate(date) {
+            if (!date) return '--';
+            return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
+        }
+
+        // LOAD ORDERS
+        function waitForApi(cb) {
+            if (typeof isAuthenticated === 'function' && typeof apiGetOrders === 'function') {
+                cb();
+            } else {
+                setTimeout(function() { waitForApi(cb); }, 150);
+            }
+        }
+
+        function loadAllOrders() {
+            waitForApi(async function() {
+                if (!isAuthenticated()) return;
+                try {
+                    var resp = await apiGetOrders();
+                    if (resp && resp.success && resp.orders) {
+                        allOrders = resp.orders;
+                        localStorage.setItem('swiftChowOrders', JSON.stringify(resp.orders));
+                    }
+                } catch (e) {
+                    allOrders = JSON.parse(localStorage.getItem('swiftChowOrders') || '[]');
+                }
+
+                allOrders.sort(function(a, b) {
+                    return new Date(b.createdAt || b.date) - new Date(a.createdAt || a.date);
+                });
+
+                renderOrdersList();
+
+                var urlParams = new URLSearchParams(window.location.search);
+                var urlOrder = urlParams.get('order') || urlParams.get('orderId');
+                if (urlOrder) {
+                    selectOrder(urlOrder);
+                } else if (allOrders.length > 0) {
+                    selectOrder(allOrders[0].orderId || allOrders[0]._id);
+                }
+            });
+        }
+
+        // RENDER ORDERS LIST
+        function renderOrdersList(searchQuery) {
+            var container = document.getElementById('trackingOrdersList');
+            var filtered = allOrders.slice();
+
+            if (currentFilter === 'active') {
+                filtered = filtered.filter(function(o) {
+                    return o.status !== 'delivered' && o.status !== 'cancelled';
+                });
+            } else if (currentFilter === 'delivered') {
+                filtered = filtered.filter(function(o) {
+                    return o.status === 'delivered';
+                });
+            }
+
+            if (searchQuery) {
+                var q = searchQuery.toLowerCase();
+                filtered = filtered.filter(function(o) {
+                    return (o.orderId || o._id || '').toLowerCase().indexOf(q) !== -1;
+                });
+            }
+
+            if (filtered.length === 0) {
+                container.innerHTML =
+                    '<div class="tracking-no-orders">' +
+                    '<i class="fas fa-box-open"></i>' +
+                    '<p>' + (searchQuery ? 'No orders match your search' : currentFilter === 'active' ? 'No active orders' : currentFilter === 'delivered' ? 'No delivered orders yet' : 'No orders yet') + '</p>' +
+                    (!searchQuery ? '<a href="menu.html" class="btn btn-primary btn-sm" style="margin-top:1rem;border-radius:2rem;"><i class="fas fa-utensils"></i> Order Now</a>' : '') +
+                    '</div>';
+                return;
+            }
+
+            container.innerHTML = filtered.map(function(order) {
+                var oid = escapeHTML(order.orderId || order._id);
+                var dateStr = formatDate(order.createdAt || order.date);
+                var status = order.status || 'confirmed';
+                var color = statusColor(status);
+                var label = statusLabel(status);
+                var total = parseFloat(order.total || 0).toFixed(2);
+                var items = order.items || [];
+                var itemCount = items.reduce(function(s, i) { return s + (i.quantity || 1); }, 0);
+                var isSelected = (order.orderId === selectedOrderId || order._id === selectedOrderId);
+                var isDelivered = status === 'delivered';
+
+                return '<button class="to-card' + (isSelected ? ' selected' : '') + (isDelivered ? ' delivered' : '') + '" data-oid="' + oid + '">' +
+                    '<div class="to-card-top">' +
+                        '<div class="to-card-id">' +
+                            '<span class="to-card-orderno">' + oid + '</span>' +
+                            '<span class="to-card-date">' + dateStr + '</span>' +
+                        '</div>' +
+                        '<span class="to-card-status" style="background:' + color + '15;color:' + color + ';border-color:' + color + '30">' +
+                            (isDelivered ? '<i class="fas fa-check-circle"></i> ' : '<i class="fas fa-circle" style="font-size:0.5rem;vertical-align:middle;"></i> ') +
+                            label +
+                        '</span>' +
+                    '</div>' +
+                    '<div class="to-card-bottom">' +
+                        '<span class="to-card-items"><i class="fas fa-shopping-bag"></i> ' + itemCount + ' item' + (itemCount !== 1 ? 's' : '') + '</span>' +
+                        '<span class="to-card-total">GHS ' + total + '</span>' +
+                    '</div>' +
+                '</button>';
+            }).join('');
+
+            container.querySelectorAll('.to-card').forEach(function(card) {
+                card.addEventListener('click', function() {
+                    selectOrder(this.getAttribute('data-oid'));
+                });
+            });
+        }
+
+        // SELECT ORDER
+        function selectOrder(orderId) {
+            selectedOrderId = orderId;
+            document.querySelectorAll('.to-card').forEach(function(c) { c.classList.remove('selected'); });
+            var sel = document.querySelector('.to-card[data-oid="' + orderId + '"]');
+            if (sel) sel.classList.add('selected');
+
+            var order = allOrders.find(function(o) { return o.orderId === orderId || o._id === orderId; });
+            if (!order) {
+                if (typeof apiGetOrder === 'function') {
+                    apiGetOrder(orderId).then(function(resp) {
+                        if (resp && resp.success && resp.order) displayOrder(resp.order);
+                    }).catch(function() {
+                        document.getElementById('trackingEmptyState').innerHTML =
+                            '<div class="tracking-empty-icon"><i class="fas fa-exclamation-circle"></i></div>' +
+                            '<h3>Order Not Found</h3><p>Could not find order: <strong>' + escapeHTML(orderId) + '</strong></p>';
+                        document.getElementById('trackingEmptyState').style.display = '';
+                        document.getElementById('trackingDetailContent').style.display = 'none';
+                    });
+                }
+                return;
+            }
+            displayOrder(order);
+        }
+
+        function displayOrder(order) {
+            document.getElementById('trackingEmptyState').style.display = 'none';
+            document.getElementById('trackingDetailContent').style.display = '';
+
+            var status = order.status || 'confirmed';
+            var step = statusToStep(status);
+            var oid = order.orderId || order._id;
+
+            // Header
+            document.getElementById('tdOrderId').textContent = 'Order #' + (oid || '--');
+            document.getElementById('tdOrderDate').textContent = formatDate(order.createdAt) + ' at ' + formatTime(order.createdAt);
+
+            // Status pill
+            var pill = document.getElementById('tdStatusPill');
+            var color = statusColor(status);
+            pill.style.background = color + '15';
+            pill.style.color = color;
+            pill.style.borderColor = color + '40';
+            pill.querySelector('span').textContent = statusLabel(status);
+            pill.querySelector('i').className = status === 'delivered' ? 'fas fa-check-circle' : status === 'cancelled' ? 'fas fa-times-circle' : 'fas fa-spinner fa-spin';
+
+            // ETA
+            var etaCard = document.getElementById('tdEtaCard');
+            var etaLabel = document.getElementById('tdEtaLabel');
+            var etaValue = document.getElementById('tdEtaValue');
+            if (status === 'delivered') {
+                etaCard.classList.add('delivered');
+                etaCard.querySelector('.td-eta-icon i').className = 'fas fa-check-circle';
+                etaLabel.textContent = 'Delivered at';
+                var deliveredTime = order.deliveredAt || order.actualDeliveryTime;
+                if (!deliveredTime) {
+                    var hist = (order.statusHistory || []).filter(function(h) { return h.status === 'delivered'; });
+                    deliveredTime = hist.length ? hist[0].timestamp : null;
+                }
+                etaValue.textContent = deliveredTime ? formatTime(deliveredTime) : 'Completed';
+                if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            } else if (status === 'cancelled') {
+                etaCard.classList.remove('delivered');
+                etaCard.querySelector('.td-eta-icon i').className = 'fas fa-times-circle';
+                etaLabel.textContent = 'Order Cancelled';
+                etaValue.textContent = '--';
+                if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
+            } else {
+                etaCard.classList.remove('delivered');
+                etaCard.querySelector('.td-eta-icon i').className = 'fas fa-clock';
+                etaLabel.textContent = 'Estimated Delivery';
+                startCountdown(order);
+            }
+
+            updateBikePosition(step);
+            updateTimeline(order, step);
+            renderOrderItems(order);
+
+            // Address
+            if (order.deliveryAddress && order.deliveryAddress.street) {
+                document.getElementById('tdAddressCard').style.display = '';
+                document.getElementById('tdAddress').textContent =
+                    (order.deliveryAddress.street || '') +
+                    (order.deliveryAddress.city ? ', ' + order.deliveryAddress.city : '') +
+                    (order.deliveryAddress.landmark ? ' (Near ' + order.deliveryAddress.landmark + ')' : '');
+            } else {
+                document.getElementById('tdAddressCard').style.display = 'none';
+            }
+
+            if (window.innerWidth < 768) {
+                document.getElementById('detailPanel').scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // COUNTDOWN
+        function startCountdown(order) {
+            if (countdownInterval) clearInterval(countdownInterval);
+            var createdAt = new Date(order.createdAt || order.date).getTime();
+            var estMinutes = order.estimatedDeliveryTime || 30;
+            var estDelivery = createdAt + estMinutes * 60000;
+
+            function tick() {
+                var now = Date.now();
+                var remaining = estDelivery - now;
+                var el = document.getElementById('tdEtaValue');
+                if (!el) { clearInterval(countdownInterval); return; }
+                if (remaining <= 0) {
+                    el.textContent = 'Arriving soon!';
+                    clearInterval(countdownInterval);
+                    return;
+                }
+                var mins = Math.floor(remaining / 60000);
+                var secs = Math.floor((remaining % 60000) / 1000);
+                el.textContent = mins > 0 ? mins + ' min' + (mins !== 1 ? 's' : '') + ' ' + secs + 's remaining' : secs + 's remaining';
+            }
+            tick();
+            countdownInterval = setInterval(tick, 1000);
+        }
+
+        // BIKE POSITION
+        function updateBikePosition(step) {
+            var fill = document.getElementById('tdRoadFill');
+            var bike = document.getElementById('tdBike');
+            var positions = { 1: 5, 2: 30, 3: 65, 4: 100 };
+            var pct = positions[step] || 5;
+            fill.style.width = pct + '%';
+            bike.style.left = 'calc(' + pct + '% - 16px)';
+            if (step >= 4) { bike.classList.add('arrived'); } else { bike.classList.remove('arrived'); }
+        }
+
+        // TIMELINE
+        function updateTimeline(order, currentStep) {
+            var ts = getStageTimestamps(order);
+            for (var s = 1; s <= 4; s++) {
+                var el = document.getElementById('tdStep' + s);
+                var timeEl = el.querySelector('.td-step-time');
+                el.classList.remove('completed', 'active', 'upcoming');
+                if (s < currentStep) {
+                    el.classList.add('completed');
+                    timeEl.textContent = ts[s] || '--';
+                } else if (s === currentStep) {
+                    if (currentStep === 4 && order.status === 'delivered') {
+                        el.classList.add('completed');
+                        timeEl.textContent = ts[s] || 'Just now';
+                    } else {
+                        el.classList.add('active');
+                        timeEl.textContent = 'In progress...';
+                    }
+                } else {
+                    el.classList.add('upcoming');
+                    timeEl.textContent = 'Pending';
+                }
+            }
+        }
+
+        function getStageTimestamps(order) {
+            var timestamps = {};
+            if (order.confirmedAt) timestamps[1] = formatTime(order.confirmedAt);
+            if (order.preparingAt) timestamps[2] = formatTime(order.preparingAt);
+            if (order.outForDeliveryAt) timestamps[3] = formatTime(order.outForDeliveryAt);
+            if (order.deliveredAt) timestamps[4] = formatTime(order.deliveredAt);
+
+            var stepMap = { 'pending': 1, 'confirmed': 1, 'preparing': 2, 'ready': 2, 'out_for_delivery': 3, 'delivered': 4 };
+            (order.statusHistory || []).forEach(function(h) {
+                var s = stepMap[h.status];
+                if (s && !timestamps[s]) timestamps[s] = formatTime(h.timestamp);
+            });
+
+            if (!timestamps[1] && order.createdAt) timestamps[1] = formatTime(order.createdAt);
+
+            // Simulated timestamps for orders without history
+            if (!timestamps[1] && !(order.statusHistory || []).length) {
+                var base = new Date(order.createdAt || order.date || Date.now());
+                timestamps[1] = formatTime(base);
+                var step = statusToStep(order.status);
+                if (step >= 2) timestamps[2] = formatTime(new Date(base.getTime() + 5 * 60000));
+                if (step >= 3) timestamps[3] = formatTime(new Date(base.getTime() + 15 * 60000));
+                if (step >= 4) timestamps[4] = formatTime(new Date(base.getTime() + 30 * 60000));
+            }
+            return timestamps;
+        }
+
+        // ORDER ITEMS
+        function renderOrderItems(order) {
+            var items = order.items || [];
+            var listEl = document.getElementById('tdItemsList');
+            var totalsEl = document.getElementById('tdItemsTotals');
+
+            listEl.innerHTML = items.map(function(item) {
+                var name = escapeHTML(item.name || 'Item');
+                var qty = item.quantity || 1;
+                var price = ((item.price || 0) * qty).toFixed(2);
+                var imgSrc = item.image ? (typeof sanitizeURL === 'function' ? sanitizeURL(item.image) : item.image) : '';
+                return '<div class="td-item">' +
+                    (imgSrc ? '<img src="' + imgSrc + '" alt="' + name + '" class="td-item-img" loading="lazy">' :
+                    '<div class="td-item-img td-item-placeholder"><i class="fas fa-utensils"></i></div>') +
+                    '<div class="td-item-info"><span class="td-item-name">' + name + '</span><span class="td-item-qty">x' + qty + '</span></div>' +
+                    '<span class="td-item-price">GHS ' + price + '</span></div>';
+            }).join('');
+
+            totalsEl.innerHTML =
+                '<div class="td-total-row"><span>Subtotal</span><span>GHS ' + parseFloat(order.subtotal || 0).toFixed(2) + '</span></div>' +
+                '<div class="td-total-row"><span>Delivery Fee</span><span>GHS ' + parseFloat(order.deliveryFee || 0).toFixed(2) + '</span></div>' +
+                (parseFloat(order.tax || 0) > 0 ? '<div class="td-total-row"><span>Tax</span><span>GHS ' + parseFloat(order.tax || 0).toFixed(2) + '</span></div>' : '') +
+                '<div class="td-total-row td-grand-total"><span>Total</span><span>GHS ' + parseFloat(order.total || 0).toFixed(2) + '</span></div>';
+        }
+
+        // EVENTS
+        document.addEventListener('DOMContentLoaded', function() {
+            document.querySelectorAll('.tracking-tab').forEach(function(tab) {
+                tab.addEventListener('click', function() {
+                    document.querySelectorAll('.tracking-tab').forEach(function(t) { t.classList.remove('active'); });
+                    this.classList.add('active');
+                    currentFilter = this.getAttribute('data-filter');
+                    renderOrdersList();
+                });
+            });
+
+            var searchInput = document.getElementById('trackSearchInput');
+            document.getElementById('trackSearchForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                renderOrdersList(searchInput.value.trim());
+            });
+            searchInput.addEventListener('input', function() {
+                renderOrdersList(this.value.trim());
+            });
+
+            loadAllOrders();
+        });
+
+        window.loadOrder = function(orderId) { selectOrder(orderId); };
+    })();
+    </script>
+
     <!-- Footer -->
     <footer class="footer">
         <div class="container">
@@ -1189,7 +671,6 @@
                         <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
                     </div>
                 </div>
-                
                 <div class="footer-column">
                     <h4>Quick Links</h4>
                     <ul class="footer-links">
@@ -1201,7 +682,6 @@
                         <li><a href="reviews.html">Reviews</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-column">
                     <h4>Support</h4>
                     <ul class="footer-links">
@@ -1211,7 +691,6 @@
                         <li><a href="contact.html#faq">FAQ</a></li>
                     </ul>
                 </div>
-                
                 <div class="footer-column">
                     <h4>Contact Us</h4>
                     <div class="footer-contact-item">
@@ -1232,14 +711,12 @@
                     </div>
                 </div>
             </div>
-            
             <div class="footer-bottom">
                 <p>&copy; 2026 SWIFT CHOW. Designed by Ayensu Edwin Yaw Boadi</p>
             </div>
         </div>
     </footer>
-    
-    <!-- JavaScript Files - Order matters! -->
+
     <script src="js/data.js" defer></script>
     <script src="js/api.js" defer></script>
     <script src="js/cart.js" defer></script>
