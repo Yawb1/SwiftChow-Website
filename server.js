@@ -3,6 +3,10 @@
  * Production-ready Express server with MongoDB and OAuth authentication
  */
 
+// IMPORTANT: Initialize Sentry first, before anything else
+require("./instrument.js");
+const Sentry = require("@sentry/node");
+
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');
@@ -507,6 +511,11 @@ app.get('*', (req, res, next) => {
     }
   });
 });
+
+// ============================================
+// SENTRY ERROR HANDLER (before other error handlers)
+// ============================================
+app.use(Sentry.Handlers.errorHandler());
 
 // ============================================
 // ERROR HANDLING
