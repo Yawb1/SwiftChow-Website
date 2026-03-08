@@ -56,7 +56,6 @@ router.post('/create', requireAuth, async (req, res) => {
       status: 'confirmed'
     });
     
-    console.log('Order to save:', order);
     await order.save();
     
     // Update user stats (safely)

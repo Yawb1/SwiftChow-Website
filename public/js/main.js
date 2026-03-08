@@ -903,7 +903,6 @@ function renderStars(rating) {
         selectedRating = index + 1;
         updateStarDisplay(stars, selectedRating);
         container.dataset.rating = selectedRating;
-        console.log('Star rating selected:', selectedRating);
       });
       
       star.addEventListener('mouseenter', () => {
@@ -1008,8 +1007,6 @@ function initReviewForm() {
         console.warn('Could not submit review to server:', emailError);
         // Don't block the submission if API fails - review is saved locally
       }
-      
-      console.log('Review submitted:', newReview);
       if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-check"></i> Submitted!';
       showAdvancedToast('Thank you! Your review has been submitted. A confirmation email has been sent.', 'success');
       
@@ -1590,7 +1587,6 @@ function initCheckoutForm() {
       setOrderLoading(true);
       processOrder(orderData).then(order => {
         if (order && order.id) {
-          console.log('✅ Redirecting to order success with orderId:', order.id);
           window.location.href = `order-success.html?order=${order.id}`;
         } else {
           setOrderLoading(false);
@@ -1736,7 +1732,6 @@ function showPaymentModal(orderData) {
         if (order && order.id) {
           showToast('Payment successful! Order confirmed.', 'success');
           setTimeout(() => {
-            console.log('✅ Redirecting to order success with orderId:', order.id);
             window.location.href = `order-success.html?order=${order.id}`;
           }, 1000);
         } else {
@@ -1781,22 +1776,15 @@ function initOrderTracking() {
 }
 
 function displayOrderTracking(orderId) {
-  console.log('🔍 displayOrderTracking called with orderId:', orderId);
-  
   // First, try to fetch from API (database)
   let order = null;
   
   const fetchAndDisplay = async () => {
     try {
-      console.log('📍 fetchAndDisplay started, authenticated:', isAuthenticated());
-      
       // Try to fetch from API if user is authenticated
       if (isAuthenticated() && typeof apiGetOrder === 'function') {
         try {
-          console.log('📡 Fetching order from API:', orderId);
           const response = await apiGetOrder(orderId);
-          console.log('📦 API Response:', response);
-          
           if (response && response.success && response.order) {
             order = {
               id: response.order.orderId || response.order._id,
@@ -1815,23 +1803,17 @@ function displayOrderTracking(orderId) {
               timestamp: response.order.createdAt,
               createdAt: response.order.createdAt
             };
-            console.log('✅ Order fetched from API:', order);
           } else {
             console.warn('⚠️ API response invalid:', { success: response?.success, hasOrder: !!response?.order });
           }
         } catch (apiError) {
           console.warn('❌ API fetch failed, checking localStorage:', apiError.message);
           order = getOrderById(orderId);
-          console.log('📦 Order from localStorage:', order);
         }
       } else {
         // Fallback to localStorage if not authenticated
-        console.log('📌 Not authenticated or apiGetOrder not available, using localStorage');
         order = getOrderById(orderId);
-        console.log('📦 Order from localStorage:', order);
       }
-      
-      console.log('🎯 About to display UI with order:', order);
       // Display the order
       displayTrackingUI(orderId, order);
     } catch (error) {
@@ -1939,7 +1921,6 @@ function initOrderSuccess() {
         // Try API if authenticated
         if (isAuthenticated() && typeof apiGetOrder === 'function') {
           try {
-            console.log('Fetching success page order from API:', orderId);
             const response = await apiGetOrder(orderId);
             
             if (response && response.success && response.order) {
@@ -1950,7 +1931,6 @@ function initOrderSuccess() {
                 subtotal: response.order.subtotal,
                 deliveryFee: response.order.deliveryFee
               };
-              console.log('✅ Order fetched from API for success page');
             }
           } catch (apiError) {
             console.warn('API fetch failed for success page, using localStorage:', apiError.message);
@@ -2001,42 +1981,26 @@ function updateNavAuthUI() {
   if (storedUser) {
     try {
       currentUser = JSON.parse(storedUser);
-      console.log('Nav UI: User found:', currentUser.email);
     } catch (e) {
       console.error('Nav UI: Error parsing user:', e);
       currentUser = null;
     }
   } else {
-    console.log('Nav UI: No user logged in');
   }
   
   // Find login buttons and user menu elements
   const loginBtns = document.querySelectorAll('#loginBtn, .nav-login-btn');
-  console.log('updateNavAuthUI: Found', loginBtns.length, 'login buttons');
-  
   const userMenus = document.querySelectorAll('.nav-user-menu');
   const navActions = document.querySelectorAll('.nav-actions');
-  
-  console.log('updateNavAuthUI: Found', navActions.length, 'nav-actions');
-  
   navActions.forEach((navAction, index) => {
-    console.log('updateNavAuthUI: Processing nav-action', index);
-    
     // Check if already has user menu
     let userMenu = navAction.querySelector('.nav-user-dropdown');
     let loginBtn = navAction.querySelector('#loginBtn, .nav-login-btn');
     let userProfile = navAction.querySelector('.user-profile');
-    
-    console.log('  - Found loginBtn:', !!loginBtn);
-    console.log('  - Found userMenu:', !!userMenu);
-    console.log('  - Found userProfile:', !!userProfile);
-    
     if (currentUser) {
       // User is logged in - hide login button
-      console.log('  - User logged in, hiding button');
       if (loginBtn) {
         loginBtn.style.display = 'none';
-        console.log('  - Button hidden');
       }
       
       // Avatar is now handled by updateAuthUI() function instead
@@ -2044,52 +2008,40 @@ function updateNavAuthUI() {
       
     } else {
       // User is not logged in - show login button and remove avatar
-      console.log('  - User not logged in, preparing to show button');
-      
       if (userMenu) {
-        console.log('  - Removing old userMenu');
         userMenu.remove();
       }
       if (userProfile) {
-        console.log('  - Removing old userProfile');
         userProfile.remove();
       }
       
       if (loginBtn) {
-        console.log('  - Found loginBtn, showing it');
         loginBtn.style.display = 'inline-flex';
         loginBtn.style.visibility = 'visible';
         loginBtn.style.opacity = '1';
         
         // Re-attach click handler to existing button
         loginBtn.onclick = function(e) {
-          console.log('  - loginBtn onclick triggered');
           e.preventDefault();
           e.stopPropagation();
           const loginModal = document.getElementById('loginModal');
           if (loginModal) {
-            console.log('  - Opening login modal via openModal');
             openModal(loginModal);
           } else {
             console.warn('  - Login modal not found, redirecting to login page');
             window.location.href = 'login.html';
           }
         };
-        
-        console.log('  - Button is now visible with handlers attached');
       } else {
-        console.log('  - loginBtn not found, creating one');
         // If login button doesn't exist, create it
         const newLoginBtn = document.createElement('button');
         newLoginBtn.id = 'loginBtn';
         newLoginBtn.className = 'btn btn-primary btn-sm';
         newLoginBtn.innerHTML = '<i class="fas fa-user"></i> Login';
         newLoginBtn.onclick = function(e) {
-          console.log('  - NEW loginBtn onclick triggered');
           e.preventDefault();
           const loginModal = document.getElementById('loginModal');
           if (loginModal) {
-            console.log('  - Opening login modal from NEW button');
             openModal(loginModal);
           } else {
             console.warn('  - Login modal not found from NEW button, redirecting to login page');
@@ -2100,16 +2052,12 @@ function updateNavAuthUI() {
         const mobileMenuBtn = navAction.querySelector('.mobile-menu-btn');
         if (mobileMenuBtn) {
           navAction.insertBefore(newLoginBtn, mobileMenuBtn);
-          console.log('  - NEW button created and inserted');
         } else {
           navAction.appendChild(newLoginBtn);
-          console.log('  - NEW button created and appended');
         }
       }
     }
   });
-  
-  console.log('=== updateNavAuthUI complete ===');
 }
 
 function getInitials(name) {
@@ -2150,13 +2098,10 @@ function init() {
     
     // Get current page
     const page = document.body.dataset.page;
-    console.log('=== Page initialization started for page:', page, '===');
-    
     // Page-specific initialization - with try-catch for each
     try {
       switch (page) {
         case 'home':
-          console.log('Initializing HOME page - carousel will load');
           try { initDealsCarousel(); } catch (e) { console.warn('initDealsCarousel error:', e); }
           try { initCategories(); } catch (e) { console.warn('initCategories error:', e); }
           try { renderPopularItems(); } catch (e) { console.warn('renderPopularItems error:', e); }
@@ -2468,7 +2413,6 @@ async function loadOrders() {
         localStorage.setItem('swiftChowOrders', JSON.stringify(response.orders));
       }
     } catch (e) {
-      console.log('API orders fetch failed, falling back to localStorage');
     }
   }
   
@@ -3061,9 +3005,6 @@ function initModals() {
       const password = loginForm.querySelector('#login-password')?.value || loginForm.querySelector('input[name="password"]')?.value;
       const remember = loginForm.querySelector('input[name="remember"]')?.checked;
       const submitBtn = loginForm.querySelector('button[type="submit"]');
-      
-      console.log('Login form submitted:', { email, password: password ? '***' : 'missing', remember });
-      
       if (email && password) {
         // Loading state
         const origText = submitBtn ? submitBtn.innerHTML : '';
@@ -3073,8 +3014,6 @@ function initModals() {
         }
         
         const result = await login(email, password, remember);
-        console.log('Login result:', result);
-        
         if (result.success) {
           if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
           showAdvancedToast('Login successful! Welcome back!', 'success');
@@ -3099,13 +3038,9 @@ function initModals() {
   
   // Signup form submission
   const signupForm = document.getElementById('signupModalForm');
-  console.log('Setting up signup form handler. signupForm found:', !!signupForm);
-  
   if (signupForm) {
     signupForm.addEventListener('submit', async (e) => {
       e.preventDefault();
-      console.log('Signup form submitted!');
-      
       const fullName = signupForm.querySelector('#signup-fullname')?.value || signupForm.querySelector('input[name="fullName"]')?.value;
       const email = signupForm.querySelector('#signup-email')?.value || signupForm.querySelector('input[name="email"]')?.value;
       const phone = signupForm.querySelector('#signup-phone')?.value || signupForm.querySelector('input[name="phone"]')?.value;
@@ -3113,9 +3048,6 @@ function initModals() {
       const confirmPassword = signupForm.querySelector('#signup-confirm')?.value || signupForm.querySelector('input[name="confirmPassword"]')?.value;
       const terms = signupForm.querySelector('input[name="terms"]')?.checked;
       const submitBtn = signupForm.querySelector('button[type="submit"]');
-      
-      console.log('Signup form values:', { fullName, email, phone, passwordLength: password?.length, confirmPasswordLength: confirmPassword?.length, terms });
-      
       if (!fullName || !email || !phone || !password || !confirmPassword || !terms) {
         console.error('Signup validation failed. Missing:', { fullName: !fullName, email: !email, phone: !phone, password: !password, confirmPassword: !confirmPassword, terms: !terms });
         showAdvancedToast('Please fill in all fields and accept terms', 'error');
@@ -3129,10 +3061,7 @@ function initModals() {
         submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
       }
       
-      console.log('Signup validation passed, calling register()...');
       const result = await register(fullName, email, phone, password, confirmPassword);
-      console.log('Register result:', result);
-      
       if (result.success) {
         if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
         showAdvancedToast('Account created! Welcome to SWIFT CHOW!', 'success');
@@ -3360,18 +3289,13 @@ function updateAuthUI() {
   const navActions = document.querySelector('.nav-actions');
   
   if (!navActions) {
-    console.log('updateAuthUI: nav-actions not found, retrying in 100ms...');
     // Retry after a brief delay in case page is still loading
     setTimeout(() => updateAuthUI(), 100);
     return;
   }
-  
-  console.log('updateAuthUI: Processing user state', user ? user.email : 'not logged in');
-  
   // Remove old avatar
   const oldUserProfile = navActions.querySelector('.user-profile');
   if (oldUserProfile) {
-    console.log('updateAuthUI: Removing old avatar');
     oldUserProfile.remove();
   }
   
@@ -3379,18 +3303,14 @@ function updateAuthUI() {
   const isUserLoggedIn = user || isLoggedIn();
   
   if (isUserLoggedIn) {
-    console.log('updateAuthUI: User is logged in, showing avatar');
-    
     // Hide login button when user is logged in
     const loginBtn = navActions.querySelector('#loginBtn');
     if (loginBtn) {
       loginBtn.style.display = 'none';
-      console.log('updateAuthUI: Login button hidden');
     }
     
     // If user object is null but authenticated, use token to proceed
     if (!user) {
-      console.log('updateAuthUI: User object is null but authenticated. Showing generic avatar.');
       // Create a generic user object for display
       user = { email: 'User', fullName: 'User' };
     }
@@ -3497,13 +3417,10 @@ function updateAuthUI() {
       });
     }
   } else {
-    console.log('updateAuthUI: User is NOT logged in');
-    
     // Show login button when user is not logged in
     const loginBtn = navActions.querySelector('#loginBtn');
     if (loginBtn) {
       loginBtn.style.display = 'inline-flex';
-      console.log('updateAuthUI: Login button shown');
     }
   }
 }
@@ -3584,8 +3501,6 @@ function handleNewsletterSubmit(event) {
     showAdvancedToast('Please enter a valid email address', 'error');
     return;
   }
-  
-  console.log('Newsletter signup:', email);
   showAdvancedToast('Thank you for subscribing! Check your email for confirmation.', 'success');
   form.reset();
 }

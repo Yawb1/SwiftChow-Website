@@ -128,7 +128,6 @@ router.post('/login', (req, res, next) => {
     }
     
     if (!user) {
-      console.log('No user found:', info);
       return res.status(401).json({ error: { message: info?.message || 'Invalid credentials', status: 401 } });
     }
     
@@ -148,8 +147,6 @@ router.post('/login', (req, res, next) => {
         JWT_SECRET,
         { expiresIn: JWT_EXPIRES_IN }
       );
-      
-      console.log('Login successful for:', user.email, 'Token:', token.substring(0, 20) + '...');
       
       // Send login notification email (non-blocking)
       const loginTime = new Date().toLocaleString('en-US', { 
@@ -192,7 +189,8 @@ router.get('/google/callback', passport.authenticate('google', { failureRedirect
     { expiresIn: JWT_EXPIRES_IN }
   );
   
-  res.redirect(`${process.env.CLIENT_URL || 'https://swiftchow.me'}/menu.html?token=${token}&user=${encodeURIComponent(JSON.stringify(req.user))}`);
+  // Only pass the token — frontend fetches user data via /api/users/profile
+  res.redirect(`${process.env.CLIENT_URL || 'https://swiftchow.me'}/menu.html?token=${token}`);
 });
 
 // ============================================

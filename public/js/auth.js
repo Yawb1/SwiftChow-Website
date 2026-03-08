@@ -124,7 +124,6 @@ async function register(fullName = '', email = '', phone = '', password = '', co
             fullName: response.user.fullName || `${firstName} ${lastName}`
           })
         });
-        console.log('Signup confirmation email sent:', emailResponse.ok);
       } catch (error) {
         console.warn('Could not send signup confirmation email:', error);
       }
@@ -531,46 +530,41 @@ function initAuth() {
   // CHECK FOR OAUTH CALLBACK with token in URL
   const urlParams = new URLSearchParams(window.location.search);
   const tokenFromUrl = urlParams.get('token');
-  const userFromUrl = urlParams.get('user');
   
   if (tokenFromUrl) {
     try {
       // Save token
       localStorage.setItem('authToken', tokenFromUrl);
       
-      if (userFromUrl) {
-        try {
-          const userData = JSON.parse(decodeURIComponent(userFromUrl));
-          // SECURITY: Validate parsed user data has expected shape
-          // Only allow known safe fields to prevent prototype pollution
-          const safeUser = {
-            id: userData.id || userData._id || '',
-            email: String(userData.email || ''),
-            firstName: String(userData.firstName || ''),
-            lastName: String(userData.lastName || ''),
-            fullName: String(userData.fullName || userData.firstName || ''),
-            phone: String(userData.phone || ''),
-            avatar: userData.avatar ? String(userData.avatar) : undefined
-          };
-          currentUser = safeUser;
-          localStorage.setItem('swiftChowUser', JSON.stringify(safeUser));
-        } catch (parseError) {
-          console.error('Auth: Error parsing user data from URL:', parseError);
-        }
-      }
-      
       // Clean up URL to remove token (for cleaner history)
       window.history.replaceState({}, document.title, window.location.pathname);
       
-      // Update UI after a short delay to ensure all scripts are loaded
-      setTimeout(() => {
+      // Fetch user profile from API using the token
+      fetch('/api/users/profile', {
+        headers: {
+          'Authorization': 'Bearer ' + tokenFromUrl,
+          'Content-Type': 'application/json'
+        }
+      })
+      .then(function(res) { return res.json(); })
+      .then(function(data) {
+        if (data && data.user) {
+          currentUser = data.user;
+          localStorage.setItem('swiftChowUser', JSON.stringify(data.user));
+        }
         if (typeof updateAuthUI === 'function') {
           updateAuthUI();
         }
         if (typeof updateFloatingCart === 'function') {
           updateFloatingCart();
         }
-      }, 100);
+      })
+      .catch(function() {
+        // Token is saved; UI will update on next page load
+        if (typeof updateAuthUI === 'function') {
+          updateAuthUI();
+        }
+      });
     } catch (e) {
       console.error('Auth: Error processing OAuth callback:', e);
     }

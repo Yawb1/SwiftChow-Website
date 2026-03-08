@@ -239,5 +239,3 @@ async function apiGetOrder(orderId) {
 function isAuthenticated() {
   return !!getAuthToken();
 }
-
-console.log('API Client loaded. Base URL:', API_BASE_URL);

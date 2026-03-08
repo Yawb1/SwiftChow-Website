@@ -86,8 +86,6 @@ async function loadCart() {
     
     // Clear localStorage cart as it's now synced
     localStorage.removeItem('swiftChowCart');
-    
-    console.log('Cart loaded from API with localStorage merge:', cart.length, 'items');
     window.cart = cart; // Sync to window object
     updateCartDisplay();
     updateCartCount();
@@ -96,7 +94,6 @@ async function loadCart() {
     // Fallback to localStorage
     cart = JSON.parse(localStorage.getItem('swiftChowCart')) || [];
     cartLoaded = true;
-    console.log('Cart loaded from localStorage (fallback):', cart.length, 'items');
     window.cart = cart; // Sync to window object
     updateCartDisplay();
     updateCartCount();
@@ -588,9 +585,6 @@ async function processOrder(orderData) {
       paymentMethod: orderData.paymentMethod || 'cod',
       specialInstructions: orderData.notes || ''
     };
-    
-    console.log('Sending order to backend:', orderPayload);
-    
     // Call backend API to create order
     const response = await apiCreateOrder(orderPayload);
     
@@ -638,17 +632,6 @@ async function processOrder(orderData) {
       // This is what the tracking page will look for first
       const trackingOrderId = localOrder.id || localOrder.orderId || order.orderId || order._id;
       sessionStorage.setItem('trackingOrder_' + trackingOrderId, JSON.stringify(localOrder));
-      
-      console.log('✅ Order saved to database and local storage:', {
-        id: localOrder.id,
-        orderId: localOrder.orderId,
-        trackingOrderId: trackingOrderId,
-        timestamp: localOrder.timestamp,
-        city: localOrder.city,
-        totalItems: localOrder.items.length,
-        status: localOrder.status
-      });
-      
       // Clear cart
       cart = [];
       saveCart();

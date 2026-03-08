@@ -63,6 +63,15 @@ router.put('/change-password', requireAuth, async (req, res) => {
     if (newPassword.length < 8) {
       return res.status(400).json({ error: 'New password must be at least 8 characters' });
     }
+    if (!/[a-zA-Z]/.test(newPassword)) {
+      return res.status(400).json({ error: 'Password must contain at least one letter' });
+    }
+    if (!/[0-9]/.test(newPassword)) {
+      return res.status(400).json({ error: 'Password must contain at least one number' });
+    }
+    if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(newPassword)) {
+      return res.status(400).json({ error: 'Password must contain at least one symbol (!@#$%^&* etc.)' });
+    }
 
     const user = await User.findById(req.user._id).select('+password');
     if (!user) return res.status(404).json({ error: 'User not found' });
