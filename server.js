@@ -160,6 +160,11 @@ app.get('/api/test-sentry', (req, res) => {
   }
 });
 
+// Official Sentry debug endpoint (as per Sentry docs)
+app.get('/debug-sentry', function mainHandler(req, res) {
+  throw new Error('My first Sentry error!');
+});
+
 // ============================================
 // EMAIL ENDPOINTS
 // ============================================
@@ -530,9 +535,9 @@ app.get('*', (req, res, next) => {
 });
 
 // ============================================
-// SENTRY ERROR HANDLER (before other error handlers)
+// SENTRY ERROR HANDLER (Sentry official best practice)
 // ============================================
-app.use(Sentry.Handlers.errorHandler());
+Sentry.setupExpressErrorHandler(app);
 
 // ============================================
 // ERROR HANDLING
