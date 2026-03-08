@@ -178,6 +178,26 @@
         </div>
     </section>
     
+    <!-- Goes Well With Your Order -->
+    <section class="container" style="padding: 2rem 0;">
+        <div id="recommendations-container"></div>
+    </section>
+    <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        if (typeof SwiftRecommendations !== 'undefined') {
+            SwiftRecommendations.render('recommendations-container', {
+                showOrderAgain: false,
+                showRecentlyViewed: false,
+                showCategoryRecs: false,
+                showTimeBased: false,
+                showTrending: true,
+                showComplementary: true,
+                compact: true
+            });
+        }
+    });
+    </script>
+    
     <!-- Footer -->
     </main>
     <footer class="footer">
@@ -255,6 +275,8 @@
     <script src="js/auth.js" defer></script>
     <script src="js/modals.js" defer></script>
     <script src="js/main.js" defer></script>
+    <script src="js/recommendations.js" defer></script>
+    <script src="js/chatbot.js" defer></script>
     <script>
     // Show Track Order link only when signed in
     document.addEventListener('DOMContentLoaded', function() {

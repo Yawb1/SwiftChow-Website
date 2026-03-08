@@ -688,9 +688,60 @@
     <script src="js/auth.js" defer></script>
     <script src="js/modals.js" defer></script>
     <script src="js/main.js" defer></script>
+    <script src="js/recommendations.js" defer></script>
+    <script src="js/chatbot.js" defer></script>
     
     <script>
     // Password visibility toggle handled by main.js
+    
+    // Handle email verification status from URL params
+    document.addEventListener('DOMContentLoaded', function() {
+        const params = new URLSearchParams(window.location.search);
+        const verified = params.get('verified');
+        
+        if (verified === 'success') {
+            const banner = document.createElement('div');
+            banner.className = 'email-verify-banner';
+            banner.style.background = 'linear-gradient(135deg, #D1FAE5, #A7F3D0)';
+            banner.style.color = '#065F46';
+            banner.innerHTML = '✅ Your email has been verified! You can now log in.';
+            document.body.insertBefore(banner, document.body.firstChild);
+            // Clean URL
+            window.history.replaceState({}, '', window.location.pathname);
+        } else if (verified === 'error') {
+            const msg = params.get('msg');
+            let errorText = 'Email verification failed.';
+            if (msg === 'invalid_token') errorText = 'Verification link is invalid or expired.';
+            if (msg === 'missing_token') errorText = 'Missing verification token.';
+            
+            const banner = document.createElement('div');
+            banner.className = 'email-verify-banner';
+            banner.innerHTML = '⚠️ ' + errorText + ' <a href="#" onclick="resendVerification()">Resend verification email</a>';
+            document.body.insertBefore(banner, document.body.firstChild);
+            window.history.replaceState({}, '', window.location.pathname);
+        }
+    });
+    
+    async function resendVerification() {
+        const emailInput = document.getElementById('email');
+        const email = emailInput ? emailInput.value.trim() : '';
+        if (!email) {
+            if (typeof showToast === 'function') showToast('Please enter your email address first', 'error');
+            emailInput && emailInput.focus();
+            return;
+        }
+        try {
+            const res = await fetch('/api/auth/resend-verification', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email })
+            });
+            const data = await res.json();
+            if (typeof showToast === 'function') showToast(data.message || 'Verification email sent!', 'success');
+        } catch (err) {
+            if (typeof showToast === 'function') showToast('Failed to resend. Try again later.', 'error');
+        }
+    }
     </script>
 </body>
 </html>

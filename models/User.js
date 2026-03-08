@@ -67,6 +67,10 @@ const userSchema = new mongoose.Schema({
   resetPasswordToken: String,
   resetPasswordExpires: Date,
 
+  // Email verification
+  emailVerificationToken: String,
+  emailVerificationExpires: Date,
+
   // Account status
   isEmailVerified: {
     type: Boolean,

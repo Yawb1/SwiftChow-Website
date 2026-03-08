@@ -5,6 +5,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const User = require('../models/User');
 const sendEmail = require('../utils/sendEmail');
+const emailTemplates = require('../utils/emailTemplates');
 const { JWT_SECRET, JWT_EXPIRES_IN } = require('../config/constants');
 
 // Disposable/temporary email domains to reject
@@ -70,6 +71,12 @@ router.post('/register', async (req, res) => {
       password
     });
 
+    // Generate email verification token
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const hashedVerifyToken = crypto.createHash('sha256').update(verifyToken).digest('hex');
+    newUser.emailVerificationToken = hashedVerifyToken;
+    newUser.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000; // 24 hours
+
     await newUser.save();
 
     // Generate JWT token
@@ -82,28 +89,13 @@ router.post('/register', async (req, res) => {
       { expiresIn: JWT_EXPIRES_IN }
     );
 
-    // Send welcome email (non-blocking)
+    // Send verification email (non-blocking)
+    const verifyUrl = `${process.env.CLIENT_URL || 'https://swiftchow.me'}/api/auth/verify-email?token=${verifyToken}`;
     sendEmail({
       to: newUser.email,
-      subject: 'Welcome to SwiftChow',
-      html: `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: linear-gradient(135deg, #DC2626, #991b1b); padding: 30px 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
-            <h1 style="margin: 0; font-size: 28px;">Welcome to SwiftChow! 🎉</h1>
-          </div>
-          <div style="padding: 30px; background: #f9fafb; border-radius: 0 0 8px 8px;">
-            <p style="font-size: 16px; color: #333;">Hi ${newUser.firstName},</p>
-            <p style="font-size: 16px; color: #333;">Welcome to SwiftChow!</p>
-            <p style="font-size: 16px; color: #333;">Your account has been successfully created. You can now order meals, track deliveries, and enjoy exclusive deals.</p>
-            <p style="margin-top: 30px; text-align: center;">
-              <a href="${process.env.CLIENT_URL || 'https://swiftchow.me'}/menu.html" style="background: #DC2626; color: white; padding: 14px 36px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600;">Browse Our Menu</a>
-            </p>
-            <p style="margin-top: 20px; font-size: 14px; color: #666;">Thank you for joining us!</p>
-            <p style="font-size: 14px; color: #666;">— The SwiftChow Team</p>
-          </div>
-        </div>
-      `
-    }).catch(err => console.warn('Welcome email failed:', err.message));
+      subject: 'Verify Your Email — SWIFT CHOW',
+      html: emailTemplates.emailVerification({ firstName: newUser.firstName, verifyUrl })
+    }).catch(err => console.warn('Verification email failed:', err.message));
 
     return res.status(201).json({
       success: true,
@@ -168,22 +160,7 @@ router.post('/login', (req, res, next) => {
       sendEmail({
         to: user.email,
         subject: 'New Login to Your SwiftChow Account',
-        html: `
-          <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-            <div style="background: linear-gradient(135deg, #DC2626, #991b1b); padding: 30px 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
-              <h1 style="margin: 0; font-size: 28px;">Login Notification</h1>
-            </div>
-            <div style="padding: 30px; background: #f9fafb; border-radius: 0 0 8px 8px;">
-              <p style="font-size: 16px; color: #333;">Hello ${user.firstName || 'there'},</p>
-              <p style="font-size: 16px; color: #333;">Your SwiftChow account was just accessed.</p>
-              <div style="background: white; border: 1px solid #e5e7eb; border-radius: 8px; padding: 20px; margin: 20px 0;">
-                <p style="margin: 0 0 8px 0; font-size: 14px; color: #666;"><strong>Time:</strong> ${loginTime}</p>
-              </div>
-              <p style="font-size: 16px; color: #333;">If this was not you, please <a href="${process.env.CLIENT_URL || 'https://swiftchow.me'}/account.html" style="color: #DC2626; font-weight: 600;">change your password</a> immediately.</p>
-              <p style="margin-top: 20px; font-size: 14px; color: #666;">— The SwiftChow Team</p>
-            </div>
-          </div>
-        `
+        html: emailTemplates.loginNotification({ firstName: user.firstName || 'there', loginTime })
       }).catch(err => console.warn('Login notification email failed:', err.message));
 
       // Return user data and token
@@ -253,31 +230,11 @@ router.post('/forgot-password', async (req, res) => {
 
     const resetLink = `${process.env.CLIENT_URL || 'https://swiftchow.me'}/reset-password.html?token=${resetToken}`;
 
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #DC2626; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px;">Password Reset Request</h1>
-        </div>
-        <div style="padding: 30px; background: #f5f5f5;">
-          <p>Hi ${user.firstName},</p>
-          <p>You requested to reset your password. Click the button below to set a new password:</p>
-          <p style="margin-top: 30px; text-align: center;">
-            <a href="${resetLink}" style="background: #DC2626; color: white; padding: 14px 36px; border-radius: 8px; text-decoration: none; display: inline-block; font-weight: 600;">Reset Password</a>
-          </p>
-          <p style="margin-top: 20px; font-size: 12px; color: #666;">
-            If you did not request a password reset, please ignore this email.
-          </p>
-          <p style="font-size: 12px; color: #666;">
-            This link will expire in 1 hour.
-          </p>
-        </div>
-        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
-          <p>&copy; 2026 SWIFT CHOW. All rights reserved. | orders@swiftchow.me</p>
-        </div>
-      </div>
-    `;
-
-    await sendEmail({ to: email, subject: 'Password Reset - SWIFT CHOW', html });
+    await sendEmail({
+      to: email,
+      subject: 'Password Reset - SWIFT CHOW',
+      html: emailTemplates.passwordReset({ firstName: user.firstName, resetUrl: resetLink })
+    });
 
     return res.json({ success: true, message: 'If an account with this email exists, a reset link has been sent.' });
   } catch (error) {
@@ -328,6 +285,13 @@ router.post('/reset-password', async (req, res) => {
     user.resetPasswordExpires = undefined;
     await user.save();
 
+    // Send password changed confirmation (non-blocking)
+    sendEmail({
+      to: user.email,
+      subject: 'Password Changed — SWIFT CHOW',
+      html: emailTemplates.passwordChanged({ firstName: user.firstName })
+    }).catch(err => console.warn('Password changed email failed:', err.message));
+
     return res.json({ success: true, message: 'Password reset successful. You can now log in with your new password.' });
   } catch (error) {
     console.error('Reset password error:', error);
@@ -346,6 +310,85 @@ router.post('/logout', (req, res) => {
     }
     res.json({ success: true, message: 'Logged out successfully' });
   });
+});
+
+// ============================================
+// EMAIL VERIFICATION
+// ============================================
+
+router.get('/verify-email', async (req, res) => {
+  try {
+    const { token } = req.query;
+
+    if (!token) {
+      return res.redirect(`${process.env.CLIENT_URL || 'https://swiftchow.me'}/login.html?verified=error&msg=missing_token`);
+    }
+
+    const hashedToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      emailVerificationToken: hashedToken,
+      emailVerificationExpires: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.redirect(`${process.env.CLIENT_URL || 'https://swiftchow.me'}/login.html?verified=error&msg=invalid_token`);
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpires = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    // Send welcome email now that they're verified
+    sendEmail({
+      to: user.email,
+      subject: 'Welcome to SWIFT CHOW!',
+      html: emailTemplates.welcome({ firstName: user.firstName })
+    }).catch(err => console.warn('Welcome email failed:', err.message));
+
+    res.redirect(`${process.env.CLIENT_URL || 'https://swiftchow.me'}/login.html?verified=success`);
+  } catch (error) {
+    console.error('Email verification error:', error);
+    res.redirect(`${process.env.CLIENT_URL || 'https://swiftchow.me'}/login.html?verified=error&msg=server_error`);
+  }
+});
+
+// Resend verification email
+router.post('/resend-verification', async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ error: { message: 'Email is required', status: 400 } });
+    }
+
+    const user = await User.findOne({ email });
+
+    // Always return success to prevent email enumeration
+    if (!user || user.isEmailVerified) {
+      return res.json({ success: true, message: 'If an unverified account with this email exists, a verification link has been sent.' });
+    }
+
+    // Generate new verification token
+    const verifyToken = crypto.randomBytes(32).toString('hex');
+    const hashedVerifyToken = crypto.createHash('sha256').update(verifyToken).digest('hex');
+    user.emailVerificationToken = hashedVerifyToken;
+    user.emailVerificationExpires = Date.now() + 24 * 60 * 60 * 1000;
+    await user.save({ validateBeforeSave: false });
+
+    const verifyUrl = `${process.env.CLIENT_URL || 'https://swiftchow.me'}/api/auth/verify-email?token=${verifyToken}`;
+    await sendEmail({
+      to: user.email,
+      subject: 'Verify Your Email — SWIFT CHOW',
+      html: emailTemplates.emailVerification({ firstName: user.firstName, verifyUrl })
+    });
+
+    return res.json({ success: true, message: 'If an unverified account with this email exists, a verification link has been sent.' });
+  } catch (error) {
+    console.error('Resend verification error:', error);
+    return res.status(500).json({ error: { message: 'Failed to process request', status: 500 } });
+  }
 });
 
 // ============================================

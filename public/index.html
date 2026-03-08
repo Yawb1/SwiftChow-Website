@@ -2027,6 +2027,11 @@
         </div>
     </section>
 
+    <!-- Personalized Recommendations -->
+    <section class="container" style="padding: 2rem 0;">
+        <div id="recommendations-container"></div>
+    </section>
+
     <!-- Newsletter Section -->
     <section class="newsletter-premium">
         <div class="container">
@@ -2125,6 +2130,8 @@
     <script src="js/auth.js" defer></script>
     <script src="js/modals.js" defer></script>
     <script src="js/main.js" defer></script>
+    <script src="js/recommendations.js" defer></script>
+    <script src="js/chatbot.js" defer></script>
     <script>
         // Inline functions for specific homepage features (Blog Scroll, Newsletter)
         // Carousel and main logic are in js/main.js
@@ -2278,6 +2285,17 @@
             
             // Render popular items
             renderPopularItemsPremium();
+            
+            // Render personalized recommendations
+            if (typeof SwiftRecommendations !== 'undefined') {
+                SwiftRecommendations.render('recommendations-container', {
+                    showOrderAgain: true,
+                    showRecentlyViewed: true,
+                    showCategoryRecs: true,
+                    showTimeBased: true,
+                    showTrending: true
+                });
+            }
             
             // Make header slightly darker on scroll for depth
             const header = document.querySelector('.header');

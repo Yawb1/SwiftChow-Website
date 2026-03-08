@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -53,9 +53,9 @@
             const orderId = urlParams.get('order');
             
             if (orderId && window.loadOrder) {
-                console.log('Ã°Å¸â€œÂ¦ Auto-loading order from URL:', orderId);
+                console.log('ðŸ“¦ Auto-loading order from URL:', orderId);
                 // Log what's in storage for debugging
-                console.log('Ã°Å¸â€œÂ Storage Debug:', {
+                console.log('ðŸ“ Storage Debug:', {
                     lastOrder: !!sessionStorage.getItem('lastOrder'),
                     trackingKey: !!sessionStorage.getItem('trackingOrder_' + orderId),
                     swiftChowOrders: localStorage.getItem('swiftChowOrders') ? JSON.parse(localStorage.getItem('swiftChowOrders')).length + ' orders' : 'none'
@@ -81,7 +81,7 @@
                     e.preventDefault();
                     const input = this.querySelector('input[type="text"]');
                     if (input && input.value) {
-                        console.log('Ã°Å¸â€Â Searching for order:', input.value);
+                        console.log('ðŸ” Searching for order:', input.value);
                         if (window.loadOrder) {
                             window.loadOrder(input.value);
                         }
@@ -814,7 +814,7 @@
                                     
                                     badge.classList.remove('active');
                                     badge.classList.add('completed');
-                                    badge.textContent = 'Ã¢Å“â€œ Completed';
+                                    badge.textContent = 'âœ“ Completed';
                                 } 
                                 else if (stepNum === this.currentStep) {
                                     stepElement.classList.add('active');
@@ -1246,6 +1246,8 @@
     <script src="js/auth.js" defer></script>
     <script src="js/modals.js" defer></script>
     <script src="js/main.js" defer></script>
+    <script src="js/recommendations.js" defer></script>
+    <script src="js/chatbot.js" defer></script>
 
     <!-- CART MODAL PANEL -->
     <div id="cartModal" class="modal-overlay">

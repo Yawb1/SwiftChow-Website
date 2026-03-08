@@ -37,6 +37,7 @@ optionalEnvVars.forEach(varName => {
 // EMAIL CONFIGURATION (SendGrid)
 // ============================================
 const sendEmail = require('./utils/sendEmail');
+const emailTemplates = require('./utils/emailTemplates');
 const NewsletterSubscriber = require('./models/NewsletterSubscriber');
 
 // Initialize Express app
@@ -178,33 +179,7 @@ app.post('/api/emails/signup-confirmation', async (req, res) => {
       return res.status(400).json({ error: 'Email and fullName required' });
     }
     
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #FF6B35; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px;">Welcome to SWIFT CHOW!</h1>
-        </div>
-        <div style="padding: 30px; background: #f5f5f5;">
-          <p>Hi ${fullName},</p>
-          <p>Thank you for signing up! Your account has been created successfully.</p>
-          <p style="margin-top: 20px;">You can now:</p>
-          <ul style="color: #333;">
-            <li>Browse our restaurant menu</li>
-            <li>Place orders for delivery</li>
-            <li>Track your orders in real-time</li>
-            <li>Save your favorite addresses and payment methods</li>
-          </ul>
-          <p style="margin-top: 30px;">
-            <a href="${process.env.CLIENT_URL || 'https://swiftchow.me'}" style="background: #FF6B35; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; display: inline-block;">Start Ordering Now</a>
-          </p>
-          <p style="margin-top: 30px; font-size: 12px; color: #666;">
-            If you did not create this account, please contact us immediately.
-          </p>
-        </div>
-        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
-          <p>© 2026 SWIFT CHOW. All rights reserved.</p>
-        </div>
-      </div>
-    `;
+    const html = emailTemplates.welcome({ firstName: fullName.split(' ')[0] || fullName });
     
     const result = await sendEmail({ to: email, subject: 'Welcome to SWIFT CHOW!', html });
     res.json(result);
@@ -222,29 +197,10 @@ app.post('/api/emails/password-reset', async (req, res) => {
       return res.status(400).json({ error: 'Email and fullName required' });
     }
     
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #FF6B35; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px;">Password Reset Request</h1>
-        </div>
-        <div style="padding: 30px; background: #f5f5f5;">
-          <p>Hi ${fullName},</p>
-          <p>You requested to reset your password. Click the button below to set a new password:</p>
-          <p style="margin-top: 30px; text-align: center;">
-            <a href="${resetLink || process.env.CLIENT_URL}" style="background: #FF6B35; color: white; padding: 12px 30px; border-radius: 5px; text-decoration: none; display: inline-block;">Reset Password</a>
-          </p>
-          <p style="margin-top: 20px; font-size: 12px; color: #666;">
-            If you did not request a password reset, please ignore this email or contact support.
-          </p>
-          <p style="font-size: 12px; color: #666;">
-            This link will expire in 24 hours.
-          </p>
-        </div>
-        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
-          <p>© 2026 SWIFT CHOW. All rights reserved.</p>
-        </div>
-      </div>
-    `;
+    const html = emailTemplates.passwordReset({
+      firstName: fullName.split(' ')[0] || fullName,
+      resetUrl: resetLink || (process.env.CLIENT_URL || 'https://swiftchow.me')
+    });
     
     const result = await sendEmail({ to: email, subject: 'Password Reset Request - SWIFT CHOW', html });
     res.json(result);
@@ -256,36 +212,13 @@ app.post('/api/emails/password-reset', async (req, res) => {
 // Send newsletter subscription confirmation
 app.post('/api/emails/newsletter-confirmation', async (req, res) => {
   try {
-    const { email, fullName } = req.body;
+    const { email } = req.body;
     
     if (!email) {
       return res.status(400).json({ error: 'Email required' });
     }
     
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #FF6B35; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px;">Newsletter Subscription Confirmed!</h1>
-        </div>
-        <div style="padding: 30px; background: #f5f5f5;">
-          <p>${fullName ? `Hi ${fullName},` : 'Hello,'}</p>
-          <p>Thank you for subscribing to the SWIFT CHOW newsletter!</p>
-          <p>You will now receive:</p>
-          <ul style="color: #333;">
-            <li>Exclusive restaurant recommendations</li>
-            <li>Special promotional offers</li>
-            <li>New menu launches</li>
-            <li>Tips and food guides</li>
-          </ul>
-          <p style="margin-top: 30px; font-size: 12px; color: #666;">
-            You can manage your subscription preferences in your account settings anytime.
-          </p>
-        </div>
-        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
-          <p>© 2026 SWIFT CHOW. All rights reserved.</p>
-        </div>
-      </div>
-    `;
+    const html = emailTemplates.newsletterWelcome({ email });
     
     const result = await sendEmail({ to: email, subject: 'Newsletter Subscription Confirmed', html });
     res.json(result);
@@ -303,31 +236,11 @@ app.post('/api/emails/contact-response', async (req, res) => {
       return res.status(400).json({ error: 'Email and subject required' });
     }
     
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #FF6B35; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px;">We Received Your Message</h1>
-        </div>
-        <div style="padding: 30px; background: #f5f5f5;">
-          <p>${fullName ? `Hi ${fullName},` : 'Hello,'}</p>
-          <p>Thank you for contacting SWIFT CHOW!</p>
-          <p><strong>Message Subject:</strong> ${subject}</p>
-          <p style="margin-top: 20px; padding: 15px; background: white; border-left: 4px solid #FF6B35; border-radius: 3px;">
-            <strong>Your message:</strong><br>
-            ${message}
-          </p>
-          <p style="margin-top: 30px;">
-            Our team will review your message and get back to you as soon as possible, usually within 24 hours.
-          </p>
-          <p style="margin-top: 30px; font-size: 12px; color: #666;">
-            Thank you for being part of the SWIFT CHOW family!
-          </p>
-        </div>
-        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
-          <p>© 2026 SWIFT CHOW. All rights reserved. | orders@swiftchow.me</p>
-        </div>
-      </div>
-    `;
+    const html = emailTemplates.contactReply({
+      firstName: fullName ? fullName.split(' ')[0] : null,
+      subject,
+      message: message || ''
+    });
     
     const result = await sendEmail({ to: email, subject: `Re: ${subject}`, html });
     res.json(result);
@@ -355,28 +268,7 @@ app.post('/api/newsletter/subscribe', async (req, res) => {
     await new NewsletterSubscriber({ email }).save();
 
     // Send confirmation email
-    const html = `
-      <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-        <div style="background: #DC2626; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
-          <h1 style="margin: 0; font-size: 28px;">Welcome to SwiftChow Newsletter</h1>
-        </div>
-        <div style="padding: 30px; background: #f5f5f5;">
-          <p>Thank you for subscribing to the SwiftChow newsletter.</p>
-          <p>You will now receive:</p>
-          <ul style="color: #333; line-height: 1.8;">
-            <li>Exclusive deals</li>
-            <li>New menu updates</li>
-            <li>Special promotions</li>
-          </ul>
-          <p style="margin-top: 30px; font-size: 12px; color: #666;">
-            If this wasn't you, simply ignore this email.
-          </p>
-        </div>
-        <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
-          <p>&copy; 2026 SWIFT CHOW. All rights reserved. | orders@swiftchow.me</p>
-        </div>
-      </div>
-    `;
+    const html = emailTemplates.newsletterWelcome({ email });
 
     await sendEmail({ to: email, subject: 'Welcome to SwiftChow Newsletter', html });
 
@@ -474,25 +366,7 @@ app.post('/api/reviews/submit', async (req, res) => {
 
     // Send confirmation email
     try {
-      const html = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <div style="background: #DC2626; padding: 20px; border-radius: 8px 8px 0 0; color: white; text-align: center;">
-            <h1 style="margin: 0; font-size: 28px;">Thank You for Your Review!</h1>
-          </div>
-          <div style="padding: 30px; background: #f5f5f5;">
-            <p>Hi ${name},</p>
-            <p>Thank you for sharing your experience with SwiftChow.</p>
-            <p>We appreciate your feedback and it helps us improve our service.</p>
-            <p style="margin-top: 20px;"><strong>Your rating:</strong> ${'&#9733;'.repeat(Number(rating))}${'&#9734;'.repeat(5 - Number(rating))}</p>
-            <p style="margin-top: 30px; font-size: 12px; color: #666;">
-              If you have any further questions, feel free to reach out to us at orders@swiftchow.me
-            </p>
-          </div>
-          <div style="background: #333; color: #fff; padding: 20px; text-align: center; font-size: 12px; border-radius: 0 0 8px 8px;">
-            <p>&copy; 2026 SWIFT CHOW. All rights reserved.</p>
-          </div>
-        </div>
-      `;
+      const html = emailTemplates.reviewThankYou({ name, rating });
       await sendEmail({ to: email, subject: 'Thank you for your review - SWIFT CHOW', html });
     } catch (emailErr) {
       console.warn('Could not send review confirmation email:', emailErr.message);
