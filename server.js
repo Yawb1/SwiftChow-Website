@@ -144,6 +144,23 @@ app.use('/api/addresses', require('./routes/addresses'));
 app.use('/api/payments', require('./routes/payments'));
 
 // ============================================
+// SENTRY TEST ENDPOINT (for verification only)
+// ============================================
+app.get('/api/test-sentry', (req, res) => {
+  try {
+    // Intentional error to test Sentry
+    throw new Error('🧪 Sentry Test Error - This is a test to verify error tracking is working');
+  } catch (e) {
+    Sentry.captureException(e);
+    res.status(500).json({
+      error: 'Test error captured',
+      message: e.message,
+      note: 'Check your Sentry dashboard to verify the error was recorded'
+    });
+  }
+});
+
+// ============================================
 // EMAIL ENDPOINTS
 // ============================================
 
