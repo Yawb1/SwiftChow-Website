@@ -414,16 +414,22 @@ app.get('*', (req, res, next) => {
 Sentry.setupExpressErrorHandler(app);
 
 // ============================================
-// ERROR HANDLING
+// ERROR HANDLING (must come after Sentry handler)
 // ============================================
 
 app.use((err, req, res, next) => {
   console.error('Error:', err);
   
-  res.status(err.status || 500).json({
+  // Sentry's handler may have already started sending a response
+  if (res.headersSent) {
+    return next(err);
+  }
+  
+  const status = err.status || err.statusCode || 500;
+  res.status(status).json({
     error: {
       message: err.message || 'Internal server error',
-      status: err.status || 500
+      status: status
     }
   });
 });

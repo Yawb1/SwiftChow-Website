@@ -962,6 +962,13 @@ function initReviewForm() {
     }
     
     try {
+      const submitBtn = reviewForm.querySelector('button[type="submit"]');
+      const origText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sending review...';
+      }
+      
       // Save review to localStorage (for demo purposes)
       const reviews = JSON.parse(localStorage.getItem('swiftChowReviews') || '[]');
       
@@ -1003,6 +1010,7 @@ function initReviewForm() {
       }
       
       console.log('Review submitted:', newReview);
+      if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-check"></i> Submitted!';
       showAdvancedToast('Thank you! Your review has been submitted. A confirmation email has been sent.', 'success');
       
       // Reset form
@@ -1014,6 +1022,9 @@ function initReviewForm() {
       });
       document.querySelector('.star-rating-input').dataset.rating = '0';
       
+      // Restore button after delay
+      setTimeout(() => { if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = origText; } }, 2000);
+      
       // Refresh reviews display
       setTimeout(() => {
         if (typeof renderReviews === 'function') {
@@ -1021,6 +1032,7 @@ function initReviewForm() {
         }
       }, 500);
     } catch (error) {
+      if (submitBtn) { submitBtn.disabled = false; submitBtn.innerHTML = origText; }
       console.error('Error submitting review:', error);
       showAdvancedToast('Error submitting review. Please try again.', 'error');
     }
@@ -1559,16 +1571,33 @@ function initCheckoutForm() {
     }
     
     // Handle different payment methods
+    const placeOrderBtn = form.querySelector('button[type="submit"]');
+    const origBtnText = placeOrderBtn ? placeOrderBtn.innerHTML : '';
+    
+    function setOrderLoading(loading) {
+      if (!placeOrderBtn) return;
+      if (loading) {
+        placeOrderBtn.disabled = true;
+        placeOrderBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Placing order...';
+      } else {
+        placeOrderBtn.disabled = false;
+        placeOrderBtn.innerHTML = origBtnText;
+      }
+    }
+    
     if (selectedPaymentMethod === 'cod') {
       // Pay on Delivery - process immediately (async)
+      setOrderLoading(true);
       processOrder(orderData).then(order => {
         if (order && order.id) {
           console.log('✅ Redirecting to order success with orderId:', order.id);
           window.location.href = `order-success.html?order=${order.id}`;
         } else {
+          setOrderLoading(false);
           showToast('Failed to create order. Please try again.', 'error');
         }
       }).catch(error => {
+        setOrderLoading(false);
         console.error('Order processing error:', error);
         showToast('Error creating order: ' + error.message, 'error');
       });
@@ -3031,14 +3060,23 @@ function initModals() {
       const email = loginForm.querySelector('#login-email')?.value || loginForm.querySelector('input[name="email"]')?.value;
       const password = loginForm.querySelector('#login-password')?.value || loginForm.querySelector('input[name="password"]')?.value;
       const remember = loginForm.querySelector('input[name="remember"]')?.checked;
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
       
       console.log('Login form submitted:', { email, password: password ? '***' : 'missing', remember });
       
       if (email && password) {
+        // Loading state
+        const origText = submitBtn ? submitBtn.innerHTML : '';
+        if (submitBtn) {
+          submitBtn.disabled = true;
+          submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Logging in...';
+        }
+        
         const result = await login(email, password, remember);
         console.log('Login result:', result);
         
         if (result.success) {
+          if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
           showAdvancedToast('Login successful! Welcome back!', 'success');
           closeModal(loginModal);
           loginForm.reset();
@@ -3046,6 +3084,10 @@ function initModals() {
           updateNavAuthUI();
           setTimeout(() => location.reload(), 1000);
         } else {
+          if (submitBtn) {
+            submitBtn.disabled = false;
+            submitBtn.innerHTML = origText;
+          }
           showAdvancedToast(result.message || 'Login failed', 'error');
         }
       } else {
@@ -3070,6 +3112,7 @@ function initModals() {
       const password = signupForm.querySelector('#signup-password')?.value || signupForm.querySelector('input[name="password"]')?.value;
       const confirmPassword = signupForm.querySelector('#signup-confirm')?.value || signupForm.querySelector('input[name="confirmPassword"]')?.value;
       const terms = signupForm.querySelector('input[name="terms"]')?.checked;
+      const submitBtn = signupForm.querySelector('button[type="submit"]');
       
       console.log('Signup form values:', { fullName, email, phone, passwordLength: password?.length, confirmPasswordLength: confirmPassword?.length, terms });
       
@@ -3079,11 +3122,19 @@ function initModals() {
         return;
       }
       
+      // Loading state
+      const origText = submitBtn ? submitBtn.innerHTML : '';
+      if (submitBtn) {
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Creating account...';
+      }
+      
       console.log('Signup validation passed, calling register()...');
       const result = await register(fullName, email, phone, password, confirmPassword);
       console.log('Register result:', result);
       
       if (result.success) {
+        if (submitBtn) submitBtn.innerHTML = '<i class="fas fa-check"></i> Success!';
         showAdvancedToast('Account created! Welcome to SWIFT CHOW!', 'success');
         closeModal(signupModal);
         signupForm.reset();
@@ -3091,6 +3142,10 @@ function initModals() {
         updateNavAuthUI();
         setTimeout(() => location.reload(), 1000);
       } else {
+        if (submitBtn) {
+          submitBtn.disabled = false;
+          submitBtn.innerHTML = origText;
+        }
         showAdvancedToast(result.message || 'Signup failed', 'error');
       }
     });

@@ -80,7 +80,14 @@ async function apiCall(endpoint, options = {}) {
       credentials: 'include',
     });
     
-    const data = await response.json();
+    let data;
+    const contentType = response.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      data = await response.json();
+    } else {
+      const text = await response.text();
+      data = { error: { message: text || `Request failed (${response.status})`, status: response.status } };
+    }
     
     if (!response.ok) {
       // Handle 401 - token expired or invalid (skip for auth endpoints to show proper errors)
