@@ -1,4 +1,4 @@
-﻿const express = require('express');
+const express = require('express');
 const Flutterwave = require('flutterwave-node-v3');
 const { requireAuth } = require('../middleware/auth');
 const Order = require('../models/Order');

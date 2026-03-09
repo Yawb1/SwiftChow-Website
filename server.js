@@ -1,4 +1,4 @@
-﻿/**
+/**
  * SWIFT CHOW - Server
  * Production-ready Express server with MongoDB and OAuth authentication
  */

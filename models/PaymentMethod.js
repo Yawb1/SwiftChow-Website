@@ -34,7 +34,7 @@ const paymentMethodSchema = new mongoose.Schema({
     type: Number,
     min: 2024,
     max: 2099
-  }
+  },
   // NOTE: CVV must NEVER be stored (PCI DSS). Card tokenization via Flutterwave is used for payments.
   
   // Mobile money details
