@@ -1,4 +1,4 @@
-/**
+﻿/**
  * SWIFT CHOW - Server
  * Production-ready Express server with MongoDB and OAuth authentication
  */
@@ -23,13 +23,13 @@ const optionalEnvVars = ['SENDGRID_API_KEY', 'EMAIL_FROM', 'CLIENT_URL', 'GOOGLE
 
 requiredEnvVars.forEach(varName => {
   if (!process.env[varName]) {
-    console.error(`❌ Missing required environment variable: ${varName}`);
+    console.error(`âŒ Missing required environment variable: ${varName}`);
   }
 });
 
 optionalEnvVars.forEach(varName => {
   if (!process.env[varName]) {
-    console.warn(`⚠️  Optional environment variable not set: ${varName}`);
+    console.warn(`âš ï¸  Optional environment variable not set: ${varName}`);
   }
 });
 
@@ -103,10 +103,10 @@ const connectDB = async () => {
     const mongoUri = process.env.MONGODB_URI || 'mongodb://localhost:27017/swift-chow';
     await mongoose.connect(mongoUri);
     isConnected = true;
-    console.log('✅ MongoDB connected successfully');
+    console.log('âœ… MongoDB connected successfully');
   } catch (error) {
     isConnected = false;
-    console.error('❌ MongoDB connection failed:', error.message);
+    console.error('âŒ MongoDB connection failed:', error.message);
     throw error;
   }
 };
@@ -147,7 +147,45 @@ app.use('/api/payments', require('./routes/payments'));
 // Flutterwave payment routes
 app.use('/api/flutterwave', require('./routes/flutterwave'));
 
+// ============================================
+// SIMPLE RATE LIMITER (in-memory, per-IP)
+// Protects unauthenticated endpoints from spam/abuse
+// ============================================
+const rateLimitStore = new Map();
+function rateLimit(maxRequests, windowMs) {
+  return (req, res, next) => {
+    const key = req.ip;
+    const now = Date.now();
+    const entry = rateLimitStore.get(key);
+    if (!entry || now - entry.start > windowMs) {
+      rateLimitStore.set(key, { start: now, count: 1 });
+      return next();
+    }
+    entry.count++;
+    if (entry.count > maxRequests) {
+      return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+    }
+    next();
+  };
+}
+// Clean up every 10 minutes
+setInterval(() => {
+  const now = Date.now();
+  for (const [key, val] of rateLimitStore) {
+    if (now - val.start > 600000) rateLimitStore.delete(key);
+  }
+}, 600000);
 
+// ============================================
+// SECURITY HEADERS
+// ============================================
+app.use((req, res, next) => {
+  res.setHeader('X-Content-Type-Options', 'nosniff');
+  res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+  res.setHeader('X-XSS-Protection', '1; mode=block');
+  res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+  next();
+});
 
 // ============================================
 // EMAIL ENDPOINTS
@@ -167,7 +205,7 @@ app.post('/api/emails/signup-confirmation', async (req, res) => {
     const result = await sendEmail({ to: email, subject: 'Welcome to SWIFT CHOW!', html });
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -188,7 +226,7 @@ app.post('/api/emails/password-reset', async (req, res) => {
     const result = await sendEmail({ to: email, subject: 'Password Reset Request - SWIFT CHOW', html });
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -206,7 +244,7 @@ app.post('/api/emails/newsletter-confirmation', async (req, res) => {
     const result = await sendEmail({ to: email, subject: 'Newsletter Subscription Confirmed', html });
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -228,17 +266,17 @@ app.post('/api/emails/contact-response', async (req, res) => {
     const result = await sendEmail({ to: email, subject: `Re: ${subject}`, html });
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
 // Subscribe to newsletter (saves to MongoDB + sends confirmation email)
-app.post('/api/newsletter/subscribe', async (req, res) => {
+app.post('/api/newsletter/subscribe', rateLimit(5, 60000), async (req, res) => {
   try {
     const { email } = req.body;
 
-    if (!email) {
-      return res.status(400).json({ error: 'Email is required' });
+    if (!email || typeof email !== 'string' || !email.includes('@') || email.length > 254) {
+      return res.status(400).json({ error: 'Valid email is required' });
     }
 
     // Check if already subscribed
@@ -275,7 +313,7 @@ app.get('/api/health', (req, res) => {
 // ============================================
 const Review = require('./models/Review');
 
-app.post('/api/reviews/submit', async (req, res) => {
+app.post('/api/reviews/submit', rateLimit(5, 60000), async (req, res) => {
   try {
     const { name, email, rating, comment } = req.body;
 
@@ -283,11 +321,24 @@ app.post('/api/reviews/submit', async (req, res) => {
       return res.status(400).json({ error: 'All fields are required' });
     }
 
+    if (typeof name !== 'string' || name.length > 100) {
+      return res.status(400).json({ error: 'Invalid name' });
+    }
+    if (typeof email !== 'string' || !email.includes('@') || email.length > 254) {
+      return res.status(400).json({ error: 'Invalid email' });
+    }
+    if (typeof comment !== 'string' || comment.length > 2000) {
+      return res.status(400).json({ error: 'Comment must be under 2000 characters' });
+    }
+
     if (rating < 1 || rating > 5) {
       return res.status(400).json({ error: 'Rating must be between 1 and 5' });
     }
 
-    const review = new Review({ name, email, rating: Number(rating), comment });
+    // Sanitize comment â€” strip HTML tags to prevent stored XSS
+    const sanitizedComment = String(comment).replace(/<[^>]*>/g, '');
+
+    const review = new Review({ name: String(name).slice(0, 100), email, rating: Number(rating), comment: sanitizedComment });
     await review.save();
 
     // Send confirmation email
@@ -300,8 +351,8 @@ app.post('/api/reviews/submit', async (req, res) => {
 
     res.json({ success: true, message: 'Review submitted successfully', review });
   } catch (error) {
-    console.error('Review submission error:', error);
-    res.status(500).json({ error: error.message });
+    console.error('Review submission error:', error.message);
+    res.status(500).json({ error: 'Failed to submit review. Please try again.' });
   }
 });
 
@@ -311,7 +362,7 @@ app.get('/api/reviews', async (req, res) => {
     const reviews = await Review.find().sort({ createdAt: -1 }).limit(50);
     res.json({ success: true, reviews });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -361,7 +412,7 @@ app.use((err, req, res, next) => {
 });
 
 // ============================================
-// SERVER STARTUP (local dev only — skipped on Vercel)
+// SERVER STARTUP (local dev only â€” skipped on Vercel)
 // ============================================
 
 if (process.env.VERCEL !== '1') {
@@ -375,7 +426,7 @@ if (process.env.VERCEL !== '1') {
 // Handle unhandled promise rejections
 process.on('unhandledRejection', (err) => {
   console.error('Unhandled Rejection:', err);
-  // Don't exit on Vercel — serverless functions should survive transient errors
+  // Don't exit on Vercel â€” serverless functions should survive transient errors
   if (process.env.VERCEL !== '1') {
     process.exit(1);
   }

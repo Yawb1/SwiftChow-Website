@@ -54,6 +54,9 @@ build/
 .venv/
 venv/
 
+# Tool caches
+.qodo/
+
 # Temporary files
 tmp/
 temp/

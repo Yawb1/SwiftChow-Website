@@ -763,6 +763,11 @@
     // Expose global hook for order placement
     window.swiftChowChatbot = { notifyOrderPlaced };
 
+    // Cleanup polling on page unload to prevent memory leaks
+    window.addEventListener('beforeunload', () => {
+      if (ctx.orderPollTimer) clearInterval(ctx.orderPollTimer);
+    });
+
     // If user is authenticated, seed known statuses in background
     if (typeof isAuthenticated === 'function' && isAuthenticated()) {
       setTimeout(async () => {

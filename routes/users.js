@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const bcrypt = require('bcryptjs');
 const { requireAuth } = require('../middleware/auth');
 const User = require('../models/User');
@@ -20,7 +20,7 @@ router.get('/profile', requireAuth, async (req, res) => {
       user: user.getPublicProfile()
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -44,7 +44,7 @@ router.put('/profile', requireAuth, async (req, res) => {
 
     res.json({ success: true, user: user.getPublicProfile() });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -91,7 +91,7 @@ router.put('/change-password', requireAuth, async (req, res) => {
 
     res.json({ success: true, message: 'Password changed successfully' });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -116,7 +116,7 @@ router.put('/preferences', requireAuth, async (req, res) => {
       user: user.getPublicProfile()
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -139,7 +139,7 @@ router.post('/favorites/:itemId', requireAuth, async (req, res) => {
       favoriteItems: user.favoriteItems
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -156,7 +156,7 @@ router.delete('/favorites/:itemId', requireAuth, async (req, res) => {
       favoriteItems: user.favoriteItems
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -178,7 +178,7 @@ router.get('/stats', requireAuth, async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 

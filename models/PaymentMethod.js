@@ -14,18 +14,28 @@ const paymentMethodSchema = new mongoose.Schema({
     required: true
   },
   
-  // Card details (encrypted in production)
-  cardNumber: {
+  // Card details — only last 4 digits stored (PCI DSS compliant)
+  cardLast4: {
     type: String,
-    trim: true
+    trim: true,
+    maxlength: 4
   },
   cardHolder: {
     type: String,
-    trim: true
+    trim: true,
+    maxlength: 100
   },
-  expiryMonth: Number,
-  expiryYear: Number,
-  cvv: String, // Should be encrypted
+  expiryMonth: {
+    type: Number,
+    min: 1,
+    max: 12
+  },
+  expiryYear: {
+    type: Number,
+    min: 2024,
+    max: 2099
+  }
+  // NOTE: CVV must NEVER be stored (PCI DSS). Card tokenization via Flutterwave is used for payments.
   
   // Mobile money details
   mobileNumber: String,
@@ -70,15 +80,12 @@ const paymentMethodSchema = new mongoose.Schema({
 paymentMethodSchema.index({ userId: 1 });
 paymentMethodSchema.index({ userId: 1, isDefault: 1 });
 
-// Security: Don't return sensitive data
+// Security: Mask card display
 paymentMethodSchema.methods.toJSON = function() {
   const method = this.toObject();
-  // Mask card number
-  if (method.cardNumber) {
-    method.cardNumber = '**** **** **** ' + method.cardNumber.slice(-4);
+  if (method.cardLast4) {
+    method.cardDisplay = '**** **** **** ' + method.cardLast4;
   }
-  // Never return CVV
-  delete method.cvv;
   return method;
 };
 

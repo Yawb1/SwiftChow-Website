@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const { requireAuth } = require('../middleware/auth');
 const Order = require('../models/Order');
 const User = require('../models/User');
@@ -125,7 +125,7 @@ router.get('/', requireAuth, async (req, res) => {
       orders
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -147,7 +147,7 @@ router.get('/latest', requireAuth, async (req, res) => {
       order
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -176,12 +176,13 @@ router.get('/:orderId', requireAuth, async (req, res) => {
       order
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
 // ============================================
-// UPDATE ORDER STATUS (Admin only - for testing)
+// UPDATE ORDER STATUS
+// Only the order owner can cancel; forward-only status transitions enforced.
 // ============================================
 
 router.put('/:orderId/status', requireAuth, async (req, res) => {
@@ -205,6 +206,16 @@ router.put('/:orderId/status', requireAuth, async (req, res) => {
     
     if (!order) {
       return res.status(404).json({ error: 'Order not found' });
+    }
+
+    // Customers can only cancel orders (not advance status through delivery stages)
+    // Status advancement beyond 'confirmed' requires admin/system action
+    const customerAllowed = ['cancelled'];
+    if (!customerAllowed.includes(status)) {
+      // Only allow if order is still pending and moving to confirmed (e.g. payment callback)
+      if (!(order.status === 'pending' && status === 'confirmed')) {
+        return res.status(403).json({ error: 'You do not have permission to update the order status. Contact support if there is an issue.' });
+      }
     }
     
     order.status = status;
@@ -247,7 +258,7 @@ router.put('/:orderId/status', requireAuth, async (req, res) => {
       order
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -286,7 +297,7 @@ router.post('/:orderId/rate', requireAuth, async (req, res) => {
       order
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -329,7 +340,7 @@ router.post('/:orderId/cancel', requireAuth, async (req, res) => {
       order
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 

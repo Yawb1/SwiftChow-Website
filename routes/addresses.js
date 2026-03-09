@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const { requireAuth } = require('../middleware/auth');
 const Address = require('../models/Address');
 
@@ -17,7 +17,7 @@ router.get('/', requireAuth, async (req, res) => {
       addresses
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -61,7 +61,7 @@ router.post('/', requireAuth, async (req, res) => {
       address
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -109,7 +109,7 @@ router.put('/:id', requireAuth, async (req, res) => {
       address
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -135,7 +135,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
       message: 'Address deleted successfully'
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -169,7 +169,7 @@ router.put('/:id/default', requireAuth, async (req, res) => {
       address
     });
   } catch (error) {
-    res.status(500).json({ error: error.message });
+    res.status(500).json({ error: 'An error occurred. Please try again.' });
   }
 });
 

@@ -152,7 +152,7 @@ router.post('/verify', requireAuth, async (req, res) => {
       response.data &&
       response.data.status === 'successful' &&
       response.data.currency === 'GHS' &&
-      response.data.amount >= order.total
+      Math.abs(response.data.amount - order.total) < 1
     ) {
       // Payment verified — update order
       order.paymentStatus = 'completed';
