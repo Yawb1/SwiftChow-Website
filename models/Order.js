@@ -67,6 +67,8 @@ const orderSchema = new mongoose.Schema({
   
   // Estimated delivery time (in minutes)
   estimatedDeliveryTime: Number,
+  // Absolute estimated delivery timestamp
+  estimatedDeliveryAt: Date,
   actualDeliveryTime: Date,
   
   // Delivery stage timestamps

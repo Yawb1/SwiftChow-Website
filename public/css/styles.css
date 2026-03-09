@@ -1277,11 +1277,17 @@ input, textarea, select {
 }
 
 /* Login button in nav — white on red header */
+/* Hidden by default to prevent flicker before auth state is determined */
 .nav-actions .btn-primary {
     background: #FFFFFF;
     color: #DC2626;
     box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15);
     font-weight: 600;
+    visibility: hidden;
+}
+
+#mobileLoginBtn {
+    visibility: hidden;
 }
 .nav-actions .btn-primary:hover {
     background: rgba(255, 255, 255, 0.9);

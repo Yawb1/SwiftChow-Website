@@ -3,6 +3,8 @@ const Flutterwave = require('flutterwave-node-v3');
 const { requireAuth } = require('../middleware/auth');
 const Order = require('../models/Order');
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
+const emailTemplates = require('../utils/emailTemplates');
 
 const router = express.Router();
 
@@ -55,6 +57,7 @@ router.post('/initialize', requireAuth, async (req, res) => {
     const orderId = `SC${timestamp}${random}`;
 
     // Create order with pending payment status
+    const estimatedMinutes = 30;
     const order = new Order({
       orderId,
       userId: req.user._id,
@@ -68,7 +71,8 @@ router.post('/initialize', requireAuth, async (req, res) => {
       tax,
       total,
       specialInstructions,
-      estimatedDeliveryTime: 30,
+      estimatedDeliveryTime: estimatedMinutes,
+      estimatedDeliveryAt: new Date(Date.now() + estimatedMinutes * 60000),
       paymentStatus: 'pending',
       status: 'pending',
       statusHistory: [{
@@ -163,16 +167,35 @@ router.post('/verify', requireAuth, async (req, res) => {
 
       await order.save();
 
-      // Update user stats
+      // Send order confirmation email (non-blocking)
       try {
         const user = await User.findById(req.user._id);
         if (user) {
+          // Update user stats
           user.totalOrders = (user.totalOrders || 0) + 1;
           user.totalSpent = (user.totalSpent || 0) + order.total;
           await user.save();
+
+          const CLIENT_URL = process.env.CLIENT_URL || 'https://swiftchow.me';
+          const emailHtml = emailTemplates.orderConfirmation({
+            firstName: user.firstName || 'Customer',
+            orderId: order.orderId,
+            items: order.items,
+            subtotal: order.subtotal,
+            deliveryFee: order.deliveryFee,
+            total: order.total,
+            estimatedDeliveryTime: order.estimatedDeliveryTime || 30,
+            estimatedDeliveryAt: order.estimatedDeliveryAt,
+            trackingUrl: `${CLIENT_URL}/tracking?id=${order.orderId}`
+          });
+          sendEmail({
+            to: user.email,
+            subject: `Order Confirmed - ${order.orderId}`,
+            html: emailHtml
+          }).catch(() => {});
         }
       } catch (userErr) {
-        console.warn('Could not update user stats:', userErr.message);
+        console.warn('Could not update user stats or send email:', userErr.message);
       }
 
       return res.json({
@@ -236,6 +259,32 @@ router.post('/webhook', async (req, res) => {
             note: `Webhook: Payment confirmed (Flutterwave #${payload.data.id})`
           });
           await order.save();
+
+          // Send confirmation email (non-blocking)
+          try {
+            const user = await User.findById(order.userId);
+            if (user) {
+              const CLIENT_URL = process.env.CLIENT_URL || 'https://swiftchow.me';
+              const emailHtml = emailTemplates.orderConfirmation({
+                firstName: user.firstName || 'Customer',
+                orderId: order.orderId,
+                items: order.items,
+                subtotal: order.subtotal,
+                deliveryFee: order.deliveryFee,
+                total: order.total,
+                estimatedDeliveryTime: order.estimatedDeliveryTime || 30,
+                estimatedDeliveryAt: order.estimatedDeliveryAt,
+                trackingUrl: `${CLIENT_URL}/tracking?id=${order.orderId}`
+              });
+              sendEmail({
+                to: user.email,
+                subject: `Order Confirmed - ${order.orderId}`,
+                html: emailHtml
+              }).catch(() => {});
+            }
+          } catch (emailErr) {
+            // Non-critical, don't block webhook response
+          }
         }
       }
     }

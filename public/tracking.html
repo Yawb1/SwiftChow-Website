@@ -263,7 +263,38 @@
         var allOrders = [];
         var currentFilter = 'all';
         var selectedOrderId = null;
-        var countdownInterval = null;
+        var trackingInterval = null;
+        var deliveredNotified = {}; // track which orders we've already marked delivered
+
+        // ── Progress calculation ──────────────────────────────────────────
+        // Returns 0..1+ based on elapsed time vs estimated delivery window
+        function getOrderProgress(order) {
+            var createdAt = new Date(order.createdAt || order.date).getTime();
+            var estMinutes = order.estimatedDeliveryTime || 30;
+            var estDeliveryAt = order.estimatedDeliveryAt
+                ? new Date(order.estimatedDeliveryAt).getTime()
+                : createdAt + estMinutes * 60000;
+            var now = Date.now();
+            var total = estDeliveryAt - createdAt;
+            if (total <= 0) return 1;
+            return Math.max(0, (now - createdAt) / total);
+        }
+
+        // Map progress (0-1+) to step (1-4)
+        function progressToStep(progress) {
+            if (progress >= 1)   return 4; // Delivered
+            if (progress >= 0.5) return 3; // Out for Delivery
+            if (progress >= 0.2) return 2; // Preparing
+            return 1;                      // Order Received
+        }
+
+        // Map progress to a backend-compatible status string
+        function progressToStatus(progress) {
+            if (progress >= 1)   return 'delivered';
+            if (progress >= 0.5) return 'out_for_delivery';
+            if (progress >= 0.2) return 'preparing';
+            return 'confirmed';
+        }
 
         function statusToStep(status) {
             var map = {
@@ -303,7 +334,7 @@
             return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // LOAD ORDERS
+        // ── Load orders ──────────────────────────────────────────────────
         function waitForApi(cb) {
             if (typeof isAuthenticated === 'function' && typeof apiGetOrders === 'function') {
                 cb();
@@ -341,7 +372,7 @@
             });
         }
 
-        // RENDER ORDERS LIST
+        // ── Render orders list ───────────────────────────────────────────
         function renderOrdersList(searchQuery) {
             var container = document.getElementById('trackingOrdersList');
             var filtered = allOrders.slice();
@@ -376,7 +407,10 @@
             container.innerHTML = filtered.map(function(order) {
                 var oid = escapeHTML(order.orderId || order._id);
                 var dateStr = formatDate(order.createdAt || order.date);
-                var status = order.status || 'confirmed';
+                var progress = getOrderProgress(order);
+                var status = order.status === 'cancelled' ? 'cancelled'
+                    : order.status === 'delivered' ? 'delivered'
+                    : progressToStatus(progress);
                 var color = statusColor(status);
                 var label = statusLabel(status);
                 var total = parseFloat(order.total || 0).toFixed(2);
@@ -410,7 +444,7 @@
             });
         }
 
-        // SELECT ORDER
+        // ── Select order ─────────────────────────────────────────────────
         function selectOrder(orderId) {
             selectedOrderId = orderId;
             document.querySelectorAll('.to-card').forEach(function(c) { c.classList.remove('selected'); });
@@ -435,57 +469,23 @@
             displayOrder(order);
         }
 
+        // ── Display order (called once on select, then ticked every second) ──
         function displayOrder(order) {
             document.getElementById('trackingEmptyState').style.display = 'none';
             document.getElementById('trackingDetailContent').style.display = '';
 
+            // Stop any previous interval
+            if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
+
+            // Initial render
+            renderTracking(order);
+
+            // Only start live tracking for non-terminal orders
             var status = order.status || 'confirmed';
-            var step = statusToStep(status);
-            var oid = order.orderId || order._id;
-
-            // Header
-            document.getElementById('tdOrderId').textContent = 'Order #' + (oid || '--');
-            document.getElementById('tdOrderDate').textContent = formatDate(order.createdAt) + ' at ' + formatTime(order.createdAt);
-
-            // Status pill
-            var pill = document.getElementById('tdStatusPill');
-            var color = statusColor(status);
-            pill.style.background = color + '15';
-            pill.style.color = color;
-            pill.style.borderColor = color + '40';
-            pill.querySelector('span').textContent = statusLabel(status);
-            pill.querySelector('i').className = status === 'delivered' ? 'fas fa-check-circle' : status === 'cancelled' ? 'fas fa-times-circle' : 'fas fa-spinner fa-spin';
-
-            // ETA
-            var etaCard = document.getElementById('tdEtaCard');
-            var etaLabel = document.getElementById('tdEtaLabel');
-            var etaValue = document.getElementById('tdEtaValue');
-            if (status === 'delivered') {
-                etaCard.classList.add('delivered');
-                etaCard.querySelector('.td-eta-icon i').className = 'fas fa-check-circle';
-                etaLabel.textContent = 'Delivered at';
-                var deliveredTime = order.deliveredAt || order.actualDeliveryTime;
-                if (!deliveredTime) {
-                    var hist = (order.statusHistory || []).filter(function(h) { return h.status === 'delivered'; });
-                    deliveredTime = hist.length ? hist[0].timestamp : null;
-                }
-                etaValue.textContent = deliveredTime ? formatTime(deliveredTime) : 'Completed';
-                if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-            } else if (status === 'cancelled') {
-                etaCard.classList.remove('delivered');
-                etaCard.querySelector('.td-eta-icon i').className = 'fas fa-times-circle';
-                etaLabel.textContent = 'Order Cancelled';
-                etaValue.textContent = '--';
-                if (countdownInterval) { clearInterval(countdownInterval); countdownInterval = null; }
-            } else {
-                etaCard.classList.remove('delivered');
-                etaCard.querySelector('.td-eta-icon i').className = 'fas fa-clock';
-                etaLabel.textContent = 'Estimated Delivery';
-                startCountdown(order);
+            if (status !== 'delivered' && status !== 'cancelled') {
+                trackingInterval = setInterval(function() { renderTracking(order); }, 1000);
             }
 
-            updateBikePosition(step);
-            updateTimeline(order, step);
             renderOrderItems(order);
 
             // Address
@@ -504,45 +504,143 @@
             }
         }
 
-        // COUNTDOWN
-        function startCountdown(order) {
-            if (countdownInterval) clearInterval(countdownInterval);
-            var createdAt = new Date(order.createdAt || order.date).getTime();
-            var estMinutes = order.estimatedDeliveryTime || 30;
-            var estDelivery = createdAt + estMinutes * 60000;
+        // ── Core render function — called every second ───────────────────
+        function renderTracking(order) {
+            var isCancelled = order.status === 'cancelled';
+            var isAlreadyDelivered = order.status === 'delivered';
+            var progress = getOrderProgress(order);
+            var step, status, color;
 
-            function tick() {
-                var now = Date.now();
-                var remaining = estDelivery - now;
-                var el = document.getElementById('tdEtaValue');
-                if (!el) { clearInterval(countdownInterval); return; }
-                if (remaining <= 0) {
-                    el.textContent = 'Arriving soon!';
-                    clearInterval(countdownInterval);
-                    return;
+            if (isCancelled) {
+                step = statusToStep('cancelled');
+                status = 'cancelled';
+            } else if (isAlreadyDelivered) {
+                step = 4;
+                status = 'delivered';
+                progress = 1;
+            } else {
+                step = progressToStep(progress);
+                status = progressToStatus(progress);
+
+                // If progress >= 1 and we haven't notified yet, mark as delivered
+                if (progress >= 1 && !deliveredNotified[order.orderId || order._id]) {
+                    deliveredNotified[order.orderId || order._id] = true;
+                    order.status = 'delivered';
+                    order.deliveredAt = new Date().toISOString();
+                    status = 'delivered';
+                    step = 4;
+
+                    // Update backend (non-blocking)
+                    if (typeof apiCall === 'function') {
+                        var oid = order.orderId || order._id;
+                        apiCall('/orders/' + oid + '/status', {
+                            method: 'PUT',
+                            body: JSON.stringify({ status: 'delivered', note: 'Auto-delivered by time' })
+                        }).catch(function() {});
+                    }
+
+                    // Update localStorage
+                    try {
+                        var stored = JSON.parse(localStorage.getItem('swiftChowOrders') || '[]');
+                        stored.forEach(function(o) {
+                            if ((o.orderId || o._id) === (order.orderId || order._id)) {
+                                o.status = 'delivered';
+                                o.deliveredAt = order.deliveredAt;
+                            }
+                        });
+                        localStorage.setItem('swiftChowOrders', JSON.stringify(stored));
+                    } catch (e) {}
+
+                    // Stop interval
+                    if (trackingInterval) { clearInterval(trackingInterval); trackingInterval = null; }
+                    // Re-render list to show updated status
+                    var idx = allOrders.findIndex(function(o) { return (o.orderId || o._id) === (order.orderId || order._id); });
+                    if (idx !== -1) allOrders[idx] = order;
+                    renderOrdersList();
                 }
-                var mins = Math.floor(remaining / 60000);
-                var secs = Math.floor((remaining % 60000) / 1000);
-                el.textContent = mins > 0 ? mins + ' min' + (mins !== 1 ? 's' : '') + ' ' + secs + 's remaining' : secs + 's remaining';
             }
-            tick();
-            countdownInterval = setInterval(tick, 1000);
+
+            color = statusColor(status);
+            var oid = order.orderId || order._id;
+
+            // Header
+            document.getElementById('tdOrderId').textContent = 'Order #' + (oid || '--');
+            document.getElementById('tdOrderDate').textContent = formatDate(order.createdAt) + ' at ' + formatTime(order.createdAt);
+
+            // Status pill
+            var pill = document.getElementById('tdStatusPill');
+            pill.style.background = color + '15';
+            pill.style.color = color;
+            pill.style.borderColor = color + '40';
+            pill.querySelector('span').textContent = statusLabel(status);
+            pill.querySelector('i').className = status === 'delivered' ? 'fas fa-check-circle' : status === 'cancelled' ? 'fas fa-times-circle' : 'fas fa-spinner fa-spin';
+
+            // ETA / Countdown
+            updateEta(order, progress, status);
+
+            // Bike + road fill
+            updateBikePosition(progress, step);
+
+            // Timeline
+            updateTimeline(order, step, progress, status);
         }
 
-        // BIKE POSITION
-        function updateBikePosition(step) {
+        // ── ETA & Countdown ──────────────────────────────────────────────
+        function updateEta(order, progress, status) {
+            var etaCard = document.getElementById('tdEtaCard');
+            var etaLabel = document.getElementById('tdEtaLabel');
+            var etaValue = document.getElementById('tdEtaValue');
+
+            if (status === 'delivered') {
+                etaCard.classList.add('delivered');
+                etaCard.querySelector('.td-eta-icon i').className = 'fas fa-check-circle';
+                etaLabel.textContent = 'Delivered at';
+                var deliveredTime = order.deliveredAt || order.actualDeliveryTime;
+                if (!deliveredTime) {
+                    var hist = (order.statusHistory || []).filter(function(h) { return h.status === 'delivered'; });
+                    deliveredTime = hist.length ? hist[0].timestamp : null;
+                }
+                etaValue.textContent = deliveredTime ? formatTime(deliveredTime) : 'Completed';
+            } else if (status === 'cancelled') {
+                etaCard.classList.remove('delivered');
+                etaCard.querySelector('.td-eta-icon i').className = 'fas fa-times-circle';
+                etaLabel.textContent = 'Order Cancelled';
+                etaValue.textContent = '--';
+            } else {
+                etaCard.classList.remove('delivered');
+                etaCard.querySelector('.td-eta-icon i').className = 'fas fa-clock';
+                etaLabel.textContent = 'Estimated Delivery';
+
+                var createdAt = new Date(order.createdAt || order.date).getTime();
+                var estMinutes = order.estimatedDeliveryTime || 30;
+                var estDelivery = order.estimatedDeliveryAt
+                    ? new Date(order.estimatedDeliveryAt).getTime()
+                    : createdAt + estMinutes * 60000;
+                var remaining = Math.max(0, estDelivery - Date.now());
+
+                if (remaining <= 0) {
+                    etaValue.textContent = 'Arriving now!';
+                } else {
+                    var mins = Math.floor(remaining / 60000);
+                    var secs = Math.floor((remaining % 60000) / 1000);
+                    etaValue.textContent = mins > 0 ? mins + ' min' + (mins !== 1 ? 's' : '') + ' ' + secs + 's remaining' : secs + 's remaining';
+                }
+            }
+        }
+
+        // ── Bike position (smooth, based on progress 0-1) ───────────────
+        function updateBikePosition(progress, step) {
             var fill = document.getElementById('tdRoadFill');
             var bike = document.getElementById('tdBike');
-            var positions = { 1: 5, 2: 30, 3: 65, 4: 100 };
-            var pct = positions[step] || 5;
+            var pct = Math.min(100, Math.max(0, progress * 100));
             fill.style.width = pct + '%';
             bike.style.left = 'calc(' + pct + '% - 16px)';
             if (step >= 4) { bike.classList.add('arrived'); } else { bike.classList.remove('arrived'); }
         }
 
-        // TIMELINE
-        function updateTimeline(order, currentStep) {
-            var ts = getStageTimestamps(order);
+        // ── Timeline ─────────────────────────────────────────────────────
+        function updateTimeline(order, currentStep, progress, status) {
+            var ts = getStageTimestamps(order, progress);
             for (var s = 1; s <= 4; s++) {
                 var el = document.getElementById('tdStep' + s);
                 var timeEl = el.querySelector('.td-step-time');
@@ -551,7 +649,7 @@
                     el.classList.add('completed');
                     timeEl.textContent = ts[s] || '--';
                 } else if (s === currentStep) {
-                    if (currentStep === 4 && order.status === 'delivered') {
+                    if (currentStep === 4 && (status === 'delivered' || progress >= 1)) {
                         el.classList.add('completed');
                         timeEl.textContent = ts[s] || 'Just now';
                     } else {
@@ -565,34 +663,51 @@
             }
         }
 
-        function getStageTimestamps(order) {
+        function getStageTimestamps(order, progress) {
             var timestamps = {};
+            var createdAt = new Date(order.createdAt || order.date).getTime();
+            var estMinutes = order.estimatedDeliveryTime || 30;
+            var estDelivery = order.estimatedDeliveryAt
+                ? new Date(order.estimatedDeliveryAt).getTime()
+                : createdAt + estMinutes * 60000;
+            var totalMs = estDelivery - createdAt;
+
+            // Use real timestamps if available from backend
             if (order.confirmedAt) timestamps[1] = formatTime(order.confirmedAt);
             if (order.preparingAt) timestamps[2] = formatTime(order.preparingAt);
             if (order.outForDeliveryAt) timestamps[3] = formatTime(order.outForDeliveryAt);
             if (order.deliveredAt) timestamps[4] = formatTime(order.deliveredAt);
 
+            // Fallback: use statusHistory
             var stepMap = { 'pending': 1, 'confirmed': 1, 'preparing': 2, 'ready': 2, 'out_for_delivery': 3, 'delivered': 4 };
             (order.statusHistory || []).forEach(function(h) {
                 var s = stepMap[h.status];
                 if (s && !timestamps[s]) timestamps[s] = formatTime(h.timestamp);
             });
 
-            if (!timestamps[1] && order.createdAt) timestamps[1] = formatTime(order.createdAt);
+            // Default step 1 = createdAt
+            if (!timestamps[1]) timestamps[1] = formatTime(order.createdAt || order.date);
 
-            // Simulated timestamps for orders without history
-            if (!timestamps[1] && !(order.statusHistory || []).length) {
-                var base = new Date(order.createdAt || order.date || Date.now());
-                timestamps[1] = formatTime(base);
-                var step = statusToStep(order.status);
-                if (step >= 2) timestamps[2] = formatTime(new Date(base.getTime() + 5 * 60000));
-                if (step >= 3) timestamps[3] = formatTime(new Date(base.getTime() + 15 * 60000));
-                if (step >= 4) timestamps[4] = formatTime(new Date(base.getTime() + 30 * 60000));
+            // Compute estimated timestamps for stages based on progress checkpoints
+            if (progress !== undefined) {
+                // 20% mark for Preparing
+                if (!timestamps[2] && progress >= 0.2) {
+                    timestamps[2] = formatTime(new Date(createdAt + totalMs * 0.2));
+                }
+                // 50% mark for Out for Delivery
+                if (!timestamps[3] && progress >= 0.5) {
+                    timestamps[3] = formatTime(new Date(createdAt + totalMs * 0.5));
+                }
+                // 100% mark for Delivered
+                if (!timestamps[4] && progress >= 1) {
+                    timestamps[4] = formatTime(new Date(createdAt + totalMs));
+                }
             }
+
             return timestamps;
         }
 
-        // ORDER ITEMS
+        // ── Order items ──────────────────────────────────────────────────
         function renderOrderItems(order) {
             var items = order.items || [];
             var listEl = document.getElementById('tdItemsList');
@@ -617,7 +732,7 @@
                 '<div class="td-total-row td-grand-total"><span>Total</span><span>GHS ' + parseFloat(order.total || 0).toFixed(2) + '</span></div>';
         }
 
-        // EVENTS
+        // ── Events ───────────────────────────────────────────────────────
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.tracking-tab').forEach(function(tab) {
                 tab.addEventListener('click', function() {

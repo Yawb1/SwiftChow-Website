@@ -618,7 +618,9 @@ async function processOrder(orderData) {
         createdAt: order.createdAt || new Date().toISOString(),
         date: order.createdAt || new Date().toISOString(),
         city: orderData.city,
-        estimatedDelivery: order.estimatedDeliveryTime || new Date(Date.now() + 30 * 60000).toISOString(),
+        estimatedDeliveryTime: order.estimatedDeliveryTime || 30,
+        estimatedDeliveryAt: order.estimatedDeliveryAt || new Date(Date.now() + 30 * 60000).toISOString(),
+        estimatedDelivery: order.estimatedDeliveryAt || new Date(Date.now() + 30 * 60000).toISOString(),
         orderTime: new Date().toISOString()
       };
       

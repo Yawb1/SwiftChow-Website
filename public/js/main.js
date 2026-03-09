@@ -4,20 +4,6 @@
    ============================================ */
 
 // ============================================
-// CLEAN .html FROM URLs (Pretty URLs)
-// ============================================
-(function() {
-  if (window.location.protocol === 'file:') return; // Skip on local file system
-  const path = window.location.pathname;
-  if (path.endsWith('.html') && path !== '/index.html') {
-    const cleanPath = path.replace(/\.html$/, '');
-    window.history.replaceState(null, '', cleanPath + window.location.search + window.location.hash);
-  } else if (path === '/index.html') {
-    window.history.replaceState(null, '', '/' + window.location.search + window.location.hash);
-  }
-})();
-
-// ============================================
 // CLEAR CART ON ORDER SUCCESS PAGE
 // ============================================
 (function() {
@@ -1739,7 +1725,9 @@ async function verifyFlutterwavePayment(transactionId, orderId, orderData) {
         createdAt: order.createdAt || new Date().toISOString(),
         date: order.createdAt || new Date().toISOString(),
         city: orderData.city,
-        estimatedDelivery: order.estimatedDeliveryTime || new Date(Date.now() + 30 * 60000).toISOString(),
+        estimatedDeliveryTime: order.estimatedDeliveryTime || 30,
+        estimatedDeliveryAt: order.estimatedDeliveryAt || new Date(Date.now() + 30 * 60000).toISOString(),
+        estimatedDelivery: order.estimatedDeliveryAt || new Date(Date.now() + 30 * 60000).toISOString(),
         orderTime: new Date().toISOString()
       };
 
@@ -2473,12 +2461,28 @@ async function loadOrders() {
     const date = new Date(order.createdAt || order.timestamp || order.date);
     const dateStr = date.toLocaleDateString('en-US', { year: 'numeric', month: 'short', day: 'numeric' });
     const timeStr = date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
-    const status = (order.status || 'confirmed').toLowerCase();
-    const statusLabels = { confirmed: 'Confirmed', preparing: 'Preparing', 'on-the-way': 'On the Way', delivered: 'Delivered', cancelled: 'Cancelled' };
+
+    // Use time-based progress for active orders (consistent with tracking page)
+    let status = (order.status || 'confirmed').toLowerCase();
+    if (status !== 'delivered' && status !== 'cancelled') {
+      const createdAt = new Date(order.createdAt || order.date).getTime();
+      const estMinutes = order.estimatedDeliveryTime || 30;
+      const estDeliveryAt = order.estimatedDeliveryAt
+        ? new Date(order.estimatedDeliveryAt).getTime()
+        : createdAt + estMinutes * 60000;
+      const total_ms = estDeliveryAt - createdAt;
+      const progress = total_ms > 0 ? Math.max(0, (Date.now() - createdAt) / total_ms) : 1;
+      if (progress >= 1) status = 'delivered';
+      else if (progress >= 0.5) status = 'out_for_delivery';
+      else if (progress >= 0.2) status = 'preparing';
+      else status = 'confirmed';
+    }
+
+    const statusLabels = { confirmed: 'Confirmed', preparing: 'Preparing', out_for_delivery: 'Out for Delivery', delivered: 'Delivered', cancelled: 'Cancelled' };
     const statusLabel = statusLabels[status] || status.charAt(0).toUpperCase() + status.slice(1);
-    const statusColors = { confirmed: '#3b82f6', preparing: '#f59e0b', 'on-the-way': '#8b5cf6', delivered: '#10b981', cancelled: '#ef4444' };
+    const statusColors = { confirmed: '#3b82f6', preparing: '#f59e0b', out_for_delivery: '#8b5cf6', delivered: '#10b981', cancelled: '#ef4444' };
     const statusColor = statusColors[status] || 'var(--primary)';
-    const statusIcons = { confirmed: 'check-circle', preparing: 'fire', 'on-the-way': 'motorcycle', delivered: 'check-double', cancelled: 'times-circle' };
+    const statusIcons = { confirmed: 'check-circle', preparing: 'fire', out_for_delivery: 'motorcycle', delivered: 'check-double', cancelled: 'times-circle' };
     const statusIcon = statusIcons[status] || 'circle';
     const items = order.items || [];
     const total = order.total || 0;
@@ -3326,6 +3330,11 @@ function updateAuthUI() {
     if (loginBtn) {
       loginBtn.style.display = 'none';
     }
+    // Hide mobile login button
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    if (mobileLoginBtn) {
+      mobileLoginBtn.style.display = 'none';
+    }
     
     // If user object is null but authenticated, use token to proceed
     if (!user) {
@@ -3439,6 +3448,12 @@ function updateAuthUI() {
     const loginBtn = navActions.querySelector('#loginBtn');
     if (loginBtn) {
       loginBtn.style.display = 'inline-flex';
+      loginBtn.style.visibility = 'visible';
+    }
+    // Show mobile login button
+    const mobileLoginBtn = document.getElementById('mobileLoginBtn');
+    if (mobileLoginBtn) {
+      mobileLoginBtn.style.visibility = 'visible';
     }
   }
 }

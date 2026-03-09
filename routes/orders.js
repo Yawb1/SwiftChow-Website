@@ -2,6 +2,8 @@ const express = require('express');
 const { requireAuth } = require('../middleware/auth');
 const Order = require('../models/Order');
 const User = require('../models/User');
+const sendEmail = require('../utils/sendEmail');
+const emailTemplates = require('../utils/emailTemplates');
 
 const router = express.Router();
 
@@ -32,6 +34,11 @@ router.post('/create', requireAuth, async (req, res) => {
     const random = Math.random().toString(36).substring(2, 7).toUpperCase();
     const orderId = `SC${timestamp}${random}`;
     
+    // Calculate estimated delivery timestamp
+    const estimatedMinutes = 30;
+    const now = new Date();
+    const estimatedDeliveryAt = new Date(now.getTime() + estimatedMinutes * 60000);
+    
     // Create order
     const order = new Order({
       orderId, // Set the orderId explicitly
@@ -46,11 +53,12 @@ router.post('/create', requireAuth, async (req, res) => {
       tax,
       total,
       specialInstructions,
-      estimatedDeliveryTime: 30, // 30 minutes estimate
-      confirmedAt: new Date(),
+      estimatedDeliveryTime: estimatedMinutes,
+      estimatedDeliveryAt,
+      confirmedAt: now,
       statusHistory: [{
         status: 'confirmed',
-        timestamp: new Date(),
+        timestamp: now,
         note: 'Order placed'
       }],
       status: 'confirmed'
@@ -68,6 +76,28 @@ router.post('/create', requireAuth, async (req, res) => {
       }
     } catch (userError) {
       console.warn('Warning: Could not update user stats:', userError.message);
+    }
+    
+    // Send order confirmation email (non-blocking)
+    try {
+      const customerName = (req.user.firstName || req.user.fullName || '').split(' ')[0] || 'Customer';
+      const customerEmail = req.user.email;
+      if (customerEmail && typeof emailTemplates.orderConfirmation === 'function') {
+        const html = emailTemplates.orderConfirmation({
+          firstName: customerName,
+          orderId: order.orderId,
+          items: order.items,
+          subtotal: order.subtotal,
+          deliveryFee: order.deliveryFee,
+          total: order.total,
+          estimatedDeliveryTime: estimatedMinutes,
+          estimatedDeliveryAt: estimatedDeliveryAt,
+          trackingUrl: (process.env.CLIENT_URL || 'https://swiftchow.me') + '/tracking.html?order=' + order.orderId
+        });
+        sendEmail({ to: customerEmail, subject: 'Your SwiftChow order has been received!', html }).catch(() => {});
+      }
+    } catch (emailErr) {
+      console.warn('Warning: Could not send order confirmation email:', emailErr.message);
     }
     
     res.status(201).json({
@@ -193,6 +223,21 @@ router.put('/:orderId/status', requireAuth, async (req, res) => {
     if (status === 'delivered') {
       if (!order.deliveredAt) order.deliveredAt = now;
       order.actualDeliveryTime = now;
+      
+      // Send delivery completion email (non-blocking)
+      try {
+        const user = await User.findById(order.userId);
+        if (user && user.email && typeof emailTemplates.deliveryConfirmation === 'function') {
+          const customerName = (user.firstName || user.fullName || '').split(' ')[0] || 'Customer';
+          const html = emailTemplates.deliveryConfirmation({
+            firstName: customerName,
+            orderId: order.orderId
+          });
+          sendEmail({ to: user.email, subject: 'Your SwiftChow order has been delivered!', html }).catch(() => {});
+        }
+      } catch (emailErr) {
+        console.warn('Warning: Could not send delivery email:', emailErr.message);
+      }
     }
     
     await order.save();

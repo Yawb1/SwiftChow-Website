@@ -206,7 +206,7 @@ const templates = {
   }),
 
   // 7. Order confirmation
-  orderConfirmation: ({ firstName, orderId, items, subtotal, deliveryFee, total }) => {
+  orderConfirmation: ({ firstName, orderId, items, subtotal, deliveryFee, total, estimatedDeliveryTime, estimatedDeliveryAt, trackingUrl }) => {
     const itemRows = (items || []).map(i => `
       <tr>
         <td style="padding: 10px 0; border-bottom: 1px solid #f3f4f6; font-size: 14px; color: #374151;">${i.name} x${i.quantity}</td>
@@ -214,13 +214,22 @@ const templates = {
       </tr>
     `).join('');
 
+    const etaStr = estimatedDeliveryAt
+      ? new Date(estimatedDeliveryAt).toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' })
+      : (estimatedDeliveryTime ? `~${estimatedDeliveryTime} minutes` : '~30 minutes');
+
+    const trackLink = trackingUrl || `${CLIENT_URL}/tracking.html?orderId=${orderId}`;
+
     return baseTemplate({
       title: 'Order Confirmed!',
       preheader: `Your order ${orderId} has been confirmed.`,
       body: `
         ${greeting(firstName)}
-        ${paragraph('Great news! Your order has been confirmed and is being prepared. 🎉')}
-        ${infoBox(`<p style="margin: 0; font-size: 16px; color: #1f2937; text-align: center;"><strong>Order ID:</strong> ${orderId}</p>`)}
+        ${paragraph('Your order has been received and is now being prepared. You can track your order in real time. 🎉')}
+        ${infoBox(`
+          <p style="margin: 0 0 8px 0; font-size: 16px; color: #1f2937; text-align: center;"><strong>Order ID:</strong> ${orderId}</p>
+          <p style="margin: 0; font-size: 14px; color: #6b7280; text-align: center;"><strong>Estimated Delivery:</strong> ${etaStr}</p>
+        `)}
         <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="margin: 20px 0;">
           ${itemRows}
           <tr>
@@ -236,11 +245,26 @@ const templates = {
             <td style="padding: 12px 0 0; font-size: 18px; color: #DC2626; font-weight: 700; border-top: 2px solid #e5e7eb; text-align: right;">GHS ${(total || 0).toFixed(2)}</td>
           </tr>
         </table>
-        ${ctaButton('Track Your Order', `${CLIENT_URL}/tracking.html?orderId=${orderId}`)}
+        ${ctaButton('Track Your Order', trackLink)}
         ${signature()}
       `
     });
   },
+
+  // 7b. Delivery confirmation
+  deliveryConfirmation: ({ firstName, orderId }) => baseTemplate({
+    title: 'Order Delivered!',
+    preheader: `Your order ${orderId} has been delivered.`,
+    body: `
+      ${greeting(firstName)}
+      ${paragraph('Your order has been delivered successfully. We hope you enjoyed your meal! 🍽️')}
+      ${infoBox(`<p style="margin: 0; font-size: 16px; color: #1f2937; text-align: center;"><strong>Order ID:</strong> ${orderId}</p>`)}
+      ${paragraph('We\'d love to hear your feedback! Take a moment to leave a review and help us improve.')}
+      ${ctaButton('Leave a Review', `${CLIENT_URL}/reviews.html`)}
+      ${paragraph('Thank you for choosing SWIFT CHOW. We look forward to serving you again!')}
+      ${signature()}
+    `
+  }),
 
   // 8. Newsletter welcome
   newsletterWelcome: ({ email }) => baseTemplate({

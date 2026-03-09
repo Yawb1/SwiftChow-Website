@@ -3,7 +3,24 @@
   "framework": null,
   "outputDirectory": "public",
   "rewrites": [
-    { "source": "/api/(.*)", "destination": "/api" }
+    { "source": "/api/(.*)", "destination": "/api" },
+    { "source": "/about", "destination": "/about.html" },
+    { "source": "/account", "destination": "/account.html" },
+    { "source": "/blog-post", "destination": "/blog-post.html" },
+    { "source": "/blog", "destination": "/blog.html" },
+    { "source": "/cart", "destination": "/cart.html" },
+    { "source": "/checkout", "destination": "/checkout.html" },
+    { "source": "/contact", "destination": "/contact.html" },
+    { "source": "/forgot-password", "destination": "/forgot-password.html" },
+    { "source": "/login", "destination": "/login.html" },
+    { "source": "/menu", "destination": "/menu.html" },
+    { "source": "/order-success", "destination": "/order-success.html" },
+    { "source": "/privacy", "destination": "/privacy.html" },
+    { "source": "/reset-password", "destination": "/reset-password.html" },
+    { "source": "/reviews", "destination": "/reviews.html" },
+    { "source": "/signup", "destination": "/signup.html" },
+    { "source": "/terms", "destination": "/terms.html" },
+    { "source": "/tracking", "destination": "/tracking.html" }
   ],
   "headers": [
     {
