@@ -637,6 +637,15 @@ async function processOrder(orderData) {
       // Clear cart
       cart = [];
       saveCart();
+
+      // Notify chatbot about the new order
+      if (window.swiftChowChatbot && window.swiftChowChatbot.notifyOrderPlaced) {
+        window.swiftChowChatbot.notifyOrderPlaced(
+          localOrder.orderId,
+          localOrder.total,
+          localOrder.estimatedDeliveryTime || 30
+        );
+      }
       
       return localOrder;
     } else {

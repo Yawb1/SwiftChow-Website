@@ -1744,6 +1744,15 @@ async function verifyFlutterwavePayment(transactionId, orderId, orderData) {
       cart = [];
       if (typeof saveCart === 'function') saveCart();
 
+      // Notify chatbot about the new order
+      if (window.swiftChowChatbot && window.swiftChowChatbot.notifyOrderPlaced) {
+        window.swiftChowChatbot.notifyOrderPlaced(
+          localOrder.orderId || localOrder.id,
+          localOrder.total,
+          localOrder.estimatedDeliveryTime || 30
+        );
+      }
+
       showToast('Payment successful! Order confirmed.', 'success');
       setTimeout(function() {
         window.location.href = 'order-success.html?order=' + (localOrder.id || orderId);
