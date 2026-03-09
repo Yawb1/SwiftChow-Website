@@ -5,10 +5,10 @@
 ## SLIDE 1 — Title & Overview (15 sec)
 
 - **Project Title:** SwiftChow — An Intelligent Online Food Ordering & Delivery Platform
-- **Student Name:** [Your Name]
+- **Student Name:** Edwin Ayensu
 - **Index Number:** [Your Index Number]
-- **Department:** [Department Name], [University Name]
-- **Supervisor:** [Supervisor's Name]
+- **Department:** Computer Science
+- **Supervisor:** [Supervisor Name]
 - **Date:** March 2026
 
 ---
@@ -16,18 +16,19 @@
 ## SLIDE 2 — Problem Statement & Motivation (50 sec)
 
 **The Problem:**
-- In Ghana, many local food vendors lack an online ordering platform, forcing customers to rely on phone calls, walk-ins, or informal WhatsApp orders — resulting in order errors, long wait times, and no tracking visibility
-- Customers have no way to track delivery status in real-time or get instant support outside business hours
+- Ordering meals online remains frustrating — customers face lack of transparency, no real-time tracking, and unreliable delivery updates
+- In Ghana, most food vendors still rely on phone calls, walk-ins, or WhatsApp — leading to order errors, long wait times, and zero visibility into delivery status
+- Customers have no way to get instant support or automated notifications outside business hours
 
 **Why It Matters:**
-- The Ghanaian food delivery market is growing rapidly, yet most small-to-medium vendors are underserved by existing platforms
-- Socially: reduces physical queuing time, enables contactless ordering post-COVID
-- Commercially: opens a direct digital revenue channel for vendors and creates job opportunities for delivery riders
+- Customers demand fast, reliable online food services with live tracking and instant email confirmations
+- Socially: reduces queuing time, enables contactless ordering; commercially: opens a direct digital revenue channel for vendors
+- The Ghanaian food delivery market is growing rapidly, yet most small-to-medium vendors are underserved
 
 **Existing Solutions & Limitations:**
-- Platforms like Glovo and Bolt Food operate in major cities but charge high commission fees (15–30%) and exclude smaller vendors
-- WhatsApp/phone ordering has no payment integration, no order tracking, and no order history
-- SwiftChow fills this gap as a low-cost, full-featured, vendor-friendly platform with integrated payments, AI chatbot, and real-time tracking
+- Traditional food apps (Glovo, Bolt Food) charge high commissions (15–30%), exclude smaller vendors, and often have poor UI/UX
+- WhatsApp/phone ordering has no payment integration, no order tracking, no order history, and no automated notifications
+- **SwiftChow solves this** with integrated Flutterwave payments (cards + mobile money), real-time animated order tracking, automated SendGrid email notifications, and an intelligent chatbot — all at low cost
 
 ---
 
@@ -45,43 +46,51 @@
 
 **Functional Requirements:**
 - User registration/login with email verification and Google OAuth
-- Browse 44+ menu items across 9 categories with search, filter, and dietary info
-- Shopping cart with real-time price calculation (subtotal, 5% tax, delivery fee)
-- Checkout with Cash on Delivery or Flutterwave (cards, mobile money)
+- Cart management: add, update, remove items with real-time price calculation (subtotal, 5% tax, GHS 5 delivery fee)
+- Order placement with Cash on Delivery or Flutterwave (cards, mobile money)
 - Order tracking with 6-stage status progression (Confirmed → Preparing → Ready → Out for Delivery → Delivered)
-- Intelligent chatbot for order tracking, FAQs, menu browsing, and support
-- User account management: saved addresses, payment methods, order history, favorites
+- Automated email notifications via SendGrid for order confirmation, status updates, and delivery completion
+- SwiftChow Bot interaction for order status queries, menu browsing, and site FAQs
+- Newsletter subscription with confirmation email
 
 **Non-Functional Requirements:**
 - Performance: pages load in < 3 seconds, API response < 500ms
-- Security: JWT authentication, rate limiting, XSS/injection prevention, PCI-compliant card handling
-- Usability: mobile-first responsive design, dark mode, toast notifications
-- Reliability: automated email notifications, Sentry error monitoring
+- Security: bcrypt-hashed passwords, JWT authentication, rate limiting, XSS/injection prevention, HTTPS enforced
+- Usability: mobile-first responsive design, dark mode toggle, toast notifications
+- Scalability: serverless deployment on Vercel, MongoDB Atlas with cached connections
 
-**Target Users:**
-- *"As a hungry student, I want to browse nearby food options, place an order with mobile money, and track my delivery in real-time from my phone"*
-- *"As a vendor, I want to receive orders digitally with calculated totals and payment confirmation"*
+**Target Users & User Stories:**
+- General online food customers in Ghana
+- *"As a user, I want to track my order in real time so I know exactly when my food arrives"*
+- *"As a user, I want email confirmation for my orders so I have a receipt and updates"*
+- *"As a user, I want a secure, smooth checkout experience with mobile money support"*
 
 ---
 
 ## SLIDE 5 — System Design (1 min)
 
-**Architecture:** 3-Tier Client–Server Architecture
-- **Presentation Tier:** HTML5, CSS3, Vanilla JavaScript (18 pages, responsive)
-- **Application Tier:** Node.js + Express.js REST API (7 route modules, JWT auth middleware)
-- **Data Tier:** MongoDB Atlas (7 collections: Users, Orders, Cart, Addresses, PaymentMethods, Reviews, NewsletterSubscribers)
+**Architecture:** 3-Tier Client–Server, Serverless Deployment on Vercel
+- **Presentation Tier:** HTML5, CSS3, Vanilla JavaScript (18 responsive pages)
+- **Application Tier:** Node.js + Express.js REST API (7 route modules, JWT auth middleware, Passport.js)
+- **Data Tier:** MongoDB Atlas with cached connections (7 collections: Users, Orders, Cart, Addresses, PaymentMethods, Reviews, NewsletterSubscribers)
 
 **Database Schema (Key Entities):**
-- **User:** name, email, password (bcrypt-hashed), Google OAuth, favorites, stats
-- **Order:** orderId, items[], delivery address, payment status, 6-stage statusHistory[], rating, timestamps
+- **User:** name, email, password (bcrypt-hashed), Google OAuth fields, favorites, order stats
+- **Order:** orderId, items[], deliveryAddress, paymentStatus, 6-stage statusHistory[], rating, timestamps
 - **Cart:** userId (unique), items[{foodId, name, price, quantity}]
-- **PaymentMethod:** type (card/mobile money), cardLast4 (PCI-compliant — no full numbers stored), provider
+- **PaymentMethod:** type (card/mobile money), cardLast4 only (PCI-compliant — no full card numbers stored)
+
+**UI/UX Design Highlights:**
+- Responsive layout for mobile (320px) to desktop (1440px+) with dark mode toggle
+- Hover-activated login/signup modals matching desktop page design
+- Track-your-order page with animated motorbike and multi-stage progress bar
+- Homepage: hero section with floating cards, deals carousel with touch swipe, category navigation
 
 **Application Flow:**
 1. User browses menu → adds items to cart → proceeds to checkout
-2. Selects delivery address + payment method → order created server-side
-3. Flutterwave processes payment → webhook confirms → order status begins progressing
-4. Automated emails sent at each stage; chatbot provides real-time tracking
+2. Selects delivery address + payment method → order created server-side with tax/fee calculation
+3. Flutterwave processes payment → server-side verification → webhook confirmation (double-validation)
+4. Automated SendGrid emails sent at each stage; chatbot provides real-time tracking
 5. User rates and reviews after delivery
 
 ---
@@ -147,18 +156,19 @@
 - Fully deployed on Vercel with MongoDB Atlas — zero-downtime, auto-scaling serverless architecture
 
 **Key Challenges:**
+- **Deployment Migration:** Migrating from Netlify/Render to Vercel required restructuring the serverless entry point and environment configuration
 - **Payment Integration:** Flutterwave webhook handling in a stateless serverless environment required careful idempotency design
-- **Security vs. UX Balance:** Implementing rate limiting and input validation without degrading user experience
-- **Chatbot Natural Language:** Designing comprehensive regex pattern matching to cover spelling variations and conversational intent without an NLP library
-- **Serverless Constraints:** In-memory rate limiting doesn't persist across Vercel function instances — planned migration to Redis
+- **Real-Time Tracking & Emails:** Ensuring order status progression triggers automated SendGrid notifications reliably at each stage
+- **Chatbot Natural Language:** Designing 40+ regex intent patterns to cover spelling variations and conversational queries without an NLP library
+- **Security vs. UX Balance:** Implementing rate limiting, input validation, and PCI compliance without degrading user experience
 
 **Future Improvements:**
-- Mobile app (React Native) for push notifications and offline menu browsing
-- Real-time order tracking with WebSocket/SSE and live map integration
-- Vendor dashboard for restaurant owners to manage menus and orders
-- AI-powered food recommendations based on order history and preferences
+- Improve bot intelligence with NLP/AI integration for smarter responses
+- Admin dashboard for vendors to manage menus, view orders, and analytics
+- Multi-language support (English, Twi, French) for broader reach
+- Mobile app version (React Native) with push notifications
+- Real-time tracking with WebSocket/SSE and live map integration
 - Redis-backed rate limiting and JWT blacklist for production scale
-- Multi-vendor marketplace model with commission management
 
 ---
 
@@ -166,53 +176,53 @@
 
 **Demo Flow (5 minutes):**
 
-1. **Homepage Tour (30 sec)**
-   - Show responsive homepage with hero section, deals carousel, category navigation
-   - Toggle dark mode to demonstrate theme switching
-
-2. **User Registration & Login (45 sec)**
-   - Register a new account → show email verification flow
+1. **Register / Login & Email Verification (45 sec)**
+   - Register a new account → show email verification notification from SendGrid
    - Log in and show JWT-authenticated session
    - Briefly show Google OAuth option
 
-3. **Menu Browsing & Cart (1 min)**
+2. **Menu Browsing & Cart (45 sec)**
    - Browse menu categories (Burgers, Pizza, Pastries)
-   - Use search to find "Jollof" or "Chicken"
+   - Use search to find "Chicken" or "Jollof"
    - Add 3–4 items to cart, adjust quantities
-   - Show real-time cart total with tax and delivery fee
+   - Show real-time cart total with 5% tax and GHS 5 delivery fee
 
-4. **Checkout & Payment (1 min)**
+3. **Checkout & Flutterwave Payment (1 min)**
    - Select delivery address (or add new one)
    - Choose Flutterwave payment → show inline checkout modal
    - Complete test payment → show server-side verification
-   - Show order confirmation email (or screenshot)
+   - Show order confirmation email from SendGrid (or screenshot)
 
-5. **Order Tracking (45 sec)**
+4. **Real-Time Order Tracking (45 sec)**
    - Navigate to tracking page → show order status progression
-   - Demonstrate the animated delivery progress UI
-   - Show status history timeline
+   - Demonstrate the animated motorbike delivery progress and stage indicators
+   - Show status history timeline with timestamps
 
-6. **Chatbot Demo (45 sec)**
-   - Open SwiftChow Bot → ask "Track my order"
+5. **SwiftChow Bot Interaction (45 sec)**
+   - Open SwiftChow Bot → ask "Track my order" → show live order status
    - Ask "What burgers do you have?" → show menu results
-   - Ask "What are your delivery hours?"
-   - Show time-aware greeting and fun personality features
+   - Ask "What are your delivery hours?" → show delivery info
+   - Demonstrate time-aware greeting and fun personality responses
 
-7. **Account Dashboard (15 sec)**
-   - Show saved addresses, payment methods, order history
-   - Show user stats (total orders, total spent)
+6. **Newsletter & Responsiveness (30 sec)**
+   - Subscribe to newsletter → show confirmation email
+   - Resize browser / switch to mobile view to demonstrate responsive layout
+   - Toggle dark mode
 
-**Fallback:** If live demo has connectivity issues, prepared screenshots of each step are available in the slide deck appendix.
+7. **Account Dashboard (10 sec)**
+   - Show saved addresses, payment methods, order history, user stats
+
+**Fallback:** Backup screenshots of each step are prepared in the slide deck appendix in case of live demo connectivity issues.
 
 ---
 
 ## SLIDE 10 — Q&A (10 sec)
 
 - **Thank you for your attention!**
-- Special thanks to **[Supervisor's Name]** for guidance and mentorship
+- Special thanks to **[Supervisor Name]** for guidance and mentorship
 - APIs & services used: Flutterwave, SendGrid, MongoDB Atlas, Vercel, Google OAuth
+- **Email:** orders@swiftchow.me
 - **GitHub:** github.com/Yawb1/SwiftChow-Website
 - **Live Site:** swiftchow.me
-- **Contact:** [Your Email]
 
 *— Questions? —*
