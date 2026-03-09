@@ -59,7 +59,7 @@
     {
       keywords: ['pay', 'payment', 'momo', 'mobile money', 'card', 'cash', 'method'],
       topic: 'payment',
-      answer: "💳 **Payment Methods**\n\n• 📱 **Mobile Money** — MTN, Vodafone, AirtelTigo\n• 💳 **Cards** — Visa & Mastercard\n• 💵 **Cash on Delivery**\n\nAll online payments are securely encrypted."
+      answer: "💳 **Payment Methods**\n\n• 📱 **Mobile Money** — MTN, Vodafone, AirtelTigo\n• 💳 **Cards** — Visa & Mastercard\n• 💵 **Cash on Delivery**\n\nAll online payments are processed securely via Flutterwave."
     },
     {
       keywords: ['location', 'where', 'area', 'city', 'deliver to', 'address', 'coverage'],

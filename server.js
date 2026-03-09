@@ -144,6 +144,9 @@ app.use('/api/addresses', require('./routes/addresses'));
 // Payment methods routes
 app.use('/api/payments', require('./routes/payments'));
 
+// Flutterwave payment routes
+app.use('/api/flutterwave', require('./routes/flutterwave'));
+
 
 
 // ============================================

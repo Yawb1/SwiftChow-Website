@@ -229,6 +229,30 @@ async function apiGetOrder(orderId) {
   return apiCall(`/orders/${safeId}`);
 }
 
+/* ============================================
+   FLUTTERWAVE PAYMENT ENDPOINTS
+   ============================================ */
+
+// Get Flutterwave public key
+async function apiGetFlwPublicKey() {
+  return apiCall('/flutterwave/public-key');
+}
+
+// Initialize Flutterwave payment (creates pending order)
+async function apiInitializePayment(orderPayload) {
+  return apiCall('/flutterwave/initialize', {
+    method: 'POST',
+    body: JSON.stringify(orderPayload),
+  });
+}
+
+// Verify Flutterwave payment server-side
+async function apiVerifyPayment(transactionId, orderId) {
+  return apiCall('/flutterwave/verify', {
+    method: 'POST',
+    body: JSON.stringify({ transaction_id: transactionId, orderId: orderId }),
+  });
+}
 
 
 /* ============================================
