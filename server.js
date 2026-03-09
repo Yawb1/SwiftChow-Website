@@ -118,7 +118,7 @@ app.use('/api', async (req, res, next) => {
     next();
   } catch (error) {
     console.error('DB middleware error:', error.message);
-    res.status(503).json({ error: { message: 'Service temporarily unavailable', status: 503 } });
+    res.status(503).json({ success: false, error: 'Service temporarily unavailable' });
   }
 });
 
@@ -163,7 +163,7 @@ function rateLimit(maxRequests, windowMs) {
     }
     entry.count++;
     if (entry.count > maxRequests) {
-      return res.status(429).json({ error: 'Too many requests. Please try again later.' });
+      return res.status(429).json({ success: false, error: 'Too many requests. Please try again later.' });
     }
     next();
   };
@@ -197,7 +197,7 @@ app.post('/api/emails/signup-confirmation', async (req, res) => {
     const { email, fullName } = req.body;
     
     if (!email || !fullName) {
-      return res.status(400).json({ error: 'Email and fullName required' });
+      return res.status(400).json({ success: false, error: 'Email and fullName required' });
     }
     
     const html = emailTemplates.welcome({ firstName: fullName.split(' ')[0] || fullName });
@@ -205,7 +205,7 @@ app.post('/api/emails/signup-confirmation', async (req, res) => {
     const result = await sendEmail({ to: email, subject: 'Welcome to SWIFT CHOW!', html });
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -215,7 +215,7 @@ app.post('/api/emails/password-reset', async (req, res) => {
     const { email, fullName, resetLink } = req.body;
     
     if (!email || !fullName) {
-      return res.status(400).json({ error: 'Email and fullName required' });
+      return res.status(400).json({ success: false, error: 'Email and fullName required' });
     }
     
     const html = emailTemplates.passwordReset({
@@ -226,7 +226,7 @@ app.post('/api/emails/password-reset', async (req, res) => {
     const result = await sendEmail({ to: email, subject: 'Password Reset Request - SWIFT CHOW', html });
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -236,7 +236,7 @@ app.post('/api/emails/newsletter-confirmation', async (req, res) => {
     const { email } = req.body;
     
     if (!email) {
-      return res.status(400).json({ error: 'Email required' });
+      return res.status(400).json({ success: false, error: 'Email required' });
     }
     
     const html = emailTemplates.newsletterWelcome({ email });
@@ -244,7 +244,7 @@ app.post('/api/emails/newsletter-confirmation', async (req, res) => {
     const result = await sendEmail({ to: email, subject: 'Newsletter Subscription Confirmed', html });
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -254,7 +254,7 @@ app.post('/api/emails/contact-response', async (req, res) => {
     const { email, fullName, subject, message } = req.body;
     
     if (!email || !subject) {
-      return res.status(400).json({ error: 'Email and subject required' });
+      return res.status(400).json({ success: false, error: 'Email and subject required' });
     }
     
     const html = emailTemplates.contactReply({
@@ -266,7 +266,7 @@ app.post('/api/emails/contact-response', async (req, res) => {
     const result = await sendEmail({ to: email, subject: `Re: ${subject}`, html });
     res.json(result);
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -276,7 +276,7 @@ app.post('/api/newsletter/subscribe', rateLimit(5, 60000), async (req, res) => {
     const { email } = req.body;
 
     if (!email || typeof email !== 'string' || !email.includes('@') || email.length > 254) {
-      return res.status(400).json({ error: 'Valid email is required' });
+      return res.status(400).json({ success: false, error: 'Valid email is required' });
     }
 
     // Check if already subscribed
@@ -296,7 +296,7 @@ app.post('/api/newsletter/subscribe', rateLimit(5, 60000), async (req, res) => {
     res.json({ success: true, message: 'Thanks for subscribing! Check your inbox for a welcome email.' });
   } catch (error) {
     console.error('Newsletter subscription error:', error);
-    res.status(500).json({ error: 'Failed to subscribe. Please try again.' });
+    res.status(500).json({ success: false, error: 'Failed to subscribe. Please try again.' });
   }
 });
 
@@ -318,21 +318,21 @@ app.post('/api/reviews/submit', rateLimit(5, 60000), async (req, res) => {
     const { name, email, rating, comment } = req.body;
 
     if (!name || !email || !rating || !comment) {
-      return res.status(400).json({ error: 'All fields are required' });
+      return res.status(400).json({ success: false, error: 'All fields are required' });
     }
 
     if (typeof name !== 'string' || name.length > 100) {
-      return res.status(400).json({ error: 'Invalid name' });
+      return res.status(400).json({ success: false, error: 'Invalid name' });
     }
     if (typeof email !== 'string' || !email.includes('@') || email.length > 254) {
-      return res.status(400).json({ error: 'Invalid email' });
+      return res.status(400).json({ success: false, error: 'Invalid email' });
     }
     if (typeof comment !== 'string' || comment.length > 2000) {
-      return res.status(400).json({ error: 'Comment must be under 2000 characters' });
+      return res.status(400).json({ success: false, error: 'Comment must be under 2000 characters' });
     }
 
     if (rating < 1 || rating > 5) {
-      return res.status(400).json({ error: 'Rating must be between 1 and 5' });
+      return res.status(400).json({ success: false, error: 'Rating must be between 1 and 5' });
     }
 
     // Sanitize comment â€” strip HTML tags to prevent stored XSS
@@ -352,7 +352,7 @@ app.post('/api/reviews/submit', rateLimit(5, 60000), async (req, res) => {
     res.json({ success: true, message: 'Review submitted successfully', review });
   } catch (error) {
     console.error('Review submission error:', error.message);
-    res.status(500).json({ error: 'Failed to submit review. Please try again.' });
+    res.status(500).json({ success: false, error: 'Failed to submit review. Please try again.' });
   }
 });
 
@@ -362,7 +362,7 @@ app.get('/api/reviews', async (req, res) => {
     const reviews = await Review.find().sort({ createdAt: -1 }).limit(50);
     res.json({ success: true, reviews });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -380,7 +380,7 @@ app.get('*', (req, res, next) => {
   // Serve index.html for all other routes
   res.sendFile(path.join(__dirname, 'public', 'index.html'), (err) => {
     if (err) {
-      res.status(404).json({ error: 'Page not found' });
+      res.status(404).json({ success: false, error: 'Page not found' });
     }
   });
 });
@@ -404,10 +404,8 @@ app.use((err, req, res, next) => {
   
   const status = err.status || err.statusCode || 500;
   res.status(status).json({
-    error: {
-      message: err.message || 'Internal server error',
-      status: status
-    }
+    success: false,
+    error: status < 500 ? (err.message || 'Request failed') : 'Internal server error'
   });
 });
 

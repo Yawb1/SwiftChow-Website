@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -562,7 +562,7 @@
     </div>
 
     <!-- CART MODAL PANEL -->
-    <div id="cartModal" class="modal-overlay">
+    <div id="cartModal" class="modal-overlay" role="dialog" aria-label="Shopping Cart">
         <div class="modal-content" style="position: fixed; right: 0; top: 0; width: 100%; max-width: 420px; height: 100vh; border-radius: 0; display: flex; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; box-shadow: -8px 0 30px rgba(0,0,0,0.15);">
             <div style="padding: 1.25rem 1.5rem; border-bottom: 2px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--bg-primary);">
                 <h2 style="margin: 0; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-shopping-bag" style="color: var(--primary);"></i> Your Cart</h2>
@@ -612,7 +612,7 @@
                 <div class="footer-brand">
                     <a href="index.html" class="logo">
                         <div class="logo-icon">
-                            <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;" width="45" height="45">
+                            <img loading="lazy" src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;" width="45" height="45">
                         </div>
                         <span class="logo-text">SWIFT <span>CHOW</span></span>
                     </a>
@@ -695,7 +695,7 @@
             banner.className = 'email-verify-banner';
             banner.style.background = 'linear-gradient(135deg, #D1FAE5, #A7F3D0)';
             banner.style.color = '#065F46';
-            banner.innerHTML = '✅ Your email has been verified! You can now log in.';
+            banner.innerHTML = 'âœ… Your email has been verified! You can now log in.';
             document.body.insertBefore(banner, document.body.firstChild);
             // Clean URL
             window.history.replaceState({}, '', window.location.pathname);
@@ -707,7 +707,7 @@
             
             const banner = document.createElement('div');
             banner.className = 'email-verify-banner';
-            banner.innerHTML = '⚠️ ' + errorText + ' <a href="#" onclick="resendVerification()">Resend verification email</a>';
+            banner.innerHTML = 'âš ï¸ ' + errorText + ' <a href="#" onclick="resendVerification()">Resend verification email</a>';
             document.body.insertBefore(banner, document.body.firstChild);
             window.history.replaceState({}, '', window.location.pathname);
         }

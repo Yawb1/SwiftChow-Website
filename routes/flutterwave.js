@@ -1,4 +1,4 @@
-const express = require('express');
+﻿const express = require('express');
 const Flutterwave = require('flutterwave-node-v3');
 const { requireAuth } = require('../middleware/auth');
 const Order = require('../models/Order');
@@ -24,23 +24,23 @@ function getFlw() {
 router.get('/public-key', (req, res) => {
   const pubKey = process.env.FLW_PUBLIC_KEY;
   if (!pubKey) {
-    return res.status(500).json({ error: 'Payment gateway not configured' });
+    return res.status(500).json({ success: false, error: 'Payment gateway not configured' });
   }
   res.json({ publicKey: pubKey });
 });
 
 // ============================================
-// INITIALIZE PAYMENT — create pending order + return payment data
+// INITIALIZE PAYMENT â€” create pending order + return payment data
 // ============================================
 router.post('/initialize', requireAuth, async (req, res) => {
   try {
     const { items, deliveryAddress, paymentMethod, specialInstructions, deliveryFee: clientDeliveryFee } = req.body;
 
     if (!items || items.length === 0) {
-      return res.status(400).json({ error: 'Cart is empty' });
+      return res.status(400).json({ success: false, error: 'Cart is empty' });
     }
     if (!deliveryAddress) {
-      return res.status(400).json({ error: 'Delivery address is required' });
+      return res.status(400).json({ success: false, error: 'Delivery address is required' });
     }
 
     // Calculate totals server-side (never trust client totals)
@@ -78,7 +78,7 @@ router.post('/initialize', requireAuth, async (req, res) => {
       statusHistory: [{
         status: 'pending',
         timestamp: new Date(),
-        note: 'Order created — awaiting payment'
+        note: 'Order created â€” awaiting payment'
       }]
     });
 
@@ -114,19 +114,19 @@ router.post('/initialize', requireAuth, async (req, res) => {
     });
   } catch (error) {
     console.error('Error initializing payment:', error.message);
-    res.status(500).json({ error: 'Failed to initialize payment' });
+    res.status(500).json({ success: false, error: 'Failed to initialize payment' });
   }
 });
 
 // ============================================
-// VERIFY PAYMENT — server-side verification
+// VERIFY PAYMENT â€” server-side verification
 // ============================================
 router.post('/verify', requireAuth, async (req, res) => {
   try {
     const { transaction_id, orderId } = req.body;
 
     if (!transaction_id || !orderId) {
-      return res.status(400).json({ error: 'Transaction ID and Order ID are required' });
+      return res.status(400).json({ success: false, error: 'Transaction ID and Order ID are required' });
     }
 
     // Find the order
@@ -136,7 +136,7 @@ router.post('/verify', requireAuth, async (req, res) => {
     });
 
     if (!order) {
-      return res.status(404).json({ error: 'Order not found' });
+      return res.status(404).json({ success: false, error: 'Order not found' });
     }
 
     // Prevent double-verification
@@ -154,7 +154,7 @@ router.post('/verify', requireAuth, async (req, res) => {
       response.data.currency === 'GHS' &&
       Math.abs(response.data.amount - order.total) < 1
     ) {
-      // Payment verified — update order
+      // Payment verified â€” update order
       order.paymentStatus = 'completed';
       order.transactionId = String(transaction_id);
       order.status = 'confirmed';
@@ -221,12 +221,12 @@ router.post('/verify', requireAuth, async (req, res) => {
     }
   } catch (error) {
     console.error('Payment verification error:', error.message);
-    res.status(500).json({ error: 'Payment verification failed' });
+    res.status(500).json({ success: false, error: 'Payment verification failed' });
   }
 });
 
 // ============================================
-// WEBHOOK — Flutterwave server-to-server notification
+// WEBHOOK â€” Flutterwave server-to-server notification
 // ============================================
 router.post('/webhook', async (req, res) => {
   try {
@@ -235,7 +235,7 @@ router.post('/webhook', async (req, res) => {
     const signature = req.headers['verif-hash'];
 
     if (!secretHash || signature !== secretHash) {
-      return res.status(401).json({ error: 'Unauthorized webhook' });
+      return res.status(401).json({ success: false, error: 'Unauthorized webhook' });
     }
 
     const payload = req.body;

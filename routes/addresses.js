@@ -17,7 +17,7 @@ router.get('/', requireAuth, async (req, res) => {
       addresses
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -30,7 +30,7 @@ router.post('/', requireAuth, async (req, res) => {
     const { street, city, postalCode, landmark, fullName, phone, label, isDefault, coordinates } = req.body;
     
     if (!street || !fullName || !phone) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
     }
     
     // If setting as default, unset other defaults
@@ -61,7 +61,7 @@ router.post('/', requireAuth, async (req, res) => {
       address
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -79,7 +79,7 @@ router.put('/:id', requireAuth, async (req, res) => {
     });
     
     if (!address) {
-      return res.status(404).json({ error: 'Address not found' });
+      return res.status(404).json({ success: false, error: 'Address not found' });
     }
     
     const { street, city, postalCode, landmark, fullName, phone, label, isDefault, coordinates } = req.body;
@@ -109,7 +109,7 @@ router.put('/:id', requireAuth, async (req, res) => {
       address
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -127,7 +127,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
     });
     
     if (!address) {
-      return res.status(404).json({ error: 'Address not found' });
+      return res.status(404).json({ success: false, error: 'Address not found' });
     }
     
     res.json({
@@ -135,7 +135,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
       message: 'Address deleted successfully'
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -161,7 +161,7 @@ router.put('/:id/default', requireAuth, async (req, res) => {
     );
     
     if (!address) {
-      return res.status(404).json({ error: 'Address not found' });
+      return res.status(404).json({ success: false, error: 'Address not found' });
     }
     
     res.json({
@@ -169,7 +169,7 @@ router.put('/:id/default', requireAuth, async (req, res) => {
       address
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 

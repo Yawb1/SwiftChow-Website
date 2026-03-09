@@ -17,7 +17,7 @@ router.get('/', requireAuth, async (req, res) => {
       methods
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -30,27 +30,27 @@ router.post('/', requireAuth, async (req, res) => {
     const { type, cardNumber, cardHolder, expiryMonth, expiryYear, mobileNumber, provider, label, isDefault } = req.body;
     
     if (!type) {
-      return res.status(400).json({ error: 'Payment type is required' });
+      return res.status(400).json({ success: false, error: 'Payment type is required' });
     }
 
     // Validate card fields
     if (type === 'credit_card' || type === 'debit_card') {
       if (!cardNumber || cardNumber.length < 13 || cardNumber.length > 19) {
-        return res.status(400).json({ error: 'Invalid card number' });
+        return res.status(400).json({ success: false, error: 'Invalid card number' });
       }
       if (expiryMonth < 1 || expiryMonth > 12) {
-        return res.status(400).json({ error: 'Invalid expiry month' });
+        return res.status(400).json({ success: false, error: 'Invalid expiry month' });
       }
       const currentYear = new Date().getFullYear();
       if (!expiryYear || expiryYear < currentYear || expiryYear > currentYear + 20) {
-        return res.status(400).json({ error: 'Invalid expiry year' });
+        return res.status(400).json({ success: false, error: 'Invalid expiry year' });
       }
     }
 
     // Validate mobile money fields
     if (type === 'mobile_money') {
       if (!mobileNumber || !provider) {
-        return res.status(400).json({ error: 'Mobile number and provider are required' });
+        return res.status(400).json({ success: false, error: 'Mobile number and provider are required' });
       }
     }
     
@@ -83,7 +83,7 @@ router.post('/', requireAuth, async (req, res) => {
       method: method.toJSON()
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -102,7 +102,7 @@ router.put('/:id', requireAuth, async (req, res) => {
     });
     
     if (!method) {
-      return res.status(404).json({ error: 'Payment method not found' });
+      return res.status(404).json({ success: false, error: 'Payment method not found' });
     }
     
     if (label) method.label = label;
@@ -123,7 +123,7 @@ router.put('/:id', requireAuth, async (req, res) => {
       method: method.toJSON()
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -141,7 +141,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
     });
     
     if (!method) {
-      return res.status(404).json({ error: 'Payment method not found' });
+      return res.status(404).json({ success: false, error: 'Payment method not found' });
     }
     
     res.json({
@@ -149,7 +149,7 @@ router.delete('/:id', requireAuth, async (req, res) => {
       message: 'Payment method deleted successfully'
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -175,7 +175,7 @@ router.put('/:id/default', requireAuth, async (req, res) => {
     );
     
     if (!method) {
-      return res.status(404).json({ error: 'Payment method not found' });
+      return res.status(404).json({ success: false, error: 'Payment method not found' });
     }
     
     res.json({
@@ -183,7 +183,7 @@ router.put('/:id/default', requireAuth, async (req, res) => {
       method: method.toJSON()
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 

@@ -158,14 +158,18 @@
 | File | Changes |
 |------|---------|
 | `models/PaymentMethod.js` | Removed card/CVV storage, added cardLast4, validation |
-| `routes/payments.js` | Card validation, mobile money validation, stores only last4 |
-| `routes/cart.js` | Quantity limits, item limits, price validation, input sanitization |
-| `routes/orders.js` | Customer status restrictions, safe error responses |
-| `routes/flutterwave.js` | Exact payment amount verification |
-| `routes/addresses.js` | Safe error responses |
-| `routes/users.js` | Safe error responses |
-| `server.js` | Rate limiter, security headers, review hardening, safe errors |
+| `routes/payments.js` | Card validation, mobile money validation, stores only last4, standardized JSON |
+| `routes/cart.js` | Quantity limits, item limits, price validation, input sanitization, standardized JSON |
+| `routes/orders.js` | Customer status restrictions, standardized error/success JSON responses |
+| `routes/flutterwave.js` | Exact payment amount verification, standardized JSON |
+| `routes/addresses.js` | Safe error responses, standardized JSON with `success: false` |
+| `routes/users.js` | Safe error responses, standardized JSON with `success: false` |
+| `server.js` | Rate limiter, security headers, review hardening, safe errors, env validation, global error handler fixed |
 | `public/js/chatbot.js` | Memory leak fix (beforeunload cleanup) |
+| `public/js/main.js` | Carousel memory leak fix (beforeunload cleanup) |
+| `public/tracking.html` | Added lazy loading to below-fold image |
+| `public/account.html` | Added aria-labels to modal close buttons |
+| All 14 pages with cart modal | Added `role="dialog"` and `aria-label` to cart modal overlays |
 | `.gitignore` | Added .qodo/ |
 
 ## Files/Directories Removed

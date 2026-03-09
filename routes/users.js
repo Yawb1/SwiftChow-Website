@@ -20,7 +20,7 @@ router.get('/profile', requireAuth, async (req, res) => {
       user: user.getPublicProfile()
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -32,7 +32,7 @@ router.put('/profile', requireAuth, async (req, res) => {
   try {
     const { firstName, lastName, phone, dob, gender } = req.body;
     const user = await User.findById(req.user._id);
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
 
     if (firstName !== undefined) user.firstName = firstName;
     if (lastName !== undefined) user.lastName = lastName;
@@ -44,7 +44,7 @@ router.put('/profile', requireAuth, async (req, res) => {
 
     res.json({ success: true, user: user.getPublicProfile() });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -57,32 +57,32 @@ router.put('/change-password', requireAuth, async (req, res) => {
     const { currentPassword, newPassword } = req.body;
 
     if (!currentPassword || !newPassword) {
-      return res.status(400).json({ error: 'Current and new password are required' });
+      return res.status(400).json({ success: false, error: 'Current and new password are required' });
     }
 
     if (newPassword.length < 8) {
-      return res.status(400).json({ error: 'New password must be at least 8 characters' });
+      return res.status(400).json({ success: false, error: 'New password must be at least 8 characters' });
     }
     if (!/[a-zA-Z]/.test(newPassword)) {
-      return res.status(400).json({ error: 'Password must contain at least one letter' });
+      return res.status(400).json({ success: false, error: 'Password must contain at least one letter' });
     }
     if (!/[0-9]/.test(newPassword)) {
-      return res.status(400).json({ error: 'Password must contain at least one number' });
+      return res.status(400).json({ success: false, error: 'Password must contain at least one number' });
     }
     if (!/[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?`~]/.test(newPassword)) {
-      return res.status(400).json({ error: 'Password must contain at least one symbol (!@#$%^&* etc.)' });
+      return res.status(400).json({ success: false, error: 'Password must contain at least one symbol (!@#$%^&* etc.)' });
     }
 
     const user = await User.findById(req.user._id).select('+password');
-    if (!user) return res.status(404).json({ error: 'User not found' });
+    if (!user) return res.status(404).json({ success: false, error: 'User not found' });
 
     if (!user.password) {
-      return res.status(400).json({ error: 'Account uses social login. Password cannot be changed here.' });
+      return res.status(400).json({ success: false, error: 'Account uses social login. Password cannot be changed here.' });
     }
 
     const isMatch = await bcrypt.compare(currentPassword, user.password);
     if (!isMatch) {
-      return res.status(401).json({ error: 'Current password is incorrect' });
+      return res.status(401).json({ success: false, error: 'Current password is incorrect' });
     }
 
     user.password = newPassword; // pre-save hook will hash it
@@ -91,7 +91,7 @@ router.put('/change-password', requireAuth, async (req, res) => {
 
     res.json({ success: true, message: 'Password changed successfully' });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -116,7 +116,7 @@ router.put('/preferences', requireAuth, async (req, res) => {
       user: user.getPublicProfile()
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -139,7 +139,7 @@ router.post('/favorites/:itemId', requireAuth, async (req, res) => {
       favoriteItems: user.favoriteItems
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -156,7 +156,7 @@ router.delete('/favorites/:itemId', requireAuth, async (req, res) => {
       favoriteItems: user.favoriteItems
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -178,7 +178,7 @@ router.get('/stats', requireAuth, async (req, res) => {
       }
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 

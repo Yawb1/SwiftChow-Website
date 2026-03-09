@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="en" data-theme="dark">
 <head>
     <meta charset="UTF-8">
@@ -134,7 +134,7 @@
                         <div class="td-header">
                             <div class="td-header-left">
                                 <div class="td-restaurant-logo">
-                                    <img src="logo.png" alt="SWIFT CHOW" width="48" height="48">
+                                    <img loading="lazy" src="logo.png" alt="SWIFT CHOW" width="48" height="48">
                                 </div>
                                 <div>
                                     <h2 class="td-order-id" id="tdOrderId">--</h2>
@@ -266,7 +266,7 @@
         var trackingInterval = null;
         var deliveredNotified = {}; // track which orders we've already marked delivered
 
-        // ── Progress calculation ──────────────────────────────────────────
+        // â”€â”€ Progress calculation â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         // Returns 0..1+ based on elapsed time vs estimated delivery window
         function getOrderProgress(order) {
             var createdAt = new Date(order.createdAt || order.date).getTime();
@@ -334,7 +334,7 @@
             return new Date(date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' });
         }
 
-        // ── Load orders ──────────────────────────────────────────────────
+        // â”€â”€ Load orders â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function waitForApi(cb) {
             if (typeof isAuthenticated === 'function' && typeof apiGetOrders === 'function') {
                 cb();
@@ -372,7 +372,7 @@
             });
         }
 
-        // ── Render orders list ───────────────────────────────────────────
+        // â”€â”€ Render orders list â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function renderOrdersList(searchQuery) {
             var container = document.getElementById('trackingOrdersList');
             var filtered = allOrders.slice();
@@ -444,7 +444,7 @@
             });
         }
 
-        // ── Select order ─────────────────────────────────────────────────
+        // â”€â”€ Select order â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function selectOrder(orderId) {
             selectedOrderId = orderId;
             document.querySelectorAll('.to-card').forEach(function(c) { c.classList.remove('selected'); });
@@ -469,7 +469,7 @@
             displayOrder(order);
         }
 
-        // ── Display order (called once on select, then ticked every second) ──
+        // â”€â”€ Display order (called once on select, then ticked every second) â”€â”€
         function displayOrder(order) {
             document.getElementById('trackingEmptyState').style.display = 'none';
             document.getElementById('trackingDetailContent').style.display = '';
@@ -504,7 +504,7 @@
             }
         }
 
-        // ── Core render function — called every second ───────────────────
+        // â”€â”€ Core render function â€” called every second â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function renderTracking(order) {
             var isCancelled = order.status === 'cancelled';
             var isAlreadyDelivered = order.status === 'delivered';
@@ -585,7 +585,7 @@
             updateTimeline(order, step, progress, status);
         }
 
-        // ── ETA & Countdown ──────────────────────────────────────────────
+        // â”€â”€ ETA & Countdown â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function updateEta(order, progress, status) {
             var etaCard = document.getElementById('tdEtaCard');
             var etaLabel = document.getElementById('tdEtaLabel');
@@ -628,7 +628,7 @@
             }
         }
 
-        // ── Bike position (smooth, based on progress 0-1) ───────────────
+        // â”€â”€ Bike position (smooth, based on progress 0-1) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function updateBikePosition(progress, step) {
             var fill = document.getElementById('tdRoadFill');
             var bike = document.getElementById('tdBike');
@@ -638,7 +638,7 @@
             if (step >= 4) { bike.classList.add('arrived'); } else { bike.classList.remove('arrived'); }
         }
 
-        // ── Timeline ─────────────────────────────────────────────────────
+        // â”€â”€ Timeline â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function updateTimeline(order, currentStep, progress, status) {
             var ts = getStageTimestamps(order, progress);
             for (var s = 1; s <= 4; s++) {
@@ -707,7 +707,7 @@
             return timestamps;
         }
 
-        // ── Order items ──────────────────────────────────────────────────
+        // â”€â”€ Order items â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         function renderOrderItems(order) {
             var items = order.items || [];
             var listEl = document.getElementById('tdItemsList');
@@ -732,7 +732,7 @@
                 '<div class="td-total-row td-grand-total"><span>Total</span><span>GHS ' + parseFloat(order.total || 0).toFixed(2) + '</span></div>';
         }
 
-        // ── Events ───────────────────────────────────────────────────────
+        // â”€â”€ Events â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         document.addEventListener('DOMContentLoaded', function() {
             document.querySelectorAll('.tracking-tab').forEach(function(tab) {
                 tab.addEventListener('click', function() {
@@ -766,7 +766,7 @@
                 <div class="footer-brand">
                     <a href="index.html" class="logo">
                         <div class="logo-icon">
-                            <img src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;" width="45" height="45">
+                            <img loading="lazy" src="logo.png" alt="Swift Chow" style="height: 45px; width: auto;" width="45" height="45">
                         </div>
                         <span class="logo-text">SWIFT <span>CHOW</span></span>
                     </a>
@@ -834,7 +834,7 @@
     <script src="js/chatbot.js" defer></script>
 
     <!-- CART MODAL PANEL -->
-    <div id="cartModal" class="modal-overlay">
+    <div id="cartModal" class="modal-overlay" role="dialog" aria-label="Shopping Cart">
         <div class="modal-content" style="position: fixed; right: 0; top: 0; width: 100%; max-width: 420px; height: 100vh; border-radius: 0; display: flex; flex-direction: column; overflow: hidden; animation: slideInRight 0.3s ease; box-shadow: -8px 0 30px rgba(0,0,0,0.15);">
             <div style="padding: 1.25rem 1.5rem; border-bottom: 2px solid var(--border-color); display: flex; justify-content: space-between; align-items: center; flex-shrink: 0; background: var(--bg-primary);">
                 <h2 style="margin: 0; font-size: 1.2rem; font-weight: 700; display: flex; align-items: center; gap: 0.5rem;"><i class="fas fa-shopping-bag" style="color: var(--primary);"></i> Your Cart</h2>

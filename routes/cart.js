@@ -24,7 +24,7 @@ router.get('/', requireAuth, async (req, res) => {
       total: cartTotal(items)
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -37,7 +37,7 @@ router.post('/add', requireAuth, async (req, res) => {
     const { foodId, name, category, price, image, quantity = 1 } = req.body;
 
     if (!foodId || !price) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
     }
 
     // Validate quantity limits
@@ -45,7 +45,7 @@ router.post('/add', requireAuth, async (req, res) => {
     const itemPrice = Math.max(0, Number(price));
 
     if (isNaN(Number(foodId)) || itemPrice <= 0) {
-      return res.status(400).json({ error: 'Invalid item data' });
+      return res.status(400).json({ success: false, error: 'Invalid item data' });
     }
 
     let doc = await Cart.findOne({ userId: req.user._id });
@@ -56,7 +56,7 @@ router.post('/add', requireAuth, async (req, res) => {
 
     // Limit total items in cart to prevent abuse
     if (doc.items.length >= 50) {
-      return res.status(400).json({ error: 'Cart item limit reached (50 items max)' });
+      return res.status(400).json({ success: false, error: 'Cart item limit reached (50 items max)' });
     }
 
     const existing = doc.items.find(i => i.foodId === Number(foodId));
@@ -75,7 +75,7 @@ router.post('/add', requireAuth, async (req, res) => {
       total: cartTotal(doc.items)
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -88,12 +88,12 @@ router.put('/update', requireAuth, async (req, res) => {
     const { foodId, quantity } = req.body;
 
     if (!foodId || quantity == null) {
-      return res.status(400).json({ error: 'Missing required fields' });
+      return res.status(400).json({ success: false, error: 'Missing required fields' });
     }
 
     const doc = await Cart.findOne({ userId: req.user._id });
     if (!doc) {
-      return res.status(404).json({ error: 'Cart not found' });
+      return res.status(404).json({ success: false, error: 'Cart not found' });
     }
 
     if (quantity <= 0) {
@@ -101,7 +101,7 @@ router.put('/update', requireAuth, async (req, res) => {
     } else {
       const item = doc.items.find(i => i.foodId === Number(foodId));
       if (!item) {
-        return res.status(404).json({ error: 'Item not found in cart' });
+        return res.status(404).json({ success: false, error: 'Item not found in cart' });
       }
       item.quantity = Number(quantity);
     }
@@ -114,7 +114,7 @@ router.put('/update', requireAuth, async (req, res) => {
       total: cartTotal(doc.items)
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -140,7 +140,7 @@ router.delete('/remove/:foodId', requireAuth, async (req, res) => {
       total: cartTotal(doc.items)
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 
@@ -158,7 +158,7 @@ router.delete('/clear', requireAuth, async (req, res) => {
       total: 0
     });
   } catch (error) {
-    res.status(500).json({ error: 'An error occurred. Please try again.' });
+    res.status(500).json({ success: false, error: 'An error occurred. Please try again.' });
   }
 });
 

@@ -341,6 +341,9 @@ function stopCarouselAutoPlay() {
   }
 }
 
+// Clean up carousel interval on page unload to prevent memory leaks
+window.addEventListener('beforeunload', stopCarouselAutoPlay);
+
 function handleTouchStart(e) {
   touchStartX = e.changedTouches[0].screenX;
 }
