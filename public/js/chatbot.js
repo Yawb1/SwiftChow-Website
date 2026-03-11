@@ -15,7 +15,10 @@
     greeted: false,
     messageCount: 0,
     orderPollTimer: null,
+    activeTrackTimer: null,  // 15-second polling for actively tracked order
     lastKnownStatuses: {},   // orderId → status, for change detection
+    lastTopic: null,         // session memory: last conversation topic
+    allOrders: [],           // cached orders for the session
   };
 
   // ─── Helpers ────────────────────────────────────────────
@@ -223,13 +226,80 @@
       `💰 Total: GH₵${Number(o.total).toFixed(2)}<br>` +
       `📍 Status: ${statusLabel(o.status)}<br>` +
       (o.status !== 'delivered' && o.status !== 'cancelled' ? `⏱️ ETA: ${eta}<br>` : '') +
-      (o.deliveredAt ? `✅ Delivered at ${formatTime(o.deliveredAt)}` : '');
+      (o.deliveredAt ? `✅ Delivered at ${formatTime(o.deliveredAt)}<br>` : '') +
+      `<br>${statusProgress(o.status)}`;
   }
 
   function orderListBrief(orders) {
     return orders.slice(0, 5).map((o, i) => {
       return `<b>${i + 1}.</b> #${esc(o.orderId)} — ${statusLabel(o.status)} (${formatDate(o.createdAt)})`;
     }).join('<br>');
+  }
+
+  // ─── Status progress bar ────────────────────────────────
+  const statusSteps = ['confirmed', 'preparing', 'ready', 'out_for_delivery', 'delivered'];
+
+  function statusProgress(status) {
+    if (status === 'cancelled') return '❌ This order was cancelled.';
+    if (status === 'pending') return '🕐 Waiting for confirmation...';
+    const idx = statusSteps.indexOf(status);
+    if (idx < 0) return '';
+    return statusSteps.map((s, i) => {
+      const icon = i <= idx ? '🟢' : '⚪';
+      const lbl = statusLabels[s] ? statusLabels[s].replace(/^\S+\s*/, '') : s;
+      return `${icon} ${lbl}`;
+    }).join(' → ');
+  }
+
+  // ─── Filtered order helpers ─────────────────────────────
+  function filterOrders(orders, filter) {
+    switch (filter) {
+      case 'delivered': return orders.filter(o => o.status === 'delivered');
+      case 'pending': return orders.filter(o => ['pending', 'confirmed'].includes(o.status));
+      case 'in_progress': return orders.filter(o => ['preparing', 'ready', 'out_for_delivery'].includes(o.status));
+      case 'cancelled': return orders.filter(o => o.status === 'cancelled');
+      case 'active': return orders.filter(o => !['delivered', 'cancelled'].includes(o.status));
+      default: return orders;
+    }
+  }
+
+  function orderCountSummary(orders) {
+    const delivered = orders.filter(o => o.status === 'delivered').length;
+    const active = orders.filter(o => !['delivered', 'cancelled'].includes(o.status)).length;
+    const cancelled = orders.filter(o => o.status === 'cancelled').length;
+    const parts = [];
+    if (delivered) parts.push(`<b>${delivered}</b> delivered`);
+    if (active) parts.push(`<b>${active}</b> in progress`);
+    if (cancelled) parts.push(`<b>${cancelled}</b> cancelled`);
+    return parts.join(', ');
+  }
+
+  // ─── Active tracking (15-second poll for specific order) ──
+  function startActiveTracking(orderId) {
+    stopActiveTracking();
+    if (!orderId) return;
+    ctx.activeTrackTimer = setInterval(async () => {
+      try {
+        const order = await fetchOrder(orderId);
+        if (!order) { stopActiveTracking(); return; }
+        const prev = ctx.lastKnownStatuses[order.orderId];
+        ctx.lastKnownStatuses[order.orderId] = order.status;
+        ctx.lastOrderData = order;
+        if (prev && prev !== order.status) {
+          notifyStatusChange(order, prev);
+          if (order.status === 'delivered' || order.status === 'cancelled') {
+            stopActiveTracking();
+          }
+        }
+      } catch { /* silent */ }
+    }, 15000);
+  }
+
+  function stopActiveTracking() {
+    if (ctx.activeTrackTimer) {
+      clearInterval(ctx.activeTrackTimer);
+      ctx.activeTrackTimer = null;
+    }
   }
 
   // ─── Background order polling ───────────────────────────
@@ -398,6 +468,56 @@
       return;
     }
 
+    // --- Who made you / who built you ---
+    if (match(text, [/who made you/, /who built you/, /who created you/, /who developed you/, /who designed you/, /your creator/, /your developer/])) {
+      const replies = [
+        "I was built right inside <b>SwiftChow</b> to help customers with orders and questions! 🛠️ The team put a lot of love into making me useful.",
+        "The brilliant SwiftChow engineering team created me! 🤖 I'm 100% homegrown — no external AI APIs needed.",
+        "I was crafted by the SwiftChow developers to be your personal food ordering assistant! 👨‍💻🍔",
+      ];
+      botSay(pick(replies));
+      return;
+    }
+
+    // --- What can you eat / do you eat ---
+    if (match(text, [/do you eat/, /what do you eat/, /are you hungry/, /you eat food/])) {
+      const replies = [
+        "I don't eat, but I live and breathe food orders! 🍕 I can help YOU get something delicious though!",
+        "I run on code and good vibes! 🤖 But if I could eat, I'd definitely go for our Chicken Burger. Want to order one?",
+        "I wish I could taste food! 😄 For now, I'll settle for helping you find the perfect meal.",
+      ];
+      botSay(pick(replies));
+      return;
+    }
+
+    // --- How old are you ---
+    if (match(text, [/how old are you/, /your age/, /when were you born/, /your birthday/])) {
+      botSay("I'm as fresh as today's menu! 🎂 Age is just a number — what matters is I'm here to help you 24/7!");
+      return;
+    }
+
+    // --- Are you real / human ---
+    if (match(text, [/are you real/, /are you human/, /are you a robot/, /are you a bot/, /are you ai/, /are you artificial/])) {
+      const replies = [
+        "I'm a chatbot — but a very friendly one! 🤖 I may not be human, but I know food! 🍔",
+        "I'm 100% bot, 100% helpful! Think of me as your digital waiter. 😄",
+        "Not human, but I've got great taste in food recommendations! 🍕 How can I help?",
+      ];
+      botSay(pick(replies));
+      return;
+    }
+
+    // --- Bored ---
+    if (match(text, [/im bored/, /i am bored/, /nothing to do/, /entertain me/])) {
+      const replies = [
+        `Bored? Let me fix that! 🎉 ${pick(funFacts)}`,
+        `Nothing a good meal can't fix! 🍔 Check out our <a href="/menu.html" style="color:var(--primary);font-weight:600;">menu</a> for inspiration!`,
+        `Here's something fun: ${pick(jokes)}`,
+      ];
+      botSay(pick(replies));
+      return;
+    }
+
     // --- Delivery hours ---
     if (match(text, [/delivery hour/, /opening hour/, /what time.*open/, /what time.*close/, /when.*open/, /when.*close/, /business hour/, /operating hour/, /working hour/])) {
       botSay("🕐 Our delivery hours are <b>8:00 AM – 10:00 PM</b> daily.<br><br>Orders placed after 10 PM will be delivered the next morning. Early bird? We start taking orders from 8 AM! 🌅");
@@ -452,8 +572,22 @@
       return;
     }
 
+    // --- Follow-up: "when will it arrive" / "how long" referencing last order ---
+    if (ctx.lastTopic === 'order' && ctx.lastOrderData && match(text, [/when.*arrive/, /how long.*left/, /will it arrive/, /is it coming/, /still coming/, /where is it now/, /any update/])) {
+      const o = ctx.lastOrderData;
+      if (o.status === 'delivered') {
+        botSay(`Your order <b>#${esc(o.orderId)}</b> was already delivered at ${formatTime(o.deliveredAt)}! 🎉 Enjoy!`);
+      } else if (o.status === 'cancelled') {
+        botSay(`Order <b>#${esc(o.orderId)}</b> was cancelled. Need to place a new one?`);
+      } else {
+        const eta = o.estimatedDeliveryAt ? relativeTime(o.estimatedDeliveryAt) : (o.estimatedDeliveryTime ? `~${o.estimatedDeliveryTime} min` : 'soon');
+        botSay(`Order <b>#${esc(o.orderId)}</b> is currently ${statusLabel(o.status)}.<br>⏱️ Estimated arrival: <b>${eta}</b>.<br><br>${statusProgress(o.status)}`);
+      }
+      return;
+    }
+
     // --- Track / order status ---
-    if (match(text, [/track/, /order status/, /my order/, /where.*order/, /my delivery/, /order update/, /delivery status/, /wheres my food/, /where is my food/])) {
+    if (match(text, [/track/, /order status/, /my order/, /where.*order/, /my delivery/, /order update/, /delivery status/, /wheres my food/, /where is my food/, /show.*last order/, /latest order/, /recent order/])) {
       if (typeof isAuthenticated !== 'function' || !isAuthenticated()) {
         botSay("🔐 You need to be logged in to track your orders.<br><br>👉 <a href='/login.html' style='color:var(--primary);font-weight:600;'>Login here</a> and come back to check your order status!");
         return;
@@ -467,8 +601,13 @@
       }
       ctx.selectedOrderId = order.orderId;
       ctx.lastOrderData = order;
+      ctx.lastTopic = 'order';
       ctx.lastKnownStatuses[order.orderId] = order.status;
       botSay(`Here's your latest order:<br><br>${orderSummary(order)}`);
+      // Start 15-second active tracking for this order
+      if (order.status !== 'delivered' && order.status !== 'cancelled') {
+        startActiveTracking(order.orderId);
+      }
       setQuickActions([
         { label: 'All Orders', icon: 'fas fa-list', value: 'my orders' },
         { label: 'Refresh', icon: 'fas fa-sync', value: 'refresh order' },
@@ -477,8 +616,8 @@
       return;
     }
 
-    // --- My orders list ---
-    if (match(text, [/my orders/, /order history/, /all orders/, /past orders/, /previous orders/])) {
+    // --- Show delivered orders ---
+    if (match(text, [/delivered order/, /completed order/, /which.*delivered/, /orders.*delivered/, /show delivered/])) {
       if (typeof isAuthenticated !== 'function' || !isAuthenticated()) {
         botSay("🔐 Please <a href='/login.html' style='color:var(--primary);font-weight:600;'>log in</a> to view your orders.");
         return;
@@ -486,13 +625,62 @@
       showTyping();
       const orders = await fetchOrders();
       hideTyping();
+      ctx.allOrders = orders;
+      ctx.lastTopic = 'order';
+      const delivered = filterOrders(orders, 'delivered');
+      if (!delivered.length) {
+        botSay("You don't have any delivered orders yet. Your current orders are still on the way! 🚴");
+      } else {
+        botSay(`🎉 You have <b>${delivered.length}</b> delivered order(s):<br><br>${orderListBrief(delivered)}`);
+      }
+      return;
+    }
+
+    // --- Show pending / active orders ---
+    if (match(text, [/pending order/, /active order/, /in progress order/, /current order/, /orders.*pending/, /show pending/, /orders in progress/])) {
+      if (typeof isAuthenticated !== 'function' || !isAuthenticated()) {
+        botSay("🔐 Please <a href='/login.html' style='color:var(--primary);font-weight:600;'>log in</a> to view your orders.");
+        return;
+      }
+      showTyping();
+      const orders = await fetchOrders();
+      hideTyping();
+      ctx.allOrders = orders;
+      ctx.lastTopic = 'order';
+      const active = filterOrders(orders, 'active');
+      if (!active.length) {
+        botSay("You don't have any active orders right now. 🎉 All done!<br><br>Ready to place a new one? 👉 <a href='/menu.html' style='color:var(--primary);font-weight:600;'>Browse menu</a>");
+      } else {
+        botSay(`📦 You have <b>${active.length}</b> active order(s):<br><br>${orderListBrief(active)}`);
+        const btns = active.slice(0, 4).map(o => ({ label: `#${o.orderId}`, value: `order ${o.orderId}` }));
+        setQuickActions(btns);
+      }
+      return;
+    }
+
+    // --- My orders list ---
+    if (match(text, [/my orders/, /order history/, /all orders/, /past orders/, /previous orders/, /show.*orders/, /list.*orders/])) {
+      if (typeof isAuthenticated !== 'function' || !isAuthenticated()) {
+        botSay("🔐 Please <a href='/login.html' style='color:var(--primary);font-weight:600;'>log in</a> to view your orders.");
+        return;
+      }
+      showTyping();
+      const orders = await fetchOrders();
+      hideTyping();
+      ctx.allOrders = orders;
+      ctx.lastTopic = 'order';
       if (!orders.length) {
         botSay("You haven't placed any orders yet! 🍔<br><br>👉 <a href='/menu.html' style='color:var(--primary);font-weight:600;'>Start ordering now!</a>");
         return;
       }
-      botSay(`📦 You have <b>${orders.length}</b> order(s):<br><br>${orderListBrief(orders)}<br><br>Type an order number (e.g. <b>#${esc(orders[0].orderId)}</b>) to see details.`);
-      // Build quick actions for first few orders
-      const btns = orders.slice(0, 4).map(o => ({ label: `#${o.orderId}`, value: `order ${o.orderId}` }));
+      const summary = orderCountSummary(orders);
+      botSay(`📦 You have <b>${orders.length}</b> order(s) — ${summary}.<br><br>${orderListBrief(orders)}<br><br>Type an order number (e.g. <b>#${esc(orders[0].orderId)}</b>) to see details.`);
+      // Build quick actions for first few orders + filters
+      const btns = [
+        { label: 'Delivered', icon: 'fas fa-check-circle', value: 'show delivered orders' },
+        { label: 'Active', icon: 'fas fa-spinner', value: 'show active orders' },
+      ];
+      orders.slice(0, 2).forEach(o => btns.push({ label: `#${o.orderId}`, value: `order ${o.orderId}` }));
       setQuickActions(btns);
       // Seed known statuses
       orders.forEach(o => { ctx.lastKnownStatuses[o.orderId] = o.status; });
@@ -516,8 +704,12 @@
       }
       ctx.selectedOrderId = order.orderId;
       ctx.lastOrderData = order;
+      ctx.lastTopic = 'order';
       ctx.lastKnownStatuses[order.orderId] = order.status;
       botSay(orderSummary(order));
+      if (order.status !== 'delivered' && order.status !== 'cancelled') {
+        startActiveTracking(order.orderId);
+      }
       setQuickActions([
         { label: 'Refresh', icon: 'fas fa-sync', value: 'refresh order' },
         { label: 'All Orders', icon: 'fas fa-list', value: 'my orders' },
@@ -540,6 +732,7 @@
         return;
       }
       ctx.lastOrderData = order;
+      ctx.lastTopic = 'order';
       const prevStatus = ctx.lastKnownStatuses[order.orderId];
       ctx.lastKnownStatuses[order.orderId] = order.status;
       let extra = '';
@@ -647,14 +840,14 @@
     // --- Help ---
     if (match(text, [/help/, /what can you do/, /commands/, /features/, /options/])) {
       botSay("Here's what I can help with:<br><br>" +
-        "📦 <b>Order Tracking</b> — \"track my order\", \"my orders\"<br>" +
+        "📦 <b>Order Tracking</b> — \"track my order\", \"show my orders\", \"delivered orders\"<br>" +
         "🍽️ <b>Menu & Recommendations</b> — \"show menu\", \"recommend burgers\"<br>" +
         "🕐 <b>Delivery Info</b> — \"delivery hours\", \"delivery time\"<br>" +
         "📞 <b>Contact</b> — \"contact info\", \"support\"<br>" +
         "💳 <b>Payment</b> — \"payment methods\"<br>" +
         "🎉 <b>Deals</b> — \"promotions\", \"deals\"<br>" +
         "🕐 <b>Time & Date</b> — \"what time is it?\", \"what day?\"<br>" +
-        "😄 <b>Fun</b> — \"tell me a joke\", \"how are you?\"<br><br>" +
+        "😄 <b>Fun</b> — \"tell me a joke\", \"who made you?\"<br><br>" +
         "Just type naturally — I understand lots of variations! 🤖");
       defaultQuickActions();
       return;
@@ -766,6 +959,7 @@
     // Cleanup polling on page unload to prevent memory leaks
     window.addEventListener('beforeunload', () => {
       if (ctx.orderPollTimer) clearInterval(ctx.orderPollTimer);
+      stopActiveTracking();
     });
 
     // If user is authenticated, seed known statuses in background
