@@ -663,9 +663,8 @@
                     displayOrderDetails(backup);
                     return;
                 } else {
-                    console.error('No order found in either storage. OrderID from URL:', orderId);
-                    console.log('sessionStorage contents:', sessionStorage);
-                    console.log('localStorage lastOrder:', localStorage.getItem('lastOrder'));
+                    console.error('No order found in either storage');
+                    // Debug info removed for production
                 }
                 return;
             }
@@ -675,10 +674,10 @@
         }
         
         function displayOrderDetails(order) {
-            console.log('displayOrderDetails called with order:', order);
+            console.log('displayOrderDetails called');
             
             if (!order || !order.id) {
-                console.error('Invalid order object:', order);
+                console.error('Invalid order object');
                 return;
             }
             

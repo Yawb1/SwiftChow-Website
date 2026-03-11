@@ -3064,7 +3064,7 @@ function initModals() {
           showAdvancedToast(result.message || 'Login failed', 'error');
         }
       } else {
-        console.error('Login form: Missing email or password', { email, password });
+        console.error('Login form: Missing email or password');
         showAdvancedToast('Please enter email and password', 'error');
       }
     });
@@ -3083,7 +3083,7 @@ function initModals() {
       const terms = signupForm.querySelector('input[name="terms"]')?.checked;
       const submitBtn = signupForm.querySelector('button[type="submit"]');
       if (!fullName || !email || !phone || !password || !confirmPassword || !terms) {
-        console.error('Signup validation failed. Missing:', { fullName: !fullName, email: !email, phone: !phone, password: !password, confirmPassword: !confirmPassword, terms: !terms });
+        console.error('Signup validation failed: missing required fields');
         showAdvancedToast('Please fill in all fields and accept terms', 'error');
         return;
       }

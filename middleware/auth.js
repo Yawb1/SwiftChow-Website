@@ -15,7 +15,7 @@ const requireAuth = async (req, res, next) => {
     }
     
     if (!token) {
-      return res.status(401).json({ error: 'No authentication token provided' });
+      return res.status(401).json({ success: false, error: 'No authentication token provided' });
     }
     
     // Verify token
@@ -27,16 +27,16 @@ const requireAuth = async (req, res, next) => {
     // Get user from database
     const user = await User.findById(decoded.userId);
     if (!user) {
-      return res.status(401).json({ error: 'User not found' });
+      return res.status(401).json({ success: false, error: 'User not found' });
     }
     
     req.user = user;
     next();
   } catch (error) {
     if (error.name === 'TokenExpiredError') {
-      return res.status(401).json({ error: 'Token expired' });
+      return res.status(401).json({ success: false, error: 'Token expired' });
     }
-    res.status(401).json({ error: 'Invalid or expired token' });
+    res.status(401).json({ success: false, error: 'Invalid or expired token' });
   }
 };
 

@@ -886,7 +886,7 @@
 
     // Try to get user name
     try {
-      const stored = localStorage.getItem('currentUser');
+      const stored = localStorage.getItem('swiftChowUser');
       if (stored) {
         const user = JSON.parse(stored);
         ctx.userName = user.firstName || user.fullName || null;

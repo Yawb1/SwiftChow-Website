@@ -491,7 +491,7 @@
     // Account Page Functionality
     document.addEventListener('DOMContentLoaded', () => {
         // Load user data from localStorage
-        const user = JSON.parse(localStorage.getItem('currentUser')) || {};
+        const user = JSON.parse(localStorage.getItem('swiftChowUser')) || {};
         
         // Update sidebar user info
         const userNameEl = document.querySelector('.user-name');
@@ -537,7 +537,7 @@
             const paymentsContainer = document.getElementById('paymentsContainer');
             if (!paymentsContainer) return;
             
-            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
             const payments = user.paymentMethods || [];
             
             if (payments.length === 0) {
@@ -550,7 +550,7 @@
                             <div>
                                 <div style="font-weight: 600; color: var(--text-primary);">${payment.type === 'momo' ? 'Mobile Money' : payment.type === 'bank' ? 'Bank Transfer' : 'Credit Card'}</div>
                                 <div style="color: var(--text-secondary); font-size: 0.9rem;">
-                                    ${payment.type === 'momo' ? payment.network : payment.type === 'bank' ? 'Account ending in' : 'Card ending in'} ${payment.lastFour}
+                                    ${payment.type === 'momo' ? escapeHTML(payment.network || '') : payment.type === 'bank' ? 'Account ending in' : 'Card ending in'} ${escapeHTML(payment.lastFour || '')}
                                 </div>
                                 <div style="color: var(--text-muted); font-size: 0.85rem;">Added on ${new Date(payment.addedAt).toLocaleDateString()}</div>
                             </div>
@@ -565,10 +565,10 @@
         window.removePaymentMethod = function(index) {
             if (!confirm('Are you sure you want to remove this payment method?')) return;
             
-            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
             if (user.paymentMethods && user.paymentMethods[index]) {
                 user.paymentMethods.splice(index, 1);
-                localStorage.setItem('currentUser', JSON.stringify(user));
+                localStorage.setItem('swiftChowUser', JSON.stringify(user));
                 displayPayments();
                 showAdvancedToast('Payment method removed', 'info');
             }
@@ -714,7 +714,7 @@
             return;
         }
         
-        form.addEventListener('submit', (e) => {
+        form.addEventListener('submit', async (e) => {
             e.preventDefault();
             const currentPassword = document.getElementById('currentPassword').value;
             const newPassword = document.getElementById('newPassword').value;
@@ -736,7 +736,7 @@
             }
             
             // Get current user
-            const user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            const user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
             
             // Disable submit button
             const submitBtn = form.querySelector('button[type="submit"]');
@@ -869,10 +869,10 @@
             };
             
             // Save to localStorage using currentUser
-            let user = JSON.parse(localStorage.getItem('currentUser') || '{}');
+            let user = JSON.parse(localStorage.getItem('swiftChowUser') || '{}');
             if (!user.paymentMethods) user.paymentMethods = [];
             user.paymentMethods.push(formData);
-            localStorage.setItem('currentUser', JSON.stringify(user));
+            localStorage.setItem('swiftChowUser', JSON.stringify(user));
             
             showAdvancedToast('Payment method added successfully!', 'success');
             document.getElementById('addPaymentModal').remove();
@@ -1033,7 +1033,7 @@
                 return;
             }
             
-            console.log('Profile: Loading user data:', user.email);
+            console.log('Profile: Loading user data');
             
             // Get form inputs by name attribute
             const form = document.getElementById('profileForm');
@@ -1086,7 +1086,7 @@
                     const dob = profileForm.querySelector('input[name="dob"]').value;
                     const gender = profileForm.querySelector('select[name="gender"]').value;
                     
-                    console.log('Profile: Saving changes...', { firstName, lastName, phone, dob, gender });
+                    console.log('Profile: Saving changes...');
                     
                     try {
                         const response = await apiCall('/users/profile', {

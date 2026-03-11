@@ -72,12 +72,12 @@ async function login(email, password, remember = false) {
 // Register new user
 async function register(fullName = '', email = '', phone = '', password = '', confirmPassword = '') {
   if (!email || !validateEmail(email)) {
-    console.error('register: Invalid email:', email);
+    console.error('register: Invalid email');
     return { success: false, message: 'Please enter a valid email address' };
   }
   
   if (!password || password.length < 8) {
-    console.error('register: Invalid password length:', password?.length);
+    console.error('register: Invalid password length');
     return { success: false, message: 'Password must be at least 8 characters' };
   }
   if (!/[a-zA-Z]/.test(password)) {

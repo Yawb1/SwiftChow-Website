@@ -73,7 +73,7 @@ async function sendEmail({ to, subject, html, text }) {
     const [response] = await sgMail.send(message);
     const messageId = response.headers['x-message-id'] || null;
 
-    console.log(`[sendEmail] ✔ Sent "${subject}" to ${to}${messageId ? ` (id: ${messageId})` : ''}`);
+    console.log(`[sendEmail] ✔ Sent "${subject}"${messageId ? ` (id: ${messageId})` : ''}`);
     return { success: true, messageId };
 
   } catch (err) {

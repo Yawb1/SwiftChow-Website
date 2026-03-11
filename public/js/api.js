@@ -56,6 +56,7 @@ function setAuthToken(token) {
 // Clear authentication
 function clearAuth() {
   localStorage.removeItem('authToken');
+  localStorage.removeItem('swiftChowUser');
   localStorage.removeItem('currentUser');
 }
 
