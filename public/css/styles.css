@@ -4097,8 +4097,8 @@ select {
     
     .products-grid,
     .popular-items-grid {
-        grid-template-columns: repeat(2, 1fr) !important;
-        gap: 0.75rem !important;
+        grid-template-columns: repeat(2, 1fr);
+        gap: 0.75rem;
     }
     
     .btn-lg {

@@ -803,10 +803,10 @@
                 const urlParams = new URLSearchParams(window.location.search);
                 const orderId = urlParams.get('order');
                 if (orderId) {
-                    console.log('Ã¢Å“â€¦ Redirecting to tracking page with orderId:', orderId);
+                    console.log('Redirecting to tracking page with orderId:', orderId);
                     window.location.href = `tracking.html?order=${orderId}`;
                 } else {
-                    console.error('Ã¢ÂÅ’ No order ID found to track');
+                    console.error('No order ID found to track');
                     showToast('Order ID not found', 'error');
                 }
             });
